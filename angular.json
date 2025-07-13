@@ -49,7 +49,24 @@
             "development": {
               "optimization": false,
               "extractLicenses": false,
-              "sourceMap": true
+              "sourceMap": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.development.ts"
+                }
+              ]
+            },
+            "staging": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.staging.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
@@ -62,6 +79,9 @@
             },
             "development": {
               "buildTarget": "b2pix-ui-claude:build:development"
+            },
+            "staging": {
+              "buildTarget": "b2pix-ui-claude:build:staging"
             }
           },
           "defaultConfiguration": "development"
