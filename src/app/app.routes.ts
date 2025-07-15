@@ -30,6 +30,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/pix-account/pix-account.component').then(m => m.PixAccountComponent)
   },
   {
+    path: 'invite-validation',
+    loadComponent: () => import('./pages/invite-validation/invite-validation.component').then(m => m.InviteValidationComponent)
+  },
+  {
     path: '**',
     redirectTo: ''
   }

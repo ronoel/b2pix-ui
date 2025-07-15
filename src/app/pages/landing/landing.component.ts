@@ -1,7 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { UserService } from '../../services/user.service';
+import { WalletService } from '../../libs/wallet.service';
 
 @Component({
   selector: 'app-landing',
@@ -76,7 +77,7 @@ import { UserService } from '../../services/user.service';
                   <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2"/>
                   <path d="M12 7V12L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-                Conectar Wallet
+                {{ walletConnected ? 'Entrar' : 'Conectar Wallet' }}
               </button>
               <p class="cta-note">Acesso exclusivo por convite</p>
             </div>
@@ -412,24 +413,44 @@ import { UserService } from '../../services/user.service';
 export class LandingComponent {
   private router = inject(Router);
   private userService = inject(UserService);
+  private walletService = inject(WalletService);
 
-  connectWallet() {
-    // Simular conexão da wallet
-    this.userService.connectWallet('bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh').subscribe({
-      next: (user) => {
-        if (user) {
-          // Wallet conectada com sucesso, redirecionar para dashboard
-          this.router.navigate(['/dashboard']);
-        } else {
-          // Usuário não encontrado, redirecionar para request-invite
-          this.router.navigate(['/request-invite']);
-        }
-      },
-      error: (error) => {
-        console.error('Erro ao conectar wallet:', error);
-        // Em caso de erro, redirecionar para request-invite
-        this.router.navigate(['/request-invite']);
+  // Wallet state
+  walletConnected = false;
+
+  constructor() {
+    // Monitor wallet connection state
+    effect(() => {
+      if (this.walletService.isLoggedIn()) {
+        this.walletConnected = true;
+        this.router.navigate(['/invite-validation']);
+      } else {
+        this.walletConnected = false;
       }
     });
+  }
+
+  connectWallet() {
+    if (!this.walletConnected) {
+      this.walletService.signIn();
+    }
+
+    // // Simular conexão da wallet
+    // this.userService.connectWallet('bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh').subscribe({
+    //   next: (user) => {
+    //     if (user) {
+    //       // Wallet conectada com sucesso, redirecionar para dashboard
+    //       this.router.navigate(['/dashboard']);
+    //     } else {
+    //       // Usuário não encontrado, redirecionar para request-invite
+    //       this.router.navigate(['/request-invite']);
+    //     }
+    //   },
+    //   error: (error) => {
+    //     console.error('Erro ao conectar wallet:', error);
+    //     // Em caso de erro, redirecionar para request-invite
+    //     this.router.navigate(['/request-invite']);
+    //   }
+    // });
   }
 }
