@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { computed, Signal, WritableSignal, signal, Injectable } from '@angular/core';
 import { AppConfig, openSignatureRequestPopup, UserData, UserSession } from '@stacks/connect';
 import { showConnect } from '@stacks/connect';
 import { environment } from '../../environments/environment';
@@ -17,9 +17,15 @@ const myAppIcon = 'https://storage.googleapis.com/bitfund/boltproto-icon.png'; /
 export class WalletService {
 
   private readonly userSession = new UserSession({ appConfig });
+  readonly isLoggedInSignal = signal(false);
+  readonly userDataSignal: WritableSignal<UserData | null> = signal<UserData | null>(null);
+  readonly network = environment.network;
 
-  private readonly isLoggedInSignal = signal(false);
-  private readonly network = environment.network;
+  readonly walletAddressSignal: Signal<string | null> = computed(() => {
+    const userData = this.userDataSignal();
+    if (!userData) return null;
+    return userData.identityAddress || null;
+  });
 
   constructor() {
     this.checkAuth();
@@ -32,8 +38,10 @@ export class WalletService {
   private checkAuth() {
     if (this.userSession.isUserSignedIn()) {
       this.isLoggedInSignal.set(true);
+      this.userDataSignal.set(this.userSession.loadUserData());
     } else {
       this.isLoggedInSignal.set(false);
+      this.userDataSignal.set(null);
     }
   }
 
@@ -54,6 +62,7 @@ export class WalletService {
       redirectTo: '/',
       onFinish: () => {
         this.isLoggedInSignal.set(true);
+        this.userDataSignal.set(this.userSession.loadUserData());
       },
       onCancel: () => {
         console.log('User cancelled'); // WHEN user cancels/closes pop-up
@@ -71,6 +80,7 @@ export class WalletService {
     }
     this.userSession.signUserOut();
     this.isLoggedInSignal.set(false);
+    this.userDataSignal.set(null);
   }
 
   /**
@@ -85,8 +95,8 @@ export class WalletService {
    * Retrieves the user data of the currently signed-in user.
    * @returns The user data.
    */
-  public getUserData(): UserData {
-    return this.userSession.loadUserData();
+  public getUserData(): UserData | null {
+    return this.userDataSignal();
   }
 
   /**
@@ -94,7 +104,7 @@ export class WalletService {
    * @returns The identity address.
    */
   public getIdentityAddress() {
-    return this.getUserData().identityAddress;
+    return this.userDataSignal()?.identityAddress || null;
   }
 
   /**
@@ -102,9 +112,11 @@ export class WalletService {
    * @returns The STX address.
    */
   public getSTXAddress() {
+    const userData = this.userDataSignal();
+    if (!userData) return null;
     return environment.network === 'mainnet'
-      ? this.getUserData().profile.stxAddress.mainnet
-      : this.getUserData().profile.stxAddress.testnet;
+      ? userData.profile.stxAddress.mainnet
+      : userData.profile.stxAddress.testnet;
   }
 
   public getNetwork() {
