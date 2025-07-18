@@ -1,9 +1,8 @@
-import { Component, inject, signal, ChangeDetectorRef } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { B2pixService } from '../../libs/b2pix.service';
-import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-invite-validation',
@@ -27,16 +26,16 @@ import { finalize } from 'rxjs/operators';
               <input id="username" name="username" type="text" class="form-input" [(ngModel)]="username" required autocomplete="off" />
             </div>
             <div class="form-actions">
-              <button type="submit" class="btn btn-primary" [disabled]="loading || !inviteCode || !username">
-                @if (loading) {
+              <button type="submit" class="btn btn-primary" [disabled]="loading() || !inviteCode || !username">
+                @if (loading()) {
                   <span class="btn-loading"></span>
                 } @else {
                   <span>Validar Convite</span>
                 }
               </button>
             </div>
-            @if (error) {
-              <div class="form-error">{{ error }}</div>
+            @if (error()) {
+              <div class="form-error">{{ error() }}</div>
             }
           </form>
         </div>
@@ -122,47 +121,60 @@ import { finalize } from 'rxjs/operators';
     }
     .form-error {
       color: var(--danger-red);
+      background: rgba(220, 53, 69, 0.1);
+      border: 1px solid rgba(220, 53, 69, 0.3);
+      border-radius: var(--border-radius-md);
+      padding: var(--spacing-md);
       margin-top: var(--spacing-md);
       text-align: center;
+      font-weight: 500;
+      font-size: var(--font-size-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-xs);
+      animation: shake 0.5s ease-in-out;
+    }
+    .form-error::before {
+      content: "⚠️";
+      font-size: var(--font-size-md);
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
     }
   `]
 })
 export class InviteValidationComponent {
   private router = inject(Router);
   private b2pixService = inject(B2pixService);
-  private cdr = inject(ChangeDetectorRef);
+  
   inviteCode = '';
   username = '';
-  loading = false;
-  error = '';
+  loading = signal(false);
+  error = signal('');
 
   submit() {
     if (!this.inviteCode || !this.username) return;
-    this.loading = true;
-    this.error = '';
-    this.cdr.detectChanges(); // Trigger change detection for loading state
+    this.loading.set(true);
+    this.error.set('');
     
-    this.b2pixService.claimInvite(this.inviteCode, this.username).pipe(
-      finalize(() => {
-        // This will always run, regardless of success or error
-        this.loading = false;
-        this.cdr.detectChanges(); // Trigger change detection after loading stops
-      })
-    ).subscribe({
+    this.b2pixService.claimInvite(this.inviteCode, this.username).subscribe({
       next: (response) => {
-        console.log('Invite claimed successfully:', response);
+        
         if (response && response.status === 'claimed') {
           // Success: redirect to dashboard
           this.router.navigate(['/dashboard']);
         } else {
-          this.error = 'Código de convite já foi usado ou não existe.';
-          this.cdr.detectChanges(); // Trigger change detection for error message
+          this.error.set('Código de convite já foi usado ou não existe.');
         }
+        this.loading.set(false);
       },
       error: (error) => {
         console.error('Error claiming invite:', error);
-        this.error = 'Código de convite já foi usado ou não existe.';
-        this.cdr.detectChanges(); // Trigger change detection for error message
+        this.error.set('Código de convite já foi usado ou não existe.');
+        this.loading.set(false);
       }
     });
   }
