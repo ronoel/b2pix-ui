@@ -44,14 +44,3 @@ export const authGuard: CanActivateFn = (route, state) => {
     })
   );
 };
-
-export const roleGuard: CanActivateFn = (route) => {
-    const walletService = inject(WalletService);
-    const b2pixService = inject(B2pixService);
-    const router = inject(Router);
-    const requiredRoles: string[] = route.data['roles'] || [];
-    
-    // This guard needs to be implemented based on your role system
-    // For now, just return true
-    return true;
-  };

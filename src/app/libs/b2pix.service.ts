@@ -1,11 +1,13 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { Observable, of } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { Observable, of, from } from 'rxjs';
+import { switchMap, tap } from 'rxjs/operators';
+import { WalletService } from './wallet.service';
+
+const SIGNATURE_DOMAIN = 'b2pix.org';
 
 export interface SendInviteRequest {
-  address: string;
   publicKey: string;
   signature: string;
   payload: string;
@@ -40,14 +42,41 @@ export interface InviteInfo {
   address?: string;
 }
 
+// export function sentInvitePayload(email: string): string {
+//   const isoDate = new Date().toISOString();
+//   return `B2PIX - Enviar Convite\n${SIGNATURE_DOMAIN}\n${email}\n${isoDate}`;
+// }
+
 @Injectable({ providedIn: 'root' })
 export class B2pixService {
   private http = inject(HttpClient);
   private apiUrl = environment.apiUrl;
   private inviteCache = new Map<string, InviteInfo>();
 
-  sendInvite(data: SendInviteRequest): Observable<SendInviteResponse> {
-    return this.http.post<SendInviteResponse>(`${this.apiUrl}/v1/invites/send`, data);
+  private walletService = inject(WalletService);
+
+  private createPayloadSendInvite(email: string): string {
+    const isoDate = new Date().toISOString();
+    return `B2PIX - Enviar Convite\n${SIGNATURE_DOMAIN}\n${email}\n${isoDate}`;
+  }
+
+  sendInvite(email: string): Observable<SendInviteResponse> {
+
+    const payload = this.createPayloadSendInvite(email);
+
+    console.log('Sending invite with payload:', payload);
+
+    // Use from to convert Promise to Observable, then chain the observables
+    return from(this.walletService.signMessage(payload)).pipe(
+      switchMap(signedMessage => {
+        const data: SendInviteRequest = {
+          publicKey: signedMessage.publicKey,
+          signature: signedMessage.signature,
+          payload
+        };
+        return this.http.post<SendInviteResponse>(`${this.apiUrl}/v1/invites/send`, data);
+      })
+    );
   }
 
   claimInvite(data: ClaimInviteRequest): Observable<ClaimInviteResponse> {

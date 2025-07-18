@@ -75,6 +75,10 @@ import { B2pixService } from '../../libs/b2pix.service';
                 <button class="btn btn-primary btn-large" (click)="accessDashboard()">
                   Entrar
                 </button>
+
+                <button class="btn btn-secondary btn-large" (click)="testSentInvitePayload()">
+                  Teste
+                </button>
               } @else {
                 <button class="btn btn-primary btn-large" (click)="connectWallet()">
                   Conectar Wallet
@@ -458,5 +462,16 @@ export class LandingComponent {
       this.connectWalletClicked = true;
       this.walletService.signIn();
     }
+  }
+
+  testSentInvitePayload() {
+    const payload = this.b2pixService.sendInvite("ronoeljr@gmail.com").subscribe({
+      next: (response) => {
+        console.log('Invite sent successfully:', response);
+      },
+      error: (error) => {
+        console.error('Error sending invite:', error);
+      }
+    });
   }
 }
