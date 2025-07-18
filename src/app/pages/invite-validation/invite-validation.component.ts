@@ -23,10 +23,24 @@ import { B2pixService } from '../../libs/b2pix.service';
             </div>
             <div class="form-group">
               <label for="username">Nome de Usuário</label>
-              <input id="username" name="username" type="text" class="form-input" [(ngModel)]="username" required autocomplete="off" />
+              <input 
+                id="username" 
+                name="username" 
+                type="text" 
+                class="form-input" 
+                [class.input-error]="usernameError()"
+                [(ngModel)]="username" 
+                (input)="onUsernameChange()"
+                required 
+                autocomplete="off" 
+                placeholder="Ex: joao_silva123"
+              />
+              @if (usernameError()) {
+                <div class="input-error-message">{{ usernameError() }}</div>
+              }
             </div>
             <div class="form-actions">
-              <button type="submit" class="btn btn-primary" [disabled]="loading() || !inviteCode || !username">
+              <button type="submit" class="btn btn-primary" [disabled]="loading() || !inviteCode || !username || usernameError()">
                 @if (loading()) {
                   <span class="btn-loading"></span>
                 } @else {
@@ -101,6 +115,22 @@ import { B2pixService } from '../../libs/b2pix.service';
       border-color: var(--primary-orange);
       outline: none;
     }
+    .form-input.input-error {
+      border-color: var(--danger-red);
+      background: rgba(220, 53, 69, 0.05);
+    }
+    .input-error-message {
+      color: var(--danger-red);
+      font-size: var(--font-size-xs);
+      margin-top: var(--spacing-xs);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+    }
+    .input-error-message::before {
+      content: "⚠️";
+      font-size: var(--font-size-xs);
+    }
     .form-actions {
       display: flex;
       justify-content: flex-end;
@@ -154,9 +184,55 @@ export class InviteValidationComponent {
   username = '';
   loading = signal(false);
   error = signal('');
+  usernameError = signal('');
+
+  validateUsername(username: string): boolean {
+    // Reset error
+    this.usernameError.set('');
+    
+    if (!username) {
+      this.usernameError.set('Nome de usuário é obrigatório');
+      return false;
+    }
+    
+    if (username.length < 3) {
+      this.usernameError.set('Nome de usuário deve ter pelo menos 3 caracteres');
+      return false;
+    }
+    
+    if (username.length > 20) {
+      this.usernameError.set('Nome de usuário deve ter no máximo 20 caracteres');
+      return false;
+    }
+    
+    // Only allow letters, numbers, underscore and hyphen
+    const usernameRegex = /^[a-zA-Z0-9_-]+$/;
+    if (!usernameRegex.test(username)) {
+      this.usernameError.set('Nome de usuário pode conter apenas letras, números, _ e -');
+      return false;
+    }
+    
+    // Cannot start with number or special character
+    if (/^[0-9_-]/.test(username)) {
+      this.usernameError.set('Nome de usuário deve começar com uma letra');
+      return false;
+    }
+    
+    return true;
+  }
+
+  onUsernameChange() {
+    this.validateUsername(this.username);
+  }
 
   submit() {
     if (!this.inviteCode || !this.username) return;
+    
+    // Validate username before submitting
+    if (!this.validateUsername(this.username)) {
+      return;
+    }
+    
     this.loading.set(true);
     this.error.set('');
     

@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { validateInviteGuard } from './core/guards/validate-invite.guard';
 
 export const routes: Routes = [
   {
@@ -36,7 +37,8 @@ export const routes: Routes = [
   },
   {
     path: 'invite-validation',
-    loadComponent: () => import('./pages/invite-validation/invite-validation.component').then(m => m.InviteValidationComponent)
+    loadComponent: () => import('./pages/invite-validation/invite-validation.component').then(m => m.InviteValidationComponent),
+    canActivate: [validateInviteGuard]
   },
   {
     path: 'blocked',
