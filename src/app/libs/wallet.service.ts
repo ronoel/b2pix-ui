@@ -80,10 +80,6 @@ export class WalletService {
       return;
     }
     
-    // Clear invite cache on sign out
-    const b2pixService = inject(B2pixService);
-    b2pixService.clearInviteCache();
-    
     this.userSession.signUserOut();
     this.isLoggedInSignal.set(false);
     this.userDataSignal.set(null);

@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, effect, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { Observable, of, from } from 'rxjs';
@@ -53,6 +53,16 @@ export class B2pixService {
   private inviteCache = new Map<string, InviteInfo>();
 
   private walletService = inject(WalletService);
+
+  constructor() {
+    effect(() => {
+      if (!this.walletService.isLoggedInSignal()) {
+        // Automatically clear cache when user logs in
+        this.inviteCache.clear();
+        console.log('Invite cache cleared on logout');
+      }
+    });
+  }
 
   private createPayloadSendInvite(email: string): string {
     return `B2PIX - Enviar Convite\n${SIGNATURE_DOMAIN}\n${email}\n${this.getTimestamp()}`;
