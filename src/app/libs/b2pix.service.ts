@@ -19,7 +19,6 @@ export interface SendInviteResponse {
 }
 
 export interface ClaimInviteRequest {
-  address: string;
   publicKey: string;
   signature: string;
   payload: string;
@@ -56,15 +55,12 @@ export class B2pixService {
   private walletService = inject(WalletService);
 
   private createPayloadSendInvite(email: string): string {
-    const isoDate = new Date().toISOString();
-    return `B2PIX - Enviar Convite\n${SIGNATURE_DOMAIN}\n${email}\n${isoDate}`;
+    return `B2PIX - Enviar Convite\n${SIGNATURE_DOMAIN}\n${email}\n${this.getTimestamp()}`;
   }
 
   sendInvite(email: string): Observable<SendInviteResponse> {
 
     const payload = this.createPayloadSendInvite(email);
-
-    console.log('Sending invite with payload:', payload);
 
     // Use from to convert Promise to Observable, then chain the observables
     return from(this.walletService.signMessage(payload)).pipe(
@@ -79,11 +75,28 @@ export class B2pixService {
     );
   }
 
-  claimInvite(data: ClaimInviteRequest): Observable<ClaimInviteResponse> {
-    return this.http.post<ClaimInviteResponse>(`${this.apiUrl}/v1/invites/claim`, data).pipe(
-      tap(() => {
-        // Clear cache when claiming an invite as the status might change
-        this.inviteCache.clear();
+  private createPayloadClaimInvite(inviteCode: string, username: string): string {
+    return `B2PIX - Resgatar Convite\n${SIGNATURE_DOMAIN}\n${inviteCode}\n${username}\n${this.walletService.getSTXAddress()}\n${this.getTimestamp()}`;
+  }
+
+  claimInvite(inviteCode: string, username: string): Observable<ClaimInviteResponse> {
+
+    const payload = this.createPayloadClaimInvite(inviteCode, username);
+
+    // Use from to convert Promise to Observable, then chain the observables
+    return from(this.walletService.signMessage(payload)).pipe(
+      switchMap(signedMessage => {
+        const data: ClaimInviteRequest = {
+          publicKey: signedMessage.publicKey,
+          signature: signedMessage.signature,
+          payload
+        };
+        return this.http.post<ClaimInviteResponse>(`${this.apiUrl}/v1/invites/claim`, data).pipe(
+          tap(() => {
+            // Clear cache when claiming an invite as the status might change
+            this.inviteCache.clear();
+          })
+        );
       })
     );
   }
@@ -118,5 +131,9 @@ export class B2pixService {
    */
   clearInviteCacheForAddress(address: string): void {
     this.inviteCache.delete(address);
+  }
+
+  private getTimestamp(): string {
+    return new Date().toISOString();
   }
 } 
