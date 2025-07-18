@@ -1,8 +1,9 @@
-import { computed, Signal, WritableSignal, signal, Injectable } from '@angular/core';
+import { computed, Signal, WritableSignal, signal, Injectable, inject } from '@angular/core';
 import { AppConfig, openSignatureRequestPopup, UserData, UserSession } from '@stacks/connect';
 import { showConnect } from '@stacks/connect';
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
+import { B2pixService } from './b2pix.service';
 
 const appConfig = new AppConfig(['store_write', 'publish_data']);
 
@@ -59,7 +60,7 @@ export class WalletService {
         name: myAppName,
         icon: myAppIcon,
       },
-      redirectTo: '/',
+      // redirectTo: '/',
       onFinish: () => {
         this.isLoggedInSignal.set(true);
         this.userDataSignal.set(this.userSession.loadUserData());
@@ -78,6 +79,11 @@ export class WalletService {
     if (!this.isLoggedInSignal()) {
       return;
     }
+    
+    // Clear invite cache on sign out
+    const b2pixService = inject(B2pixService);
+    b2pixService.clearInviteCache();
+    
     this.userSession.signUserOut();
     this.isLoggedInSignal.set(false);
     this.userDataSignal.set(null);

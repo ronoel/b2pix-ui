@@ -3,7 +3,7 @@ export const environment = {
     network: "testnet", // 'mainnet', 'testnet', 'devnet', 'mocknet'
     // apiUrl: 'http://localhost:3000/api/v1',
     // apiUrl: 'https://boltproto.org/api/v1',
-    apiUrl: '/api/v1',
+    apiUrl: 'http://localhost:8080/api/v1',
     hiroApiKey: '06be121cbb2d828b463e9bc108cdb169',
     blockchainAPIUrl: 'https://api.testnet.hiro.so',
     supportedAsset: {

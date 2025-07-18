@@ -28,7 +28,7 @@ import { WalletService } from '../../libs/wallet.service';
         <div class="toolbar-right">
           @if (walletService.isLoggedInSignal()) {
             <span class="wallet-address" title="{{ walletService.walletAddressSignal() }}">
-              {{ walletService.walletAddressSignal() ? (walletService.walletAddressSignal() | slice:0:3 | uppercase) + '...' + (walletService.walletAddressSignal() | slice:-3 | uppercase) : '' }}
+              {{ walletService.walletAddressSignal() ? (walletService.walletAddressSignal() | slice:0:3 ) + '...' + (walletService.walletAddressSignal() | slice:-3 ) : '' }}
             </span>
             <button class="btn btn-outline" (click)="disconnect()" aria-label="Desconectar Wallet">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">

@@ -1,12 +1,11 @@
-import { Component, effect, inject } from '@angular/core';
+import { Component, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { UserService } from '../../services/user.service';
 import { WalletService } from '../../libs/wallet.service';
+import { B2pixService } from '../../libs/b2pix.service';
 
 @Component({
   selector: 'app-landing',
-  standalone: true,
   imports: [CommonModule],
   template: `
     <div class="landing-page">
@@ -72,13 +71,16 @@ import { WalletService } from '../../libs/wallet.service';
 
             <!-- CTA Button -->
             <div class="cta-section">
-              <button class="btn btn-primary btn-large" (click)="connectWallet()">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2"/>
-                  <path d="M12 7V12L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                {{ walletService.isLoggedInSignal() ? 'Entrar' : 'Conectar Wallet' }}
-              </button>
+              @if(walletService.isLoggedInSignal()) {
+                <button class="btn btn-primary btn-large" (click)="accessDashboard()">
+                  Entrar
+                </button>
+              } @else {
+                <button class="btn btn-primary btn-large" (click)="connectWallet()">
+                  Conectar Wallet
+                </button>
+              }
+              
               <p class="cta-note">Acesso exclusivo por convite</p>
             </div>
           </div>
@@ -412,11 +414,48 @@ import { WalletService } from '../../libs/wallet.service';
 })
 export class LandingComponent {
   private router = inject(Router);
-  private userService = inject(UserService);
   walletService = inject(WalletService);
+  private b2pixService = inject(B2pixService);
+  private connectWalletClicked = false;
+
+  constructor() {
+    effect(() => {
+      const isLoggedIn = this.walletService.isLoggedInSignal();
+      const address = this.walletService.walletAddressSignal();
+      console.log('isLoggedIn', isLoggedIn);
+      console.log('address', address);
+      
+      // Only redirect if user just connected wallet and has a claimed invite
+      if (isLoggedIn && address && this.connectWalletClicked) {
+        this.b2pixService.getInviteByAddress(address).subscribe({
+          next: (invite) => {
+            console.log('invite', invite);
+            
+            if (invite.status === 'claimed') {
+              this.router.navigate(['/dashboard']);
+            } else if (invite.status === 'blocked') {
+              this.router.navigate(['/blocked']);
+            } else {
+              this.router.navigate(['/invite-validation']);
+            }
+          },
+          error: () => {
+            // No invite found, redirect to invite validation
+            console.log('no invite found');
+            this.router.navigate(['/invite-validation']);
+          }
+        });
+      }
+    });
+  }
+
+  accessDashboard() {
+    this.router.navigate(['/dashboard']);
+  }
 
   connectWallet() {
     if (!this.walletService.isLoggedInSignal()) {
+      this.connectWalletClicked = true;
       this.walletService.signIn();
     }
   }
