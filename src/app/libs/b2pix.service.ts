@@ -32,13 +32,7 @@ export interface ClaimInviteResponse {
 }
 
 export interface InviteInfo {
-  code: string;
   status: string;
-  username: string;
-  email: string;
-  created_at: string;
-  claimed_at?: string;
-  address?: string;
 }
 
 // export function sentInvitePayload(email: string): string {
@@ -89,7 +83,7 @@ export class B2pixService {
     return `B2PIX - Resgatar Convite\n${SIGNATURE_DOMAIN}\n${inviteCode}\n${username}\n${this.walletService.getSTXAddress()}\n${this.getTimestamp()}`;
   }
 
-  claimInvite(inviteCode: string, username: string): Observable<ClaimInviteResponse> {
+  claimInvite(inviteCode: string, username: string): Observable<InviteInfo> {
 
     const payload = this.createPayloadClaimInvite(inviteCode, username);
 
@@ -101,7 +95,7 @@ export class B2pixService {
           signature: signedMessage.signature,
           payload
         };
-        return this.http.post<ClaimInviteResponse>(`${this.apiUrl}/v1/invites/claim`, data).pipe(
+        return this.http.post<InviteInfo>(`${this.apiUrl}/v1/invites/claim`, data).pipe(
           tap(() => {
             // Clear cache when claiming an invite as the status might change
             this.inviteCache.clear();
@@ -115,11 +109,8 @@ export class B2pixService {
     return this.http.get<InviteInfo>(`${this.apiUrl}/v1/invites/code/${code}`);
   }
 
-  getInviteByAddress(address: string): Observable<InviteInfo> {
-    // Check if we have cached result for this address
-    if (this.inviteCache.has(address)) {
-      return of(this.inviteCache.get(address)!);
-    }
+  getWalletInvite(): Observable<InviteInfo> {
+    const address = this.walletService.getSTXAddress();
 
     // If not cached, make HTTP request and cache the result
     return this.http.get<InviteInfo>(`${this.apiUrl}/v1/invites/address/${address}`).pipe(

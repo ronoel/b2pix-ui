@@ -10,19 +10,13 @@ export const authGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
 
   // Check if wallet is connected
-  if (!walletService.isLoggedInSignal()) {
-    router.navigate(['/']);
-    return false;
-  }
-
-  const address = walletService.walletAddressSignal();
-  if (!address) {
+  if (!walletService.isLoggedIn()) {
     router.navigate(['/']);
     return false;
   }
 
   // Check invite status
-  return b2pixService.getInviteByAddress(address).pipe(
+  return b2pixService.getWalletInvite().pipe(
     map((invite) => {
       if (invite.status === 'blocked') {
         router.navigate(['/blocked']);

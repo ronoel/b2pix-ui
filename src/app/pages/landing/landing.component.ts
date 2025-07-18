@@ -431,7 +431,7 @@ export class LandingComponent {
       
       // Only redirect if user just connected wallet and has a claimed invite
       if (isLoggedIn && address && this.connectWalletClicked) {
-        this.b2pixService.getInviteByAddress(address).subscribe({
+        this.b2pixService.getWalletInvite().subscribe({
           next: (invite) => {
             console.log('invite', invite);
             

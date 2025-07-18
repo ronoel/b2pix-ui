@@ -1,7 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { B2pixService } from '../../libs/b2pix.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-invite-validation',
@@ -127,6 +129,8 @@ import { Router } from '@angular/router';
 })
 export class InviteValidationComponent {
   private router = inject(Router);
+  private b2pixService = inject(B2pixService);
+  private cdr = inject(ChangeDetectorRef);
   inviteCode = '';
   username = '';
   loading = false;
@@ -136,15 +140,30 @@ export class InviteValidationComponent {
     if (!this.inviteCode || !this.username) return;
     this.loading = true;
     this.error = '';
-    // Mock API call
-    setTimeout(() => {
-      this.loading = false;
-      if (this.inviteCode === 'VALIDCODE') {
-        // Success: redirect to dashboard
-        this.router.navigate(['/dashboard']);
-      } else {
-        this.error = 'Código de convite inválido.';
+    this.cdr.detectChanges(); // Trigger change detection for loading state
+    
+    this.b2pixService.claimInvite(this.inviteCode, this.username).pipe(
+      finalize(() => {
+        // This will always run, regardless of success or error
+        this.loading = false;
+        this.cdr.detectChanges(); // Trigger change detection after loading stops
+      })
+    ).subscribe({
+      next: (response) => {
+        console.log('Invite claimed successfully:', response);
+        if (response && response.status === 'claimed') {
+          // Success: redirect to dashboard
+          this.router.navigate(['/dashboard']);
+        } else {
+          this.error = 'Código de convite já foi usado ou não existe.';
+          this.cdr.detectChanges(); // Trigger change detection for error message
+        }
+      },
+      error: (error) => {
+        console.error('Error claiming invite:', error);
+        this.error = 'Código de convite já foi usado ou não existe.';
+        this.cdr.detectChanges(); // Trigger change detection for error message
       }
-    }, 1200);
+    });
   }
 } 
