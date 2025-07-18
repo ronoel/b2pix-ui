@@ -1,11 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { WalletService } from '../../libs/wallet.service';
 
 @Component({
   selector: 'app-toolbar',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   template: `
     <header class="toolbar" role="banner">
       <nav class="toolbar-nav" aria-label="Main toolbar">
@@ -32,10 +33,11 @@ import { WalletService } from '../../libs/wallet.service';
             </span>
             <button class="btn btn-outline" (click)="disconnect()" aria-label="Desconectar Wallet">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M16 17L21 12L16 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <polyline points="16,17 21,12 16,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               </svg>
-              Desconectar
+              <span class="btn-text">Desconectar</span>
             </button>
           } @else {
             <button class="btn btn-primary" (click)="connect()" aria-label="Conectar Wallet">
@@ -43,7 +45,7 @@ import { WalletService } from '../../libs/wallet.service';
                 <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
                 <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
-              Conectar Wallet
+              <span class="btn-text">Conectar Wallet</span>
             </button>
           }
         </div>
@@ -136,6 +138,13 @@ import { WalletService } from '../../libs/wallet.service';
       .wallet-address {
         max-width: 80px;
         font-size: var(--font-size-sm);
+      }
+      .btn-text {
+        display: none;
+      }
+      .btn {
+        padding: var(--spacing-sm);
+        min-width: auto;
       }
     }
   `]
