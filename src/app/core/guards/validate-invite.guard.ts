@@ -18,6 +18,14 @@ export const validateInviteGuard: CanActivateFn = (route, state) => {
   // Check invite status
   return b2pixService.getWalletInvite().pipe(
     map((invite) => {
+
+      console.log('Invite status:', invite);
+
+      if (!invite) {
+        // No invite found, redirect to invite validation
+        return true;
+      }
+
       if (invite.status === 'blocked') {
         router.navigate(['/blocked']);
         return false;
@@ -28,13 +36,12 @@ export const validateInviteGuard: CanActivateFn = (route, state) => {
         return false;
       }
 
-      // Any other status (pending, etc.)
-      router.navigate(['/invite-validation']);
+      // Any other status (pending, not_found, etc.)
       return true;
     }),
     catchError(() => {
-      // No invite found
-      router.navigate(['/invite-validation']);
+      
+      router.navigate(['/']);
       return of(false);
     })
   );

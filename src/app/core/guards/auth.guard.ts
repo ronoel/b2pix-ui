@@ -18,16 +18,22 @@ export const authGuard: CanActivateFn = (route, state) => {
   // Check invite status
   return b2pixService.getWalletInvite().pipe(
     map((invite) => {
+
+      if (!invite) {
+        // No invite found, redirect to invite validation
+        router.navigate(['/invite-validation']);
+        return false;
+      }
+
       if (invite.status === 'blocked') {
         router.navigate(['/blocked']);
         return false;
       }
-      
+
       if (invite.status === 'claimed') {
         return true;
       }
 
-      // Any other status (pending, etc.)
       router.navigate(['/invite-validation']);
       return false;
     }),

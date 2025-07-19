@@ -2,7 +2,7 @@ import { Injectable, effect, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { Observable, of, from } from 'rxjs';
-import { switchMap, tap } from 'rxjs/operators';
+import { switchMap, tap, map } from 'rxjs/operators';
 import { WalletService } from './wallet.service';
 
 const SIGNATURE_DOMAIN = 'b2pix.org';
@@ -112,10 +112,27 @@ export class B2pixService {
   getWalletInvite(): Observable<InviteInfo> {
     const address = this.walletService.getSTXAddress();
 
+    // Check if cached first
+    const cachedInvite = this.inviteCache.get(address);
+    if (cachedInvite) {
+      return of(cachedInvite);
+    }
+
     // If not cached, make HTTP request and cache the result
     return this.http.get<InviteInfo>(`${this.apiUrl}/v1/invites/address/${address}`).pipe(
       tap(invite => {
-        this.inviteCache.set(address, invite);
+        // Only cache if invite is not null/undefined (handles 204 No Content responses)
+        if (invite) {
+          this.inviteCache.set(address, invite);
+        } else {
+          // For 204 No Content responses, create a default response and cache it
+          const defaultInvite: InviteInfo = { status: 'not_found' };
+          this.inviteCache.set(address, defaultInvite);
+        }
+      }),
+      map((invite: InviteInfo | null) => {
+        // Return a default response if invite is null/undefined (204 No Content)
+        return invite || { status: 'not_found' };
       })
     );
   }

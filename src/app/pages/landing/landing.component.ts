@@ -421,34 +421,13 @@ export class LandingComponent {
   walletService = inject(WalletService);
   private b2pixService = inject(B2pixService);
   private connectWalletClicked = false;
+  public isLoggedIn = this.walletService.isLoggedInSignal();
 
   constructor() {
     effect(() => {
-      const isLoggedIn = this.walletService.isLoggedInSignal();
-      const address = this.walletService.walletAddressSignal();
-      console.log('isLoggedIn', isLoggedIn);
-      console.log('address', address);
-      
       // Only redirect if user just connected wallet and has a claimed invite
-      if (isLoggedIn && address && this.connectWalletClicked) {
-        this.b2pixService.getWalletInvite().subscribe({
-          next: (invite) => {
-            console.log('invite', invite);
-            
-            if (invite.status === 'claimed') {
-              this.router.navigate(['/dashboard']);
-            } else if (invite.status === 'blocked') {
-              this.router.navigate(['/blocked']);
-            } else {
-              this.router.navigate(['/invite-validation']);
-            }
-          },
-          error: () => {
-            // No invite found, redirect to invite validation
-            console.log('no invite found');
-            this.router.navigate(['/invite-validation']);
-          }
-        });
+      if (this.walletService.isLoggedInSignal() && this.connectWalletClicked) {
+        this.router.navigate(['/dashboard']);
       }
     });
   }
@@ -465,7 +444,7 @@ export class LandingComponent {
   }
 
   testSentInvitePayload() {
-    const payload = this.b2pixService.sendInvite("ronoeljr@gmail.com").subscribe({
+    this.b2pixService.sendInvite("ronoeljr@gmail.com").subscribe({
       next: (response) => {
         console.log('Invite sent successfully:', response);
       },
