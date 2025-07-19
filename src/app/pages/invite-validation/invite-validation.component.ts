@@ -249,7 +249,11 @@ export class InviteValidationComponent {
       },
       error: (error) => {
         console.error('Error claiming invite:', error);
-        this.error.set('Código de convite já foi usado ou não existe.');
+        if (error.status === 409) {
+          this.error.set('Nome de usuário já existe. Tente outro nome de usuário.');
+        } else {
+          this.error.set(`${error.status} - ${error.error}.`);
+        }
         this.loading.set(false);
       }
     });
