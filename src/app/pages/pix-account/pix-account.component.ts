@@ -44,62 +44,56 @@ import { LoadingService } from '../../services/loading.service';
                 
                 <div class="steps-grid">
                   <div class="step-card">
-                    <div class="step-number">1</div>
-                    <div class="step-content">
-                      <h3>Conta Bancária</h3>
-                      <p>Abra uma conta no nosso banco parceiro ou use uma existente</p>
+                    <div class="step-header">
+                      <div class="step-number">1</div>
+                      <div class="step-content">
+                        <h3>Conta Bancária</h3>
+                        <p>Abra uma conta gratuita no nosso banco parceiro</p>
+                      </div>
                     </div>
+                    <button class="btn btn-primary step-btn" (click)="openBankAccount()">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M18 13V6C18 5.46957 17.7893 4.96086 17.4142 4.58579C17.0391 4.21071 16.5304 4 16 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V18C2 18.5304 2.21071 19.0391 2.58579 19.4142C2.96086 19.7893 3.46957 20 4 20H16C16.5304 20 17.0391 19.7893 17.4142 19.4142C17.7893 19.0391 18 18.5304 18 18V13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M22 10V6C22 5.46957 21.7893 4.96086 21.4142 4.58579C21.0391 4.21071 20.5304 4 20 4H18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      Abrir Conta Gratuita
+                    </button>
                   </div>
                   
                   <div class="step-card">
-                    <div class="step-number">2</div>
-                    <div class="step-content">
-                      <h3>Credenciais</h3>
-                      <p>Informe os dados da sua conta e chave PIX</p>
+                    <div class="step-header">
+                      <div class="step-number">2</div>
+                      <div class="step-content">
+                        <h3>Credenciais</h3>
+                        <p>Configure as permissões para que possamos cadastrar seu PIX</p>
+                      </div>
                     </div>
+                    <button class="btn btn-primary step-btn" (click)="showSetupForm()">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M16 4H18C18.5304 4 19.0391 4.21071 19.4142 4.58579C19.7893 4.96086 20 5.46957 20 6V20C20 20.5304 19.7893 21.0391 19.4142 21.4142C19.0391 21.7893 18.5304 22 18 22H6C5.46957 22 4.96086 21.7893 4.58579 21.4142C4.21071 21.0391 4 20.5304 4 20V6C4 5.46957 4.21071 4.96086 4.58579 4.58579C4.96086 4.21071 5.46957 4 6 4H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <rect x="8" y="2" width="8" height="4" rx="1" ry="1" stroke="currentColor" stroke-width="2"/>
+                      </svg>
+                      Configurar
+                    </button>
                   </div>
                   
                   <div class="step-card">
-                    <div class="step-number">3</div>
-                    <div class="step-content">
-                      <h3>Validação</h3>
-                      <p>Aguarde a validação automática dos seus dados</p>
+                    <div class="step-header">
+                      <div class="step-number">3</div>
+                      <div class="step-content">
+                        <h3>Anuncie seu Bitcoin</h3>
+                        <p>Crie anúncios para vender Bitcoin e receber o dinheiro na sua conta</p>
+                      </div>
                     </div>
+                    <button class="btn btn-primary step-btn" (click)="createAd()">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      Criar Anúncio
+                    </button>
                   </div>
-                </div>
-
-                <div class="partner-card">
-                  <div class="partner-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                      <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      <path d="M9 22V12H15V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                  </div>
-                  <div class="partner-content">
-                    <h3>Banco Parceiro: Banco Digital</h3>
-                    <p>Conta digital gratuita com PIX integrado</p>
-                  </div>
-                  <button class="btn btn-primary" (click)="openBankAccount()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                      <path d="M18 13V6C18 5.46957 17.7893 4.96086 17.4142 4.58579C17.0391 4.21071 16.5304 4 16 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V18C2 18.5304 2.21071 19.0391 2.58579 19.4142C2.96086 19.7893 3.46957 20 4 20H16C16.5304 20 17.0391 19.7893 17.4142 19.4142C17.7893 19.0391 18 18.5304 18 18V13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      <path d="M22 10V6C22 5.46957 21.7893 4.96086 21.4142 4.58579C21.0391 4.21071 20.5304 4 20 4H18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    Abrir Conta Gratuita
-                  </button>
-                </div>
-
-                <div class="existing-option">
-                  <div class="divider">
-                    <span>ou</span>
-                  </div>
-                  <p>Já tem conta no Banco Digital?</p>
-                  <button class="btn btn-outline" (click)="showSetupForm()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                      <path d="M16 4H18C18.5304 4 19.0391 4.21071 19.4142 4.58579C19.7893 4.96086 20 5.46957 20 6V20C20 20.5304 19.7893 21.0391 19.4142 21.4142C19.0391 21.7893 18.5304 22 18 22H6C5.46957 22 4.96086 21.7893 4.58579 21.4142C4.21071 21.0391 4 20.5304 4 20V6C4 5.46957 4.21071 4.96086 4.58579 4.58579C4.96086 4.21071 5.46957 4 6 4H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      <rect x="8" y="2" width="8" height="4" rx="1" ry="1" stroke="currentColor" stroke-width="2"/>
-                    </svg>
-                    Configurar Agora
-                  </button>
                 </div>
               </div>
             </div>
@@ -429,7 +423,6 @@ import { LoadingService } from '../../services/loading.service';
       padding: var(--spacing-xl) 0;
     }
 
-    /* Header */
     .page-header {
       display: flex;
       align-items: flex-start;
@@ -459,14 +452,18 @@ import { LoadingService } from '../../services/loading.service';
       margin: 0;
     }
 
-    /* Instructions Section */
-    .setup-section {
+    .setup-section,
+    .result-section,
+    .existing-section {
       display: flex;
       justify-content: center;
     }
 
-    .instructions-card {
-      max-width: 800px;
+    .instructions-card,
+    .success-card,
+    .error-card,
+    .existing-card {
+      max-width: 600px;
       padding: var(--spacing-2xl);
       background: var(--background-card);
       border: 1px solid var(--border-color);
@@ -474,22 +471,73 @@ import { LoadingService } from '../../services/loading.service';
       text-align: center;
     }
 
+    .instructions-card {
+      max-width: 800px;
+    }
+
+    .success-card {
+      border-left: 4px solid var(--success-green);
+    }
+
+    .error-card {
+      border-left: 4px solid var(--error-red);
+    }
+
+    .existing-card {
+      border-left: 4px solid var(--success-green);
+    }
+
+    .instructions-icon,
+    .success-icon,
+    .error-icon,
+    .existing-icon {
+      margin-bottom: var(--spacing-lg);
+    }
+
     .instructions-icon {
       color: var(--primary-blue);
-      margin-bottom: var(--spacing-lg);
+    }
+
+    .success-icon,
+    .existing-icon {
+      color: var(--success-green);
+    }
+
+    .error-icon {
+      color: var(--error-red);
+    }
+
+    .instructions-content h2,
+    .success-content h3,
+    .error-content h3,
+    .existing-content h3 {
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 0 0 var(--spacing-sm) 0;
     }
 
     .instructions-content h2 {
       font-size: var(--font-size-2xl);
-      font-weight: 600;
-      color: var(--text-primary);
-      margin: 0 0 var(--spacing-md) 0;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .success-content h3,
+    .error-content h3,
+    .existing-content h3 {
+      font-size: var(--font-size-xl);
+    }
+
+    .instructions-content > p,
+    .success-content p,
+    .error-content p,
+    .existing-content > p {
+      color: var(--text-secondary);
+      margin: 0 0 var(--spacing-lg) 0;
     }
 
     .instructions-content > p {
-      color: var(--text-secondary);
-      margin: 0 0 var(--spacing-2xl) 0;
       font-size: var(--font-size-lg);
+      margin-bottom: var(--spacing-2xl);
     }
 
     .steps-grid {
@@ -500,10 +548,20 @@ import { LoadingService } from '../../services/loading.service';
     }
 
     .step-card {
+      display: flex;
+      flex-direction: column;
       padding: var(--spacing-lg);
       background: var(--background-elevated);
       border-radius: var(--border-radius-md);
       text-align: left;
+      gap: var(--spacing-md);
+    }
+
+    .step-header {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--spacing-md);
+      flex: 1;
     }
 
     .step-number {
@@ -516,7 +574,7 @@ import { LoadingService } from '../../services/loading.service';
       color: white;
       border-radius: 50%;
       font-weight: 700;
-      margin-bottom: var(--spacing-md);
+      flex-shrink: 0;
     }
 
     .step-content h3 {
@@ -533,77 +591,12 @@ import { LoadingService } from '../../services/loading.service';
       line-height: 1.5;
     }
 
-    .partner-card {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-lg);
-      padding: var(--spacing-lg);
-      background: var(--background-elevated);
-      border: 1px solid var(--primary-blue);
-      border-radius: var(--border-radius-md);
-      margin-bottom: var(--spacing-xl);
-    }
-
-    .partner-icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 48px;
-      height: 48px;
-      background: var(--primary-blue);
-      color: white;
-      border-radius: var(--border-radius-md);
-      flex-shrink: 0;
-    }
-
-    .partner-content {
-      flex: 1;
-      text-align: left;
-    }
-
-    .partner-content h3 {
-      font-size: var(--font-size-lg);
-      font-weight: 600;
-      color: var(--text-primary);
-      margin: 0 0 var(--spacing-xs) 0;
-    }
-
-    .partner-content p {
-      color: var(--text-secondary);
-      margin: 0;
+    .step-btn {
+      align-self: flex-start;
+      padding: var(--spacing-sm) var(--spacing-md);
       font-size: var(--font-size-sm);
     }
 
-    .existing-option {
-      text-align: center;
-    }
-
-    .divider {
-      display: flex;
-      align-items: center;
-      margin: var(--spacing-xl) 0;
-    }
-
-    .divider::before,
-    .divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border-color);
-    }
-
-    .divider span {
-      padding: 0 var(--spacing-md);
-      color: var(--text-muted);
-      font-size: var(--font-size-sm);
-    }
-
-    .existing-option p {
-      color: var(--text-secondary);
-      margin: 0 0 var(--spacing-lg) 0;
-    }
-
-    /* Form Section */
     .form-section {
       max-width: 600px;
       margin: 0 auto;
@@ -619,18 +612,6 @@ import { LoadingService } from '../../services/loading.service';
     .form-header {
       text-align: center;
       margin-bottom: var(--spacing-2xl);
-    }
-
-    .form-header h2 {
-      font-size: var(--font-size-2xl);
-      font-weight: 600;
-      color: var(--text-primary);
-      margin: 0 0 var(--spacing-sm) 0;
-    }
-
-    .form-header p {
-      color: var(--text-secondary);
-      margin: 0;
     }
 
     .form-group {
@@ -696,14 +677,24 @@ import { LoadingService } from '../../services/loading.service';
       color: var(--primary-blue);
     }
 
-    .upload-header h3 {
-      font-size: var(--font-size-lg);
+    .upload-header h3,
+    .form-header h2 {
       font-weight: 600;
       color: var(--text-primary);
       margin: 0;
     }
 
-    .upload-header p {
+    .form-header h2 {
+      font-size: var(--font-size-2xl);
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .upload-header h3 {
+      font-size: var(--font-size-lg);
+    }
+
+    .upload-header p,
+    .form-header p {
       color: var(--text-secondary);
       margin: 0;
       font-size: var(--font-size-sm);
@@ -731,10 +722,15 @@ import { LoadingService } from '../../services/loading.service';
       background: var(--primary-orange-dark);
     }
 
-    .form-actions {
+    .form-actions,
+    .action-buttons {
       display: flex;
       gap: var(--spacing-md);
       justify-content: flex-end;
+    }
+
+    .action-buttons {
+      justify-content: center;
     }
 
     .btn-loading {
@@ -751,57 +747,8 @@ import { LoadingService } from '../../services/loading.service';
       100% { transform: rotate(360deg); }
     }
 
-    /* Result Section */
-    .result-section {
-      display: flex;
-      justify-content: center;
-    }
-
-    .success-card,
-    .error-card {
-      max-width: 600px;
-      padding: var(--spacing-2xl);
-      border-radius: var(--border-radius-lg);
-      text-align: center;
-    }
-
-    .success-card {
-      background: var(--background-card);
-      border: 1px solid var(--border-color);
-      border-left: 4px solid var(--success-green);
-    }
-
-    .error-card {
-      background: var(--background-card);
-      border: 1px solid var(--border-color);
-      border-left: 4px solid var(--error-red);
-    }
-
-    .success-icon {
-      color: var(--success-green);
-      margin-bottom: var(--spacing-lg);
-    }
-
-    .error-icon {
-      color: var(--error-red);
-      margin-bottom: var(--spacing-lg);
-    }
-
-    .success-content h3,
-    .error-content h3 {
-      font-size: var(--font-size-xl);
-      font-weight: 600;
-      color: var(--text-primary);
-      margin: 0 0 var(--spacing-sm) 0;
-    }
-
-    .success-content p,
-    .error-content p {
-      color: var(--text-secondary);
-      margin: 0 0 var(--spacing-lg) 0;
-    }
-
-    .account-summary {
+    .account-summary,
+    .account-details {
       padding: var(--spacing-lg);
       background: var(--background-elevated);
       border-radius: var(--border-radius-md);
@@ -821,20 +768,43 @@ import { LoadingService } from '../../services/loading.service';
       gap: var(--spacing-sm);
     }
 
-    .summary-item {
+    .summary-item,
+    .detail-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
 
-    .summary-label {
+    .detail-item {
+      padding: var(--spacing-sm) 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .detail-item:last-child {
+      border-bottom: none;
+    }
+
+    .summary-label,
+    .detail-label {
       color: var(--text-secondary);
       font-size: var(--font-size-sm);
     }
 
-    .summary-value {
+    .detail-label {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+    }
+
+    .summary-value,
+    .detail-value {
       color: var(--text-primary);
       font-weight: 500;
+    }
+
+    .detail-value.verified {
+      color: var(--success-green);
+      font-weight: 600;
     }
 
     .error-details {
@@ -856,84 +826,6 @@ import { LoadingService } from '../../services/loading.service';
       padding-left: var(--spacing-lg);
     }
 
-    /* Existing Account Section */
-    .existing-section {
-      display: flex;
-      justify-content: center;
-    }
-
-    .existing-card {
-      max-width: 600px;
-      padding: var(--spacing-2xl);
-      background: var(--background-card);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius-lg);
-      border-left: 4px solid var(--success-green);
-      text-align: center;
-    }
-
-    .existing-icon {
-      color: var(--success-green);
-      margin-bottom: var(--spacing-lg);
-    }
-
-    .existing-content h3 {
-      font-size: var(--font-size-xl);
-      font-weight: 600;
-      color: var(--text-primary);
-      margin: 0 0 var(--spacing-sm) 0;
-    }
-
-    .existing-content > p {
-      color: var(--text-secondary);
-      margin: 0 0 var(--spacing-lg) 0;
-    }
-
-    .account-details {
-      padding: var(--spacing-lg);
-      background: var(--background-elevated);
-      border-radius: var(--border-radius-md);
-      margin-bottom: var(--spacing-lg);
-      text-align: left;
-    }
-
-    .detail-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: var(--spacing-sm) 0;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .detail-item:last-child {
-      border-bottom: none;
-    }
-
-    .detail-label {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-xs);
-      color: var(--text-secondary);
-      font-size: var(--font-size-sm);
-    }
-
-    .detail-value {
-      color: var(--text-primary);
-      font-weight: 500;
-    }
-
-    .detail-value.verified {
-      color: var(--success-green);
-      font-weight: 600;
-    }
-
-    .action-buttons {
-      display: flex;
-      gap: var(--spacing-md);
-      justify-content: center;
-    }
-
-    /* Responsividade */
     @media (max-width: 768px) {
       .pix-page {
         padding: var(--spacing-lg) 0;
@@ -946,11 +838,6 @@ import { LoadingService } from '../../services/loading.service';
 
       .steps-grid {
         grid-template-columns: 1fr;
-      }
-
-      .partner-card {
-        flex-direction: column;
-        text-align: center;
       }
 
       .form-actions,
@@ -1014,6 +901,11 @@ export class PixAccountComponent implements OnInit {
     // Simular abertura de conta no banco parceiro
     alert('Redirecionando para o site do Banco Digital...');
     // window.open('https://bancodigital.com/abrir-conta', '_blank');
+  }
+
+  createAd() {
+    // Redirecionar para página de criação de anúncio
+    this.router.navigate(['/sell']);
   }
 
   showSetupForm() {
