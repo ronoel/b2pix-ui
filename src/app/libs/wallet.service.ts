@@ -4,6 +4,8 @@ import { showConnect } from '@stacks/connect';
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 import { B2pixService } from './b2pix.service';
+import { routes } from '../app.routes';
+import { Router } from '@angular/router';
 
 const appConfig = new AppConfig(['store_write', 'publish_data']);
 
@@ -21,6 +23,7 @@ export class WalletService {
   readonly isLoggedInSignal = signal(false);
   readonly userDataSignal: WritableSignal<UserData | null> = signal<UserData | null>(null);
   readonly network = environment.network;
+  private router = inject(Router);
 
   readonly walletAddressSignal: Signal<string | null> = computed(() => {
     const userData = this.userDataSignal();
@@ -83,6 +86,7 @@ export class WalletService {
     this.userSession.signUserOut();
     this.isLoggedInSignal.set(false);
     this.userDataSignal.set(null);
+    this.router.navigate(['/']);
   }
 
   /**
