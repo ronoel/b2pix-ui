@@ -4,7 +4,10 @@
 :root {
   /* Cores da B2PIX */
   --primary-orange: #F7931A; /* Bitcoin Orange */
+  --primary-orange-dark: #E6851F;
+  --primary-orange-bg: rgba(247, 147, 26, 0.1);
   --primary-blue: #5546FF; /* Stacks Blue */
+  --primary-purple: #9C27B0;
   --background-dark: #0A0A0A;
   --background-card: #1A1A1A;
   --background-elevated: #2A2A2A;
@@ -13,8 +16,11 @@
   --text-muted: #808080;
   --border-color: #333333;
   --success-green: #00D4AA;
+  --success-green-bg: rgba(0, 212, 170, 0.1);
   --error-red: #FF6B6B;
   --warning-yellow: #FFD93D;
+  --warning-yellow-bg: rgba(255, 217, 61, 0.1);
+  --warning-yellow-text: #B8860B;
   
   /* Gradientes */
   --gradient-orange: linear-gradient(135deg, #F7931A 0%, #FFA726 100%);
@@ -43,6 +49,7 @@
   
   /* Tipografia */
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-size-2xs: 10px;
   --font-size-xs: 12px;
   --font-size-sm: 14px;
   --font-size-md: 16px;

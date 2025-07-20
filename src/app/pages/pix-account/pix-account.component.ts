@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { UserService } from '../../services/user.service';
 import { LoadingService } from '../../services/loading.service';
+import { BankSetupComponent } from '../../components/bank-setup/bank-setup.component';
 
 @Component({
   selector: 'app-pix-account',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, BankSetupComponent],
   template: `
     <div class="pix-page">
       <div class="container">
@@ -27,7 +28,7 @@ import { LoadingService } from '../../services/loading.service';
           </div>
         </div>
 
-        @if (!hasExistingAccount && !showForm) {
+        @if (!hasExistingAccount && !showForm && !showBankSetup) {
           <!-- Setup Instructions -->
           <div class="setup-section">
             <div class="instructions-card">
@@ -48,7 +49,7 @@ import { LoadingService } from '../../services/loading.service';
                       <div class="step-number">1</div>
                       <div class="step-content">
                         <h3>Conta Bancária</h3>
-                        <p>Abra uma conta gratuita no nosso banco parceiro</p>
+                        <p>Crie uma conta gratuita no Banco EFI</p>
                       </div>
                     </div>
                     <button class="btn btn-primary step-btn" (click)="openBankAccount()">
@@ -56,7 +57,7 @@ import { LoadingService } from '../../services/loading.service';
                         <path d="M18 13V6C18 5.46957 17.7893 4.96086 17.4142 4.58579C17.0391 4.21071 16.5304 4 16 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V18C2 18.5304 2.21071 19.0391 2.58579 19.4142C2.96086 19.7893 3.46957 20 4 20H16C16.5304 20 17.0391 19.7893 17.4142 19.4142C17.7893 19.0391 18 18.5304 18 18V13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         <path d="M22 10V6C22 5.46957 21.7893 4.96086 21.4142 4.58579C21.0391 4.21071 20.5304 4 20 4H18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
-                      Abrir Conta Gratuita
+                      Abrir Conta
                     </button>
                   </div>
                   
@@ -64,16 +65,16 @@ import { LoadingService } from '../../services/loading.service';
                     <div class="step-header">
                       <div class="step-number">2</div>
                       <div class="step-content">
-                        <h3>Credenciais</h3>
-                        <p>Configure as permissões para que possamos cadastrar seu PIX</p>
+                        <h3>Configuração do PIX</h3>
+                        <p>Configure sua conta para receber pagamentos via PIX</p>
                       </div>
                     </div>
-                    <button class="btn btn-primary step-btn" (click)="showSetupForm()">
+                    <button class="btn btn-primary step-btn" (click)="startBankSetup()">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                         <path d="M16 4H18C18.5304 4 19.0391 4.21071 19.4142 4.58579C19.7893 4.96086 20 5.46957 20 6V20C20 20.5304 19.7893 21.0391 19.4142 21.4142C19.0391 21.7893 18.5304 22 18 22H6C5.46957 22 4.96086 21.7893 4.58579 21.4142C4.21071 21.0391 4 20.5304 4 20V6C4 5.46957 4.21071 4.96086 4.58579 4.58579C4.96086 4.21071 5.46957 4 6 4H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         <rect x="8" y="2" width="8" height="4" rx="1" ry="1" stroke="currentColor" stroke-width="2"/>
                       </svg>
-                      Configurar
+                      Configurar Conta
                     </button>
                   </div>
                   
@@ -85,7 +86,7 @@ import { LoadingService } from '../../services/loading.service';
                         <p>Crie anúncios para vender Bitcoin e receber o dinheiro na sua conta</p>
                       </div>
                     </div>
-                    <button class="btn btn-primary step-btn" (click)="createAd()">
+                    <button class="btn btn-primary step-btn" (click)="createAd()" [disabled]="!pixConfigured">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                         <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -98,13 +99,19 @@ import { LoadingService } from '../../services/loading.service';
               </div>
             </div>
           </div>
+        } @else if (showBankSetup) {
+          <!-- Bank Setup Component -->
+          <app-bank-setup 
+            (setupComplete)="onBankSetupComplete($event)"
+            (setupCancelled)="onBankSetupCancelled()">
+          </app-bank-setup>
         } @else if (showForm && !accountCreated) {
           <!-- Setup Form -->
           <div class="form-section">
             <div class="form-card">
               <div class="form-header">
-                <h2>Configuração da Conta PIX</h2>
-                <p>Preencha os dados da sua conta no Banco Digital</p>
+                <h2>Configuração da Chave PIX</h2>
+                <p>Configure sua chave PIX para receber pagamentos</p>
               </div>
 
               <form (ngSubmit)="onSubmit()" #form="ngForm">
@@ -121,7 +128,7 @@ import { LoadingService } from '../../services/loading.service';
                     type="text"
                     [(ngModel)]="accountData.bankName"
                     name="bankName"
-                    value="Banco Digital"
+                    value="Banco EFI"
                     readonly
                     class="form-input readonly">
                 </div>
@@ -193,47 +200,6 @@ import { LoadingService } from '../../services/loading.service';
                   }
                 </div>
 
-                <div class="upload-section">
-                  <div class="upload-header">
-                    <div class="upload-icon">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                        <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <polyline points="7,10 12,15 17,10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                    </div>
-                    <h3>Comprovante de Conta</h3>
-                    <p>Faça upload de um print ou PDF do seu app bancário</p>
-                  </div>
-                  
-                  <div class="file-upload">
-                    <input 
-                      type="file" 
-                      id="bankProof" 
-                      accept="image/*,.pdf"
-                      (change)="onFileSelected($event)"
-                      hidden>
-                    <label for="bankProof" class="upload-button">
-                      @if (selectedFile) {
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                          <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                          <polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        {{ selectedFile.name }}
-                      } @else {
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                          <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                          <polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                          <line x1="12" y1="18" x2="12" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                          <line x1="9" y1="15" x2="12" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                          <line x1="15" y1="15" x2="12" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        Selecionar Arquivo
-                      }
-                    </label>
-                  </div>
-                </div>
-
                 <div class="form-actions">
                   <button type="button" class="btn btn-outline" (click)="goBack()">
                     Cancelar
@@ -241,7 +207,7 @@ import { LoadingService } from '../../services/loading.service';
                   <button 
                     type="submit" 
                     class="btn btn-primary"
-                    [disabled]="form.invalid || !selectedFile || loadingService.getIsLoading()()">
+                    [disabled]="form.invalid || loadingService.getIsLoading()()">
                     @if (loadingService.getIsLoading()()) {
                       <div class="btn-loading"></div>
                       Validando...
@@ -250,7 +216,7 @@ import { LoadingService } from '../../services/loading.service';
                         <path d="M9 11L12 14L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         <path d="M21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 20.5304 3 20V9C3 8.46957 3.21071 7.96086 3.58579 7.58579C3.96086 7.21071 4.46957 7 5 7H13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
-                      Configurar Conta
+                      Configurar Chave PIX
                     }
                   </button>
                 </div>
@@ -826,6 +792,25 @@ import { LoadingService } from '../../services/loading.service';
       padding-left: var(--spacing-lg);
     }
 
+    .step-card .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .step-card .btn:disabled:hover {
+      background: var(--background-elevated);
+      color: var(--text-muted);
+    }
+
+    .step-card .btn.btn-primary:disabled {
+      background: var(--border-color);
+      color: var(--text-muted);
+    }
+
+    .step-card .btn.btn-primary:disabled:hover {
+      background: var(--border-color);
+    }
+
     @media (max-width: 768px) {
       .pix-page {
         padding: var(--spacing-lg) 0;
@@ -872,14 +857,18 @@ export class PixAccountComponent implements OnInit {
   hasExistingAccount = false;
   existingAccount: any = null;
   showForm = false;
+  showBankSetup = false;
   accountCreated = false;
   validationSuccess = false;
+  bankCredentialsConfigured = false;
+  pixConfigured = false;
 
   pixKeyType = 'email';
   selectedFile: File | null = null;
+  bankCredentials: any = null;
 
   accountData = {
-    bankName: 'Banco Digital',
+    bankName: 'Banco EFI',
     accountNumber: '',
     pixKey: ''
   };
@@ -893,14 +882,39 @@ export class PixAccountComponent implements OnInit {
       if (account) {
         this.hasExistingAccount = true;
         this.existingAccount = account;
+        this.bankCredentialsConfigured = true;
+        this.pixConfigured = true;
       }
     });
   }
 
+  startBankSetup() {
+    this.showBankSetup = true;
+  }
+
+  onBankSetupComplete(credentials: any) {
+    this.bankCredentials = credentials;
+    this.bankCredentialsConfigured = true;
+    this.showBankSetup = false;
+    
+    // Salvar credenciais no serviço
+    this.userService.saveBankCredentials(credentials).subscribe({
+      next: (success: boolean) => {
+        console.log('Credenciais salvas com sucesso');
+      },
+      error: (error: any) => {
+        console.error('Erro ao salvar credenciais:', error);
+      }
+    });
+  }
+
+  onBankSetupCancelled() {
+    this.showBankSetup = false;
+  }
+
   openBankAccount() {
-    // Simular abertura de conta no banco parceiro
-    alert('Redirecionando para o site do Banco Digital...');
-    // window.open('https://bancodigital.com/abrir-conta', '_blank');
+    // Abrir site do banco EFI para criar conta
+    window.open('https://app.sejaefi.com.br/home', '_blank');
   }
 
   createAd() {
@@ -909,7 +923,9 @@ export class PixAccountComponent implements OnInit {
   }
 
   showSetupForm() {
-    this.showForm = true;
+    if (this.bankCredentialsConfigured) {
+      this.showForm = true;
+    }
   }
 
   onPixKeyTypeChange() {
@@ -942,6 +958,7 @@ export class PixAccountComponent implements OnInit {
     this.userService.createPixAccount(this.accountData).subscribe({
       next: (success) => {
         this.accountCreated = true;
+        this.pixConfigured = true;
         
         // Simular validação (pode falhar aleatoriamente para demonstração)
         this.validationSuccess = Math.random() > 0.2; // 80% de sucesso

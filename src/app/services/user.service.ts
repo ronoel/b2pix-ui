@@ -132,7 +132,7 @@ export class UserService {
           // Mock: criar conta PIX
           const newPixAccount: PixAccount = {
             id: currentUser.id,
-            bankName: accountData.bankName || 'Banco Digital',
+            bankName: accountData.bankName || 'Banco EFI',
             accountNumber: accountData.accountNumber || '12345-6',
             pixKey: accountData.pixKey || currentUser.email,
             verified: true
@@ -143,6 +143,23 @@ export class UserService {
           currentUser.hasPixAccount = true;
           this.currentUser.set({ ...currentUser });
         }
+        return true;
+      })
+    );
+  }
+
+  saveBankCredentials(credentials: any): Observable<boolean> {
+    this.isLoading.set(true);
+    
+    return of(true).pipe(
+      delay(1500),
+      map(() => {
+        this.isLoading.set(false);
+        // Mock: salvar credenciais bancárias
+        console.log('Credenciais bancárias salvas:', {
+          clientId: credentials.clientId.substring(0, 8) + '...',
+          certificateUploaded: !!credentials.certificateFile
+        });
         return true;
       })
     );
