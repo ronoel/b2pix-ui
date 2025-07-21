@@ -914,7 +914,7 @@ export class PixAccountComponent implements OnInit {
 
   openBankAccount() {
     // Abrir site do banco EFI para criar conta
-    window.open('https://app.sejaefi.com.br/home', '_blank');
+    window.open('https://sejaefi.com.br/', '_blank');
   }
 
   createAd() {

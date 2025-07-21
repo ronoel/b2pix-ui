@@ -816,12 +816,8 @@ export class BankSetupComponent {
   @Output() setupComplete = new EventEmitter<BankCredentials>();
   @Output() setupCancelled = new EventEmitter<void>();
 
-  openBankSite() {
-    window.open('https://app.sejaefi.com.br/home', '_blank');
-  }
-
   openBankApp() {
-    window.open('https://app.sejaefi.com.br/home', '_blank');
+    window.open('https://sejaefi.com.br/', '_blank');
   }
 
   nextStep() {
