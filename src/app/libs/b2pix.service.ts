@@ -5,8 +5,6 @@ import { Observable, of, from } from 'rxjs';
 import { switchMap, tap, map } from 'rxjs/operators';
 import { WalletService } from './wallet.service';
 
-const SIGNATURE_DOMAIN = 'b2pix.org';
-
 export interface SendInviteRequest {
   publicKey: string;
   signature: string;
@@ -59,7 +57,7 @@ export class B2pixService {
   }
 
   private createPayloadSendInvite(email: string): string {
-    return `B2PIX - Enviar Convite\n${SIGNATURE_DOMAIN}\n${email}\n${this.getTimestamp()}`;
+    return `B2PIX - Enviar Convite\n${environment.domain}\n${email}\n${this.getTimestamp()}`;
   }
 
   sendInvite(email: string): Observable<SendInviteResponse> {
@@ -80,7 +78,7 @@ export class B2pixService {
   }
 
   private createPayloadClaimInvite(inviteCode: string, username: string): string {
-    return `B2PIX - Resgatar Convite\n${SIGNATURE_DOMAIN}\n${inviteCode}\n${username}\n${this.walletService.getSTXAddress()}\n${this.getTimestamp()}`;
+    return `B2PIX - Resgatar Convite\n${environment.domain}\n${inviteCode}\n${username}\n${this.walletService.getSTXAddress()}\n${this.getTimestamp()}`;
   }
 
   claimInvite(inviteCode: string, username: string): Observable<InviteInfo> {

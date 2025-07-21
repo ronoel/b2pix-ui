@@ -1,5 +1,6 @@
 export const environment = {
     production: true,
+    domain: 'b2pix.org',
     network: "mainnet", // 'mainnet', 'testnet', 'devnet', 'mocknet'
     // apiUrl: 'http://localhost:3000/api/v1',
     // apiUrl: 'https://boltproto.org/api/v1',
