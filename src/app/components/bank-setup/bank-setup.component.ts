@@ -53,7 +53,7 @@ interface BankCredentials {
               <path d="M12 17H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
             <div>
-              <strong>Importante:</strong> Acesse o aplicativo pelo computador/navegador, não pelo celular.
+              <strong>Importante:</strong> Acesse o aplicativo do banco pelo computador, não pelo celular.
             </div>
           </div>
 

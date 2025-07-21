@@ -1,12 +1,12 @@
 import { inject } from "@angular/core";
 import { CanActivateFn, Router } from "@angular/router";
 import { WalletService } from "../../libs/wallet.service";
-import { B2pixService } from "../../libs/b2pix.service";
+import { InvitesService } from "../../shared/api/invites.service";
 import { map, catchError, of } from "rxjs";
 
 export const authGuard: CanActivateFn = (route, state) => {
   const walletService = inject(WalletService);
-  const b2pixService = inject(B2pixService);
+  const invitesService = inject(InvitesService);
   const router = inject(Router);
 
   // Check if wallet is connected
@@ -16,7 +16,7 @@ export const authGuard: CanActivateFn = (route, state) => {
   }
 
   // Check invite status
-  return b2pixService.getWalletInvite().pipe(
+  return invitesService.getWalletInvite().pipe(
     map((invite) => {
 
       if (!invite) {

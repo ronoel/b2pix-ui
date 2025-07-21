@@ -1,9 +1,9 @@
 import { Injectable, effect, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../environments/environment';
+import { environment } from '../../../environments/environment';
 import { Observable, of, from } from 'rxjs';
 import { switchMap, tap, map } from 'rxjs/operators';
-import { WalletService } from './wallet.service';
+import { WalletService } from '../../libs/wallet.service';
 
 export interface SendInviteRequest {
   publicKey: string;
@@ -39,7 +39,7 @@ export interface InviteInfo {
 // }
 
 @Injectable({ providedIn: 'root' })
-export class B2pixService {
+export class InvitesService {
   private http = inject(HttpClient);
   private apiUrl = environment.apiUrl;
   private inviteCache = new Map<string, InviteInfo>();

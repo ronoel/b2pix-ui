@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { B2pixService } from '../../libs/b2pix.service';
+import { InvitesService } from '../../shared/api/invites.service';
 
 @Component({
   selector: 'app-invite-validation',
@@ -178,7 +178,7 @@ import { B2pixService } from '../../libs/b2pix.service';
 })
 export class InviteValidationComponent {
   private router = inject(Router);
-  private b2pixService = inject(B2pixService);
+  private invitesService = inject(InvitesService);
   
   inviteCode = '';
   username = '';
@@ -236,7 +236,7 @@ export class InviteValidationComponent {
     this.loading.set(true);
     this.error.set('');
     
-    this.b2pixService.claimInvite(this.inviteCode, this.username).subscribe({
+    this.invitesService.claimInvite(this.inviteCode, this.username).subscribe({
       next: (response) => {
         
         if (response && response.status === 'claimed') {

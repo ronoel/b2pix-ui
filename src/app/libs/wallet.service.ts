@@ -3,8 +3,6 @@ import { AppConfig, openSignatureRequestPopup, UserData, UserSession } from '@st
 import { showConnect } from '@stacks/connect';
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
-import { B2pixService } from './b2pix.service';
-import { routes } from '../app.routes';
 import { Router } from '@angular/router';
 
 const appConfig = new AppConfig(['store_write', 'publish_data']);

@@ -2,7 +2,7 @@ import { Component, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { WalletService } from '../../libs/wallet.service';
-import { B2pixService } from '../../libs/b2pix.service';
+import { InvitesService } from '../../shared/api/invites.service';
 
 @Component({
   selector: 'app-landing',
@@ -419,7 +419,7 @@ import { B2pixService } from '../../libs/b2pix.service';
 export class LandingComponent {
   private router = inject(Router);
   walletService = inject(WalletService);
-  private b2pixService = inject(B2pixService);
+  private invitesService = inject(InvitesService);
   private connectWalletClicked = false;
   public isLoggedIn = this.walletService.isLoggedInSignal();
 
@@ -444,7 +444,7 @@ export class LandingComponent {
   }
 
   testSentInvitePayload() {
-    this.b2pixService.sendInvite("ronoeljr@gmail.com").subscribe({
+    this.invitesService.sendInvite("ronoeljr@gmail.com").subscribe({
       next: (response) => {
         console.log('Invite sent successfully:', response);
       },
