@@ -2,6 +2,8 @@ import { Component, inject, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LoadingService } from '../../services/loading.service';
+import { BankAccountService } from '../../shared/api/bank-account.service';
+import { firstValueFrom } from 'rxjs';
 
 interface BankCredentials {
   clientId: string;
@@ -167,12 +169,17 @@ interface BankCredentials {
             <button 
               class="btn btn-primary" 
               (click)="nextStep()"
-              [disabled]="!credentials.clientId || !credentials.clientSecret">
-              Continuar
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M12 5L19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
+              [disabled]="!credentials.clientId || !credentials.clientSecret || loadingService.getIsLoading()()">
+              @if (loadingService.getIsLoading()()) {
+                <div class="btn-loading"></div>
+                Salvando...
+              } @else {
+                Continuar
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M12 5L19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              }
             </button>
           </div>
         </div>
@@ -805,6 +812,7 @@ interface BankCredentials {
 })
 export class BankSetupComponent {
   protected loadingService = inject(LoadingService);
+  private bankAccountService = inject(BankAccountService);
 
   currentStep = 1;
   credentials: BankCredentials = {
@@ -820,9 +828,53 @@ export class BankSetupComponent {
     window.open('https://sejaefi.com.br/', '_blank');
   }
 
-  nextStep() {
+  async nextStep() {
+    if (this.currentStep === 1) {
+      // Save credentials before moving to step 2
+      await this.saveCredentials();
+    }
+    
     if (this.currentStep < 3) {
       this.currentStep++;
+    }
+  }
+
+  private async saveCredentials() {
+    if (!this.credentials.clientId || !this.credentials.clientSecret) {
+      alert('Por favor, preencha todos os campos obrigatórios.');
+      return;
+    }
+
+    this.loadingService.show();
+
+    try {
+      await firstValueFrom(
+        this.bankAccountService.setBankCredentials(
+          this.credentials.clientId,
+          this.credentials.clientSecret
+        )
+      );
+      
+      console.log('Credenciais salvas com sucesso');
+      
+    } catch (error: any) {
+      console.error('Error saving bank credentials:', error);
+      
+      // Handle different types of errors
+      if (error.status === 400) {
+        alert('Erro nos dados fornecidos. Verifique as credenciais.');
+      } else if (error.status === 401) {
+        alert('Erro de autenticação. Verifique se você está logado.');
+      } else if (error.status === 500) {
+        alert('Erro interno do servidor. Tente novamente mais tarde.');
+      } else {
+        alert('Erro ao salvar credenciais bancárias. Tente novamente.');
+      }
+      
+      // Don't proceed to next step if there was an error
+      throw error;
+    } finally {
+      this.loadingService.hide();
     }
   }
 
@@ -855,8 +907,68 @@ export class BankSetupComponent {
     return credential.substring(0, 4) + '*'.repeat(credential.length - 8) + credential.substring(credential.length - 4);
   }
 
-  submitCredentials() {
-    this.setupComplete.emit(this.credentials);
+  private async convertFileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const result = reader.result as string;
+          // Remove the data URL prefix (e.g., "data:application/x-pkcs12;base64,")
+          const base64 = result.split(',')[1];
+          resolve(base64);
+        } catch (error) {
+          reject(new Error('Erro ao processar o arquivo do certificado'));
+        }
+      };
+      reader.onerror = () => reject(new Error('Erro ao ler o arquivo do certificado'));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async submitCredentials() {
+    if (!this.credentials.certificateFile) {
+      alert('Por favor, selecione o arquivo de certificado.');
+      return;
+    }
+
+    // Validate certificate file extension
+    if (!this.credentials.certificateFile.name.toLowerCase().endsWith('.p12')) {
+      alert('O arquivo de certificado deve ter extensão .p12');
+      return;
+    }
+
+    this.loadingService.show();
+
+    try {
+      // Convert certificate to base64 and upload
+      const certificateBase64 = await this.convertFileToBase64(this.credentials.certificateFile);
+      
+      await firstValueFrom(
+        this.bankAccountService.setCertificate(
+          certificateBase64,
+          this.credentials.certificateFile.name
+        )
+      );
+
+      // Success - emit completion event
+      this.setupComplete.emit(this.credentials);
+      
+    } catch (error: any) {
+      console.error('Error uploading certificate:', error);
+      
+      // Handle different types of errors
+      if (error.status === 400) {
+        alert('Erro no arquivo do certificado. Verifique se o arquivo está correto.');
+      } else if (error.status === 401) {
+        alert('Erro de autenticação. Verifique se você está logado.');
+      } else if (error.status === 500) {
+        alert('Erro interno do servidor. Tente novamente mais tarde.');
+      } else {
+        alert('Erro ao fazer upload do certificado. Tente novamente.');
+      }
+    } finally {
+      this.loadingService.hide();
+    }
   }
 }
 
