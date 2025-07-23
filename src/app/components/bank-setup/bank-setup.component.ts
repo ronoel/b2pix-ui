@@ -169,17 +169,12 @@ interface BankCredentials {
             <button 
               class="btn btn-primary" 
               (click)="nextStep()"
-              [disabled]="!credentials.clientId || !credentials.clientSecret || loadingService.getIsLoading()()">
-              @if (loadingService.getIsLoading()()) {
-                <div class="btn-loading"></div>
-                Salvando...
-              } @else {
-                Continuar
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M12 5L19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              }
+              [disabled]="!credentials.clientId || !credentials.clientSecret">
+              Continuar
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 5L19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
             </button>
           </div>
         </div>
@@ -260,7 +255,7 @@ interface BankCredentials {
                       <div class="file-size">{{ formatFileSize(credentials.certificateFile.size) }}</div>
                     </div>
                   </div>
-                  <button type="button" class="change-file-btn">Alterar arquivo</button>
+                  <button type="button" class="change-file-btn" (click)="triggerFileInput($event)">Alterar arquivo</button>
                 } @else {
                   <div class="upload-prompt">
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
@@ -362,7 +357,7 @@ interface BankCredentials {
               [disabled]="loadingService.getIsLoading()()">
               @if (loadingService.getIsLoading()()) {
                 <div class="btn-loading"></div>
-                Configurando...
+                Configurando Sistema Bancário...
               } @else {
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                   <path d="M9 11L12 14L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -828,53 +823,9 @@ export class BankSetupComponent {
     window.open('https://sejaefi.com.br/', '_blank');
   }
 
-  async nextStep() {
-    if (this.currentStep === 1) {
-      // Save credentials before moving to step 2
-      await this.saveCredentials();
-    }
-    
+  nextStep() {
     if (this.currentStep < 3) {
       this.currentStep++;
-    }
-  }
-
-  private async saveCredentials() {
-    if (!this.credentials.clientId || !this.credentials.clientSecret) {
-      alert('Por favor, preencha todos os campos obrigatórios.');
-      return;
-    }
-
-    this.loadingService.show();
-
-    try {
-      await firstValueFrom(
-        this.bankAccountService.setBankCredentials(
-          this.credentials.clientId,
-          this.credentials.clientSecret
-        )
-      );
-      
-      console.log('Credenciais salvas com sucesso');
-      
-    } catch (error: any) {
-      console.error('Error saving bank credentials:', error);
-      
-      // Handle different types of errors
-      if (error.status === 400) {
-        alert('Erro nos dados fornecidos. Verifique as credenciais.');
-      } else if (error.status === 401) {
-        alert('Erro de autenticação. Verifique se você está logado.');
-      } else if (error.status === 500) {
-        alert('Erro interno do servidor. Tente novamente mais tarde.');
-      } else {
-        alert('Erro ao salvar credenciais bancárias. Tente novamente.');
-      }
-      
-      // Don't proceed to next step if there was an error
-      throw error;
-    } finally {
-      this.loadingService.hide();
     }
   }
 
@@ -891,6 +842,15 @@ export class BankSetupComponent {
     const file = event.target.files[0];
     if (file) {
       this.credentials.certificateFile = file;
+    }
+  }
+
+  triggerFileInput(event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    const fileInput = document.getElementById('certificate') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.click();
     }
   }
 
@@ -926,8 +886,8 @@ export class BankSetupComponent {
   }
 
   async submitCredentials() {
-    if (!this.credentials.certificateFile) {
-      alert('Por favor, selecione o arquivo de certificado.');
+    if (!this.credentials.clientId || !this.credentials.clientSecret || !this.credentials.certificateFile) {
+      alert('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
 
@@ -940,11 +900,14 @@ export class BankSetupComponent {
     this.loadingService.show();
 
     try {
-      // Convert certificate to base64 and upload
+      // Convert certificate to base64
       const certificateBase64 = await this.convertFileToBase64(this.credentials.certificateFile);
       
+      // Complete bank setup with both credentials and certificate
       await firstValueFrom(
-        this.bankAccountService.setCertificate(
+        this.bankAccountService.setupBank(
+          this.credentials.clientId,
+          this.credentials.clientSecret,
           certificateBase64,
           this.credentials.certificateFile.name
         )
@@ -954,17 +917,17 @@ export class BankSetupComponent {
       this.setupComplete.emit(this.credentials);
       
     } catch (error: any) {
-      console.error('Error uploading certificate:', error);
+      console.error('Error setting up bank configuration:', error);
       
       // Handle different types of errors
       if (error.status === 400) {
-        alert('Erro no arquivo do certificado. Verifique se o arquivo está correto.');
+        alert('Erro nos dados fornecidos. Verifique as credenciais e o certificado.');
       } else if (error.status === 401) {
         alert('Erro de autenticação. Verifique se você está logado.');
       } else if (error.status === 500) {
         alert('Erro interno do servidor. Tente novamente mais tarde.');
       } else {
-        alert('Erro ao fazer upload do certificado. Tente novamente.');
+        alert('Erro ao configurar o sistema bancário. Tente novamente.');
       }
     } finally {
       this.loadingService.hide();

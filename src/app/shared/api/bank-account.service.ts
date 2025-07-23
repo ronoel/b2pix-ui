@@ -5,17 +5,7 @@ import { Observable, from } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { WalletService } from '../../libs/wallet.service';
 
-export interface SetBankCredentialsRequest {
-  signature: string;
-  publicKey: string;
-  payload: string;
-}
-
-export interface SetBankCredentialsResponse {
-  message: string;
-}
-
-export interface SetCertificateRequest {
+export interface BankSetupRequest {
   signature: string;
   publicKey: string;
   payload: string;
@@ -23,7 +13,7 @@ export interface SetCertificateRequest {
   filename: string;    // must end with .p12
 }
 
-export interface SetCertificateResponse {
+export interface BankSetupResponse {
   message: string;
 }
 
@@ -37,34 +27,23 @@ export class BankAccountService {
     return new Date().toISOString();
   }
 
-  setBankCredentials(clientId: string, secretKey: string): Observable<SetBankCredentialsResponse> {
+  /**
+   * Complete bank setup with credentials and certificate in a single atomic operation
+   */
+  setupBank(clientId: string, secretKey: string, certificateBase64: string, filename: string): Observable<BankSetupResponse> {
     const address = this.walletService.getSTXAddress();
-    const payload = `B2PIX - Definir Credenciais Bancárias\n${environment.domain}\n${address}\n${clientId}\n${secretKey}\n${this.getTimestamp()}`;
+    const payload = `B2PIX - Configurar Banco\n${environment.domain}\n${address}\n${clientId}\n${secretKey}\n${this.getTimestamp()}`;
+    
     return from(this.walletService.signMessage(payload)).pipe(
       switchMap(signedMessage => {
-        const data: SetBankCredentialsRequest = {
-          publicKey: signedMessage.publicKey,
-          signature: signedMessage.signature,
-          payload
-        };
-        return this.http.post<SetBankCredentialsResponse>(`${this.apiUrl}/v1/invites/credentials`, data);
-      })
-    );
-  }
-
-  setCertificate(certificateBase64: string, filename: string): Observable<SetCertificateResponse> {
-    const address = this.walletService.getSTXAddress();
-    const payload = `B2PIX - Definir Certificado\n${environment.domain}\n${address}\n${this.getTimestamp()}`;
-    return from(this.walletService.signMessage(payload)).pipe(
-      switchMap(signedMessage => {
-        const data: SetCertificateRequest = {
+        const data: BankSetupRequest = {
           publicKey: signedMessage.publicKey,
           signature: signedMessage.signature,
           payload,
           certificate: certificateBase64,
           filename
         };
-        return this.http.post<SetCertificateResponse>(`${this.apiUrl}/v1/invites/certificate`, data);
+        return this.http.post<BankSetupResponse>(`${this.apiUrl}/v1/invites/banksetup`, data);
       })
     );
   }
