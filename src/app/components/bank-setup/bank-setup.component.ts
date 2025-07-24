@@ -11,6 +11,12 @@ interface BankCredentials {
   certificateFile: File | null;
 }
 
+interface SetupResult {
+  success: boolean;
+  message: string;
+  type: 'success' | 'error' | 'warning';
+}
+
 @Component({
   selector: 'app-bank-setup',
   standalone: true,
@@ -29,9 +35,14 @@ interface BankCredentials {
           <span>Certificado</span>
         </div>
         <div class="step-line" [class.completed]="currentStep > 2"></div>
-        <div class="step" [class.active]="currentStep === 3">
+        <div class="step" [class.active]="currentStep === 3" [class.completed]="currentStep > 3">
           <div class="step-circle">3</div>
           <span>Finalizar</span>
+        </div>
+        <div class="step-line" [class.completed]="currentStep > 3"></div>
+        <div class="step" [class.active]="currentStep === 4">
+          <div class="step-circle">4</div>
+          <span>Resultado</span>
         </div>
       </div>
 
@@ -367,6 +378,112 @@ interface BankCredentials {
               }
             </button>
           </div>
+
+          <!-- Setup Result Message -->
+          @if (setupResult) {
+            <div class="setup-result" [class]="'setup-result-' + setupResult.type">
+              <div class="result-icon">
+                @if (setupResult.type === 'success') {
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M9 11L12 14L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 20.5304 3 20V9C3 8.46957 3.21071 7.96086 3.58579 7.58579C3.96086 7.21071 4.46957 7 5 7H13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                } @else if (setupResult.type === 'warning') {
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M10.29 3.86L1.82 18C1.64 18.37 1.9 18.8 2.32 18.8H21.68C22.1 18.8 22.36 18.37 22.18 18L13.71 3.86C13.53 3.49 13.07 3.49 12.89 3.86L10.29 3.86Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <line x1="12" y1="9" x2="12" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 17H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                } @else {
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                    <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2"/>
+                    <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                }
+              </div>
+              <div class="result-content">
+                <div class="result-message" [innerHTML]="setupResult.message"></div>
+                @if (setupResult.type === 'success') {
+                  <div class="result-actions">
+                    <button class="btn btn-primary" (click)="closeSetup()">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M9 11L12 14L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      Continuar
+                    </button>
+                  </div>
+                } @else {
+                  <div class="result-actions">
+                    <button class="btn btn-outline" (click)="clearResult()">Fechar</button>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Step 4: Result -->
+      @if (currentStep === 4) {
+        <div class="step-content result-page">
+          @if (setupResult) {
+            <div class="step-header">
+              <div class="step-icon" [class]="setupResult.type + '-icon'">
+                @if (setupResult.type === 'success') {
+                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
+                    <path d="M9 11L12 14L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 20.5304 3 20V9C3 8.46957 3.21071 7.96086 3.58579 7.58579C3.96086 7.21071 4.46957 7 5 7H13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                } @else if (setupResult.type === 'warning') {
+                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
+                    <path d="M10.29 3.86L1.82 18C1.64 18.37 1.9 18.8 2.32 18.8H21.68C22.1 18.8 22.36 18.37 22.18 18L13.71 3.86C13.53 3.49 13.07 3.49 12.89 3.86L10.29 3.86Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <line x1="12" y1="9" x2="12" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 17H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                } @else {
+                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                    <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2"/>
+                    <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                }
+              </div>
+              <h2>
+                @if (setupResult.type === 'success') {
+                  Configuração Concluída!
+                } @else if (setupResult.type === 'warning') {
+                  Atenção Necessária
+                } @else {
+                  Erro na Configuração
+                }
+              </h2>
+            </div>
+
+            <div class="result-content-page" [class]="'result-' + setupResult.type">
+              <div class="result-message-page" [innerHTML]="setupResult.message"></div>
+            </div>
+
+            <div class="result-actions-page">
+              @if (setupResult.type === 'success') {
+                <button class="btn btn-primary btn-large" (click)="closeSetup()">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M9 11L12 14L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Continuar para o Dashboard
+                </button>
+              } @else {
+                <button class="btn btn-outline btn-large" (click)="restartSetup()">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M1 4V10H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M3.51 15C4.15 16.65 5.18 18.08 6.85 19C8.85 20.22 11.43 20.49 13.34 19.5C15.38 18.42 16.81 16.19 17.08 13.66" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Tentar Novamente
+                </button>
+                <button class="btn btn-outline" (click)="closeSetup()">Fechar</button>
+              }
+            </div>
+          }
         </div>
       }
     </div>
@@ -770,6 +887,115 @@ interface BankCredentials {
       100% { transform: rotate(360deg); }
     }
 
+    .setup-result {
+      margin-top: var(--spacing-2xl);
+      padding: var(--spacing-lg);
+      border-radius: var(--border-radius-lg);
+      border: 1px solid;
+      display: flex;
+      align-items: flex-start;
+      gap: var(--spacing-md);
+    }
+
+    .setup-result-success {
+      background: var(--success-green-bg);
+      border-color: var(--success-green);
+      color: var(--success-green-text);
+    }
+
+    .setup-result-error {
+      background: var(--error-red-bg);
+      border-color: var(--error-red);
+      color: var(--error-red-text);
+    }
+
+    .setup-result-warning {
+      background: var(--warning-yellow-bg);
+      border-color: var(--warning-yellow);
+      color: var(--warning-yellow-text);
+    }
+
+    .result-icon {
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .result-content {
+      flex: 1;
+    }
+
+    .result-message {
+      font-size: var(--font-size-sm);
+      line-height: 1.5;
+      white-space: pre-line;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .result-actions {
+      display: flex;
+      gap: var(--spacing-sm);
+    }
+
+    .result-actions .btn {
+      padding: var(--spacing-xs) var(--spacing-md);
+      font-size: var(--font-size-sm);
+    }
+
+    .result-page {
+      text-align: center;
+    }
+
+    .result-content-page {
+      padding: var(--spacing-2xl);
+      border-radius: var(--border-radius-lg);
+      margin: var(--spacing-2xl) 0;
+      border: 1px solid;
+    }
+
+    .result-success {
+      background: var(--success-green-bg);
+      border-color: var(--success-green);
+      color: var(--success-green-text);
+    }
+
+    .result-error {
+      background: var(--error-red-bg);
+      border-color: var(--error-red);
+      color: var(--error-red-text);
+    }
+
+    .result-warning {
+      background: var(--warning-yellow-bg);
+      border-color: var(--warning-yellow);
+      color: var(--warning-yellow-text);
+    }
+
+    .result-message-page {
+      font-size: var(--font-size-md);
+      line-height: 1.6;
+      white-space: pre-line;
+      text-align: left;
+    }
+
+    .result-actions-page {
+      display: flex;
+      justify-content: center;
+      gap: var(--spacing-md);
+      margin-top: var(--spacing-2xl);
+    }
+
+    .success-icon {
+      color: var(--success-green);
+    }
+
+    .warning-icon {
+      color: var(--warning-yellow);
+    }
+
+    .error-icon {
+      color: var(--error-red);
+    }
+
     @media (max-width: 768px) {
       .steps-indicator {
         padding: var(--spacing-md);
@@ -816,6 +1042,8 @@ export class BankSetupComponent {
     certificateFile: null
   };
 
+  setupResult: SetupResult | null = null;
+
   @Output() setupComplete = new EventEmitter<BankCredentials>();
   @Output() setupCancelled = new EventEmitter<void>();
 
@@ -824,7 +1052,7 @@ export class BankSetupComponent {
   }
 
   nextStep() {
-    if (this.currentStep < 3) {
+    if (this.currentStep < 4) {
       this.currentStep++;
     }
   }
@@ -852,6 +1080,26 @@ export class BankSetupComponent {
     if (fileInput) {
       fileInput.click();
     }
+  }
+
+  clearResult() {
+    this.setupResult = null;
+    this.currentStep = 3; // Go back to the review step
+  }
+
+  restartSetup() {
+    this.setupResult = null;
+    this.currentStep = 1;
+    // Optionally clear credentials
+    this.credentials = {
+      clientId: '',
+      clientSecret: '',
+      certificateFile: null
+    };
+  }
+
+  closeSetup() {
+    this.setupComplete.emit(this.credentials);
   }
 
   formatFileSize(bytes: number): string {
@@ -887,16 +1135,28 @@ export class BankSetupComponent {
 
   async submitCredentials() {
     if (!this.credentials.clientId || !this.credentials.clientSecret || !this.credentials.certificateFile) {
-      alert('Por favor, preencha todos os campos obrigatórios.');
+      this.setupResult = {
+        success: false,
+        type: 'error',
+        message: '📝 <strong>ERRO: Campos obrigatórios</strong>\n\nPor favor, preencha todos os campos obrigatórios:\n\n• Client ID\n• Client Secret\n• Arquivo de certificado (.p12)\n\n<strong>💡 DICA:</strong> Volte às etapas anteriores e complete todas as informações.'
+      };
+      this.currentStep = 4;
       return;
     }
 
     // Validate certificate file extension
     if (!this.credentials.certificateFile.name.toLowerCase().endsWith('.p12')) {
-      alert('O arquivo de certificado deve ter extensão .p12');
+      this.setupResult = {
+        success: false,
+        type: 'error',
+        message: '📜 <strong>ERRO: Tipo de arquivo incorreto</strong>\n\nO arquivo de certificado deve ter extensão .p12\n\n<strong>📋 VERIFIQUE:</strong>\n• Se você baixou o arquivo correto do aplicativo EFI\n• Se o arquivo não foi renomeado\n• Se a extensão está correta (.p12)\n\n<strong>💡 DICA:</strong> Baixe novamente o certificado do aplicativo EFI se necessário.'
+      };
+      this.currentStep = 4;
       return;
     }
 
+    // Clear any previous results
+    this.setupResult = null;
     this.loadingService.show();
 
     try {
@@ -913,25 +1173,123 @@ export class BankSetupComponent {
         )
       );
 
-      // Success - emit completion event
-      this.setupComplete.emit(this.credentials);
+      // Success
+      this.setupResult = {
+        success: true,
+        type: 'success',
+        message: '🎉 Configuração bancária realizada com sucesso!\n\nSeu sistema PIX está agora configurado e pronto para uso.'
+      };
+      
+      // Navigate to result step
+      this.currentStep = 4;
       
     } catch (error: any) {
       console.error('Error setting up bank configuration:', error);
       
       // Handle different types of errors
-      if (error.status === 400) {
-        alert('Erro nos dados fornecidos. Verifique as credenciais e o certificado.');
+      if (error.status === 400 && error.error?.error) {
+        this.handleBankSetupError(error.error.error);
+      } else if (error.status === 400) {
+        this.setupResult = {
+          success: false,
+          type: 'error',
+          message: '❌ <strong>ERRO: Dados inválidos</strong>\n\nOs dados fornecidos não estão corretos. Verifique:\n\n• As credenciais Client ID e Client Secret\n• Se o arquivo de certificado é válido (.p12)\n• Se todos os campos foram preenchidos corretamente\n\n<strong>💡 DICA:</strong> Volte às etapas anteriores e confirme se copiou corretamente as credenciais do aplicativo EFI.'
+        };
       } else if (error.status === 401) {
-        alert('Erro de autenticação. Verifique se você está logado.');
+        this.setupResult = {
+          success: false,
+          type: 'error',
+          message: '🔐 <strong>ERRO: Problema de autenticação</strong>\n\nNão foi possível validar sua identidade no sistema.\n\n<strong>📋 O QUE FAZER:</strong>\n1. Faça logout e login novamente na aplicação\n2. Verifique se sua carteira está conectada\n3. Tente realizar a configuração novamente'
+        };
       } else if (error.status === 500) {
-        alert('Erro interno do servidor. Tente novamente mais tarde.');
+        this.setupResult = {
+          success: false,
+          type: 'error',
+          message: '🛠️ <strong>ERRO: Problema no servidor</strong>\n\nOcorreu um erro interno no sistema.\n\n<strong>📋 O QUE FAZER:</strong>\n1. Aguarde alguns minutos\n2. Tente realizar a configuração novamente\n3. Se o problema persistir, entre em contato com o suporte'
+        };
       } else {
-        alert('Erro ao configurar o sistema bancário. Tente novamente.');
+        this.setupResult = {
+          success: false,
+          type: 'error',
+          message: '⚠️ <strong>ERRO: Falha na configuração</strong>\n\nNão foi possível completar a configuração do sistema bancário.\n\n<strong>📋 VERIFIQUE:</strong>\n• Se sua conexão com a internet está estável\n• Se as credenciais estão corretas\n• Se o certificado é válido\n\n<strong>💡 DICA:</strong> Refaça o processo desde o início, verificando cada passo cuidadosamente.'
+        };
       }
+      
+      // Navigate to result step for all error cases
+      this.currentStep = 4;
     } finally {
       this.loadingService.hide();
     }
+  }
+
+  private handleBankSetupError(errorMessage: string) {
+    if (errorMessage.includes('missing required scopes')) {
+      this.showScopesError(errorMessage);
+    } else if (errorMessage.includes('Certificate must be a .p12 file')) {
+      this.setupResult = {
+        success: false,
+        type: 'error',
+        message: '📜 <strong>ERRO: Problema no certificado</strong>\n\nO arquivo de certificado não é válido.\n\n<strong>📋 VERIFIQUE:</strong>\n• Se o arquivo tem extensão .p12\n• Se o certificado foi baixado corretamente do aplicativo EFI\n• Se o arquivo não está corrompido\n\n<strong>💡 COMO CORRIGIR:</strong>\n1. Volte ao aplicativo EFI\n2. Baixe novamente o certificado\n3. Certifique-se de que o arquivo tem extensão .p12\n4. Faça o upload do novo arquivo'
+      };
+    } else if (errorMessage.includes('EFI Pay authentication failed') || errorMessage.includes('Invalid or inactive credentials') || errorMessage.includes('invalid_client')) {
+      this.setupResult = {
+        success: false,
+        type: 'error',
+        message: '🔑 <strong>ERRO: Credenciais inválidas</strong>\n\nAs credenciais fornecidas não estão corretas ou estão inativas.\n\n<strong>📋 POSSÍVEIS CAUSAS:</strong>\n• Client ID ou Client Secret incorretos\n• Credenciais copiadas de forma incompleta\n• Credenciais expiraram ou foram revogadas\n\n<strong>💡 COMO CORRIGIR:</strong>\n1. Volte ao aplicativo EFI\n2. Vá em API → Aplicações → B2PIX\n3. Verifique se a aplicação está ativa\n4. Copie novamente as credenciais (Client ID e Client Secret)\n5. Cole cuidadosamente nos campos, sem espaços extras'
+      };
+    } else {
+      this.setupResult = {
+        success: false,
+        type: 'error',
+        message: `⚠️ <strong>ERRO: Falha na configuração bancária</strong>\n\n${errorMessage}\n\n<strong>📋 O QUE FAZER:</strong>\n• Verifique se as credenciais estão corretas\n• Confirme se o certificado é válido\n• Tente realizar a configuração novamente\n• Se o problema persistir, entre em contato com o suporte`
+      };
+    }
+  }
+
+  private showScopesError(errorMessage: string) {
+    // Parse the error message to extract required and granted scopes
+    const requiredMatch = errorMessage.match(/Required: \[(.*?)\]/);
+    const grantedMatch = errorMessage.match(/Granted: '(.*?)'/);
+    
+    const requiredScopes = requiredMatch ? requiredMatch[1].split(', ').map(s => s.trim()) : [];
+    const grantedScopes = grantedMatch ? grantedMatch[1].split(' ').filter(s => s.trim()) : [];
+    
+    // Map scopes to user-friendly names
+    const scopeMap: { [key: string]: string } = {
+      'pix.read': '✓ Consultar Pix',
+      'gn.pix.evp.read': '✓ Consultar Chaves aleatórias',
+      'gn.pix.evp.write': '✓ Alterar Chaves aleatórias'
+    };
+
+    let message = '🚫 <strong>ERRO: Permissões insuficientes na API PIX</strong>\n\n';
+    message += 'Você precisa configurar as seguintes permissões no aplicativo EFI:\n\n';
+    
+    // Show all required permissions and mark which ones are missing
+    requiredScopes.forEach(scope => {
+      const scopeName = scopeMap[scope] || scope;
+      const isGranted = grantedScopes.includes(scope);
+      if (isGranted) {
+        message += `${scopeName} ✅\n`;
+      } else {
+        message += `${scopeName} ❌ <strong>FALTANDO</strong>\n`;
+      }
+    });
+
+    message += '\n<strong>📋 COMO CORRIGIR:</strong>\n';
+    message += '1. Volte ao aplicativo web do Banco EFI\n';
+    message += '2. Vá em API → Aplicações → B2PIX\n';
+    message += '3. Edite a aplicação e marque TODAS as permissões:\n';
+    message += '   • Consultar Pix\n';
+    message += '   • Alterar Chaves aleatórias\n';
+    message += '   • Consultar Chaves aleatórias\n';
+    message += '4. Salve as alterações\n';
+    message += '5. Tente novamente a configuração';
+
+    this.setupResult = {
+      success: false,
+      type: 'warning',
+      message: message
+    };
   }
 }
 
