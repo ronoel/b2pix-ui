@@ -77,24 +77,6 @@ import { BankSetupComponent } from '../../components/bank-setup/bank-setup.compo
                       Configurar Conta
                     </button>
                   </div>
-                  
-                  <div class="step-card">
-                    <div class="step-header">
-                      <div class="step-number">3</div>
-                      <div class="step-content">
-                        <h3>Anuncie seu Bitcoin</h3>
-                        <p>Crie anúncios para vender Bitcoin e receber o dinheiro na sua conta</p>
-                      </div>
-                    </div>
-                    <button class="btn btn-primary step-btn" (click)="createAd()" [disabled]="!pixConfigured">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                      Criar Anúncio
-                    </button>
-                  </div>
                 </div>
               </div>
             </div>
