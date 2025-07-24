@@ -103,7 +103,8 @@ import { BankSetupComponent } from '../../components/bank-setup/bank-setup.compo
           <!-- Bank Setup Component -->
           <app-bank-setup 
             (setupComplete)="onBankSetupComplete($event)"
-            (setupCancelled)="onBankSetupCancelled()">
+            (setupCancelled)="onBankSetupCancelled()"
+            (setupSuccess)="onBankSetupSuccess($event)">
           </app-bank-setup>
         } @else if (showForm && !accountCreated) {
           <!-- Setup Form -->
@@ -904,6 +905,26 @@ export class PixAccountComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Erro ao salvar credenciais:', error);
+      }
+    });
+  }
+
+  onBankSetupSuccess(credentials: any) {
+    this.bankCredentials = credentials;
+    this.bankCredentialsConfigured = true;
+    this.showBankSetup = false;
+    
+    // Salvar credenciais no serviço
+    this.userService.saveBankCredentials(credentials).subscribe({
+      next: (success: boolean) => {
+        console.log('Credenciais salvas com sucesso');
+        // Navigate to dashboard on successful setup
+        this.router.navigate(['/dashboard']);
+      },
+      error: (error: any) => {
+        console.error('Erro ao salvar credenciais:', error);
+        // Still navigate to dashboard even if save fails
+        this.router.navigate(['/dashboard']);
       }
     });
   }

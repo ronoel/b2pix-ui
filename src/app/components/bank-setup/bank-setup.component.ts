@@ -378,49 +378,6 @@ interface SetupResult {
               }
             </button>
           </div>
-
-          <!-- Setup Result Message -->
-          @if (setupResult) {
-            <div class="setup-result" [class]="'setup-result-' + setupResult.type">
-              <div class="result-icon">
-                @if (setupResult.type === 'success') {
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path d="M9 11L12 14L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 20.5304 3 20V9C3 8.46957 3.21071 7.96086 3.58579 7.58579C3.96086 7.21071 4.46957 7 5 7H13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                } @else if (setupResult.type === 'warning') {
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path d="M10.29 3.86L1.82 18C1.64 18.37 1.9 18.8 2.32 18.8H21.68C22.1 18.8 22.36 18.37 22.18 18L13.71 3.86C13.53 3.49 13.07 3.49 12.89 3.86L10.29 3.86Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <line x1="12" y1="9" x2="12" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M12 17H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                } @else {
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-                    <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2"/>
-                    <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2"/>
-                  </svg>
-                }
-              </div>
-              <div class="result-content">
-                <div class="result-message" [innerHTML]="setupResult.message"></div>
-                @if (setupResult.type === 'success') {
-                  <div class="result-actions">
-                    <button class="btn btn-primary" (click)="closeSetup()">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                        <path d="M9 11L12 14L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                      Continuar
-                    </button>
-                  </div>
-                } @else {
-                  <div class="result-actions">
-                    <button class="btn btn-outline" (click)="clearResult()">Fechar</button>
-                  </div>
-                }
-              </div>
-            </div>
-          }
         </div>
       }
 
@@ -1046,6 +1003,7 @@ export class BankSetupComponent {
 
   @Output() setupComplete = new EventEmitter<BankCredentials>();
   @Output() setupCancelled = new EventEmitter<void>();
+  @Output() setupSuccess = new EventEmitter<BankCredentials>();
 
   openBankApp() {
     window.open('https://sejaefi.com.br/', '_blank');
@@ -1099,7 +1057,13 @@ export class BankSetupComponent {
   }
 
   closeSetup() {
-    this.setupComplete.emit(this.credentials);
+    if (this.setupResult && this.setupResult.type === 'success') {
+      // Emit success event for successful completion
+      this.setupSuccess.emit(this.credentials);
+    } else {
+      // Emit regular complete event for other cases
+      this.setupComplete.emit(this.credentials);
+    }
   }
 
   formatFileSize(bytes: number): string {
