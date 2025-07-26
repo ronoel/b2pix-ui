@@ -31,6 +31,7 @@ export interface ClaimInviteResponse {
 
 export interface InviteInfo {
   status: string;
+  bank_status: 'pending' | 'processing' | 'success' | 'failed';
 }
 
 // export function sentInvitePayload(email: string): string {
@@ -124,13 +125,13 @@ export class InvitesService {
           this.inviteCache.set(address, invite);
         } else {
           // For 204 No Content responses, create a default response and cache it
-          const defaultInvite: InviteInfo = { status: 'not_found' };
+          const defaultInvite: InviteInfo = { status: 'not_found', bank_status: 'pending' };
           this.inviteCache.set(address, defaultInvite);
         }
       }),
       map((invite: InviteInfo | null) => {
         // Return a default response if invite is null/undefined (204 No Content)
-        return invite || { status: 'not_found' };
+        return invite || { status: 'not_found', bank_status: 'pending' };
       })
     );
   }

@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { TransactionService } from '../../services/transaction.service';
 import { UserService } from '../../services/user.service';
 import { LoadingService } from '../../services/loading.service';
+import { InvitesService } from '../../shared/api/invites.service';
 
 @Component({
   selector: 'app-sell',
@@ -541,8 +542,9 @@ export class SellComponent implements OnInit {
   private userService = inject(UserService);
   private transactionService = inject(TransactionService);
   protected loadingService = inject(LoadingService);
+  private invitesService = inject(InvitesService);
 
-  hasPixAccount = true; // Mock value
+  hasPixAccount = false; // Changed to false as default, will be updated based on invite status
   currentBtcPrice = this.userService.currentBtcPrice;
   
   sellOrder = {
@@ -554,10 +556,16 @@ export class SellComponent implements OnInit {
   sellConfirmed = false;
 
   ngOnInit() {
-    // Check if user has PIX account
-    this.userService.getUserPixAccount().subscribe({
-      next: (pixAccount) => {
-        this.hasPixAccount = !!pixAccount;
+    // Check if user has PIX account by checking invite bank status
+    this.invitesService.getWalletInvite().subscribe({
+      next: (invite) => {
+        // Only show sell form if bank status is "success"
+        this.hasPixAccount = invite?.bank_status === 'success';
+      },
+      error: (error) => {
+        console.error('Error checking invite status:', error);
+        // On error, assume no PIX account
+        this.hasPixAccount = false;
       }
     });
   }
