@@ -54,8 +54,7 @@ export class BoltProtocolService {
     console.warn('NOT IMPLEMENTED: sponsorTransaction', serializedTx);
     return this.http.post<{ txid: string }>(
       `${this.apiUrl}/sponsor/${environment.supportedAsset.sBTC.contractToken}/transaction`,
-      // { serializedTx, fee: 50, sponsor: environment.gameContract.contractAddress },
-      { serializedTx, fee: 50, sponsor: "environment.gameContract.contractAddress" },
+      { serializedTx, fee: 50, sponsor: "b2pix" },
       { headers: this.getClientHeaders() }
     ).pipe(
       map(response => response.txid)
