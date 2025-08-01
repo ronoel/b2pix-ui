@@ -24,10 +24,14 @@ export class BoltProtocolService {
 
   sendTransaction(transaction: any): Observable<any> {
     const serializedTx = bytesToHex(transaction.serializeBytes());
+    console.warn('NOT IMPLEMENTED: sendTransaction', serializedTx);
     return this.http.post(
-      `${this.apiUrl}/transaction/${environment.supportedAsset.sBTC.contractToken}`,
-      { serializedTx },
+      `${this.apiUrl}/advertisements`,
+      { address_sell: 'address', token: 'sBTC', currency: 'BRL', price: 50, amount: 100, transaction: serializedTx},
       { headers: this.getClientHeaders() }
+      // `${this.apiUrl}/transaction/${environment.supportedAsset.sBTC.contractToken}`,
+      // { serializedTx },
+      // { headers: this.getClientHeaders() }
     );
   }
   getWalletBalance(address: string, token: string): Observable<WalletBalance> {
@@ -53,9 +57,12 @@ export class BoltProtocolService {
     const serializedTx = bytesToHex(transaction.serializeBytes());
     console.warn('NOT IMPLEMENTED: sponsorTransaction', serializedTx);
     return this.http.post<{ txid: string }>(
-      `${this.apiUrl}/sponsor/${environment.supportedAsset.sBTC.contractToken}/transaction`,
-      { serializedTx, fee: 50, sponsor: "b2pix" },
+      `${this.apiUrl}/advertisements`,
+      { address_sell: 'address', token: 'sBTC', currency: 'BRL', price: 50, amount: 100, transaction: serializedTx},
       { headers: this.getClientHeaders() }
+      // `${this.apiUrl}/sponsor/${environment.supportedAsset.sBTC.contractToken}/transaction`,
+      // { serializedTx, fee: 50, sponsor: "b2pix" },
+      // { headers: this.getClientHeaders() }
     ).pipe(
       map(response => response.txid)
     );

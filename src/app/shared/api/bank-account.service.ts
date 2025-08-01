@@ -2,8 +2,9 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Observable, from } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { switchMap, tap } from 'rxjs/operators';
 import { WalletService } from '../../libs/wallet.service';
+import { InvitesService } from './invites.service';
 
 export interface BankSetupRequest {
   signature: string;
@@ -22,6 +23,7 @@ export class BankAccountService {
   private http = inject(HttpClient);
   private apiUrl = environment.apiUrl;
   private walletService = inject(WalletService);
+  private invitesService = inject(InvitesService);
 
   private getTimestamp(): string {
     return new Date().toISOString();
@@ -33,7 +35,7 @@ export class BankAccountService {
   setupBank(clientId: string, secretKey: string, certificateBase64: string, filename: string): Observable<BankSetupResponse> {
     const address = this.walletService.getSTXAddress();
     const payload = `B2PIX - Configurar Banco\n${environment.domain}\n${address}\n${clientId}\n${secretKey}\n${this.getTimestamp()}`;
-    
+
     return from(this.walletService.signMessage(payload)).pipe(
       switchMap(signedMessage => {
         const data: BankSetupRequest = {
@@ -43,7 +45,12 @@ export class BankAccountService {
           certificate: certificateBase64,
           filename
         };
-        return this.http.post<BankSetupResponse>(`${this.apiUrl}/v1/invites/banksetup`, data);
+        return this.http.post<BankSetupResponse>(`${this.apiUrl}/v1/invites/banksetup`, data).pipe(
+          tap(() => {
+            // Clear cache when claiming an invite as the status might change
+            this.invitesService.clearInviteCache();
+          })
+        );
       })
     );
   }

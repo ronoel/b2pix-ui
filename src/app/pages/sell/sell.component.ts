@@ -6,6 +6,7 @@ import { TransactionService } from '../../services/transaction.service';
 import { UserService } from '../../services/user.service';
 import { LoadingService } from '../../services/loading.service';
 import { InvitesService } from '../../shared/api/invites.service';
+import { BoltContractSBTCService } from '../../libs/bolt-contract-sbtc.service';
 
 @Component({
   selector: 'app-sell',
@@ -722,6 +723,7 @@ export class SellComponent implements OnInit {
   private transactionService = inject(TransactionService);
   protected loadingService = inject(LoadingService);
   private invitesService = inject(InvitesService);
+  private boltContractSBTCService = inject(BoltContractSBTCService);
 
   hasPixAccount = false; // Changed to false as default, will be updated based on invite status
   currentBtcPrice = this.userService.currentBtcPrice;
@@ -827,17 +829,33 @@ export class SellComponent implements OnInit {
   confirmSell() {
     if (!this.sellOrder.amountBtc || !this.sellOrder.btcPrice) return;
 
-    this.transactionService.createSellOrder(
-      'mock-user-id',
-      this.sellOrder.amountBtc,
-      this.sellOrder.btcPrice
-    ).subscribe({
-      next: () => {
-        this.sellConfirmed = true;
+    // Convert BTC amount to satoshis for the transfer
+    const amountInSats = Math.floor(this.sellOrder.amountBtc * this.SATS_PER_BTC);
+    const recipient = 'SP1E6P0KM6BEWF1CJQGGJXER0WG58JDZ32YYCN95R';
+
+    // First call the Bolt contract transfer
+    this.boltContractSBTCService.transferStacksToBolt(amountInSats, recipient).subscribe({
+      next: (transferResponse) => {
+        console.log('Transfer successful:', transferResponse);
+        
+        // Then create the sell order in the transaction service
+        // this.transactionService.createSellOrder(
+        //   'mock-user-id',
+        //   this.sellOrder.amountBtc,
+        //   this.sellOrder.btcPrice
+        // ).subscribe({
+        //   next: () => {
+        //     this.sellConfirmed = true;
+        //   },
+        //   error: (error: any) => {
+        //     console.error('Erro ao criar anúncio:', error);
+        //     alert('Erro ao criar anúncio. Tente novamente.');
+        //   }
+        // });
       },
-      error: (error: any) => {
-        console.error('Erro ao criar anúncio:', error);
-        alert('Erro ao criar anúncio. Tente novamente.');
+      error: (transferError: any) => {
+        console.error('Erro na transferência:', transferError);
+        alert('Erro na transferência. Tente novamente.');
       }
     });
   }
