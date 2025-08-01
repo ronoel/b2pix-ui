@@ -7,6 +7,7 @@ import { UserService } from '../../services/user.service';
 import { LoadingService } from '../../services/loading.service';
 import { InvitesService } from '../../shared/api/invites.service';
 import { BoltContractSBTCService } from '../../libs/bolt-contract-sbtc.service';
+import { deserializeTransaction } from '@stacks/transactions';
 
 @Component({
   selector: 'app-sell',
@@ -834,9 +835,24 @@ export class SellComponent implements OnInit {
     const recipient = 'SP1E6P0KM6BEWF1CJQGGJXER0WG58JDZ32YYCN95R';
 
     // First call the Bolt contract transfer
-    this.boltContractSBTCService.transferStacksToBolt(amountInSats, recipient).subscribe({
-      next: (transferResponse) => {
-        console.log('Transfer successful:', transferResponse);
+    this.boltContractSBTCService.transferStacksToBolt(amountInSats, recipient, 'Racuna Matata').subscribe({
+      next: (transactionSerialized) => {
+        console.log('Transfer successful:', transactionSerialized);
+
+        console.log('SERIALIZED Sponsored transaction:', transactionSerialized);
+        
+                            // Deserialize the transaction to inspect it
+                            try {
+                                const deserializedTx = deserializeTransaction(transactionSerialized);
+                                console.log('Deserialized transaction:', deserializedTx);
+                                
+                                // this.boltProtocolService.sendTransaction(tx).subscribe({
+                                //     next: (txid: string) => resolve({ txid }),
+                                //     error: (err) => reject({ error: err })
+                                // });
+                            } catch (error) {
+                                console.error('Failed to deserialize transaction:', error);
+                            }
         
         // Then create the sell order in the transaction service
         // this.transactionService.createSellOrder(

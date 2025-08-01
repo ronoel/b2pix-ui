@@ -8,8 +8,8 @@ export const environment = {
     hiroApiKey: '06be121cbb2d828b463e9bc108cdb169',
     blockchainAPIUrl: 'https://api.testnet.hiro.so',
     boltProtocol: {
-        contractAddress: 'SP3QZNX3CGT6V7PE1PBK17FCRK1TP1AT02ZHQCMVJ',
-        contractName: 'boltproto-sbtc-v2'
+        contractAddress: 'ST3QZNX3CGT6V7PE1PBK17FCRK1TP1AT02W1N0YJF',
+        contractName: 'boltproto-sbtc-rc-2-0-0'
     },
     supportedAsset: {
         sBTC: {

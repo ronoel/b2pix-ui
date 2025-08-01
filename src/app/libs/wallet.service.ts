@@ -1,11 +1,8 @@
 import { computed, Signal, WritableSignal, signal, Injectable, inject } from '@angular/core';
-import { AppConfig, openSignatureRequestPopup, UserData, UserSession } from '@stacks/connect';
-import { showConnect } from '@stacks/connect';
+import { connect, disconnect, isConnected, getLocalStorage, request } from '@stacks/connect';
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 import { Router } from '@angular/router';
-
-const appConfig = new AppConfig(['store_write', 'publish_data']);
 
 const myAppName = 'BoltProto'; // shown in wallet pop-up
 const myAppIcon = 'https://storage.googleapis.com/bitfund/boltproto-icon.png'; // shown in wallet pop-up
@@ -17,16 +14,13 @@ const myAppIcon = 'https://storage.googleapis.com/bitfund/boltproto-icon.png'; /
 })
 export class WalletService {
 
-  private readonly userSession = new UserSession({ appConfig });
   readonly isLoggedInSignal = signal(false);
-  readonly userDataSignal: WritableSignal<UserData | null> = signal<UserData | null>(null);
+  readonly userAddressSignal: WritableSignal<string | null> = signal<string | null>(null);
   readonly network = environment.network;
   private router = inject(Router);
 
   readonly walletAddressSignal: Signal<string | null> = computed(() => {
-    const userData = this.userDataSignal();
-    if (!userData) return null;
-    return userData.identityAddress || null;
+    return this.userAddressSignal();
   });
 
   constructor() {
@@ -38,12 +32,16 @@ export class WalletService {
    * Checks if the user is authenticated and updates the `isLoggedInSignal` accordingly.
    */
   private checkAuth() {
-    if (this.userSession.isUserSignedIn()) {
-      this.isLoggedInSignal.set(true);
-      this.userDataSignal.set(this.userSession.loadUserData());
+    const connected = isConnected();
+    this.isLoggedInSignal.set(connected);
+    
+    if (connected) {
+      const data = getLocalStorage();
+      // Get the STX address from the stored data
+      const stxAddress = data?.addresses?.stx?.[0]?.address || null;
+      this.userAddressSignal.set(stxAddress);
     } else {
-      this.isLoggedInSignal.set(false);
-      this.userDataSignal.set(null);
+      this.userAddressSignal.set(null);
     }
   }
 
@@ -52,24 +50,21 @@ export class WalletService {
    * If the user is already signed in, it logs a message and returns.
    * If the user is not signed in, it shows a connect pop-up and updates the `isLoggedInSignal` when finished.
    */
-  public signIn() {
+  public async signIn() {
     if (this.isLoggedInSignal()) {
       return;
     }
-    showConnect({
-      appDetails: {
-        name: myAppName,
-        icon: myAppIcon,
-      },
-      // redirectTo: '/',
-      onFinish: () => {
-        this.isLoggedInSignal.set(true);
-        this.userDataSignal.set(this.userSession.loadUserData());
-      },
-      onCancel: () => {
-        console.log('User cancelled'); // WHEN user cancels/closes pop-up
-      }
-    });
+    
+    try {
+      const response = await connect();
+      this.isLoggedInSignal.set(true);
+      
+      // Get the STX address from the response
+      const stxAddress = response?.addresses?.find(addr => addr.address.startsWith('S'))?.address || null;
+      this.userAddressSignal.set(stxAddress);
+    } catch (error) {
+      console.log('User cancelled or error occurred:', error);
+    }
   }
 
   /**
@@ -81,9 +76,9 @@ export class WalletService {
       return;
     }
     
-    this.userSession.signUserOut();
+    disconnect();
     this.isLoggedInSignal.set(false);
-    this.userDataSignal.set(null);
+    this.userAddressSignal.set(null);
     this.router.navigate(['/']);
   }
 
@@ -96,19 +91,20 @@ export class WalletService {
   }
 
   /**
-   * Retrieves the user data of the currently signed-in user.
-   * @returns The user data.
+   * Retrieves the wallet connection data.
+   * @returns The local storage data or null if not connected.
    */
-  public getUserData(): UserData | null {
-    return this.userDataSignal();
+  public getWalletData() {
+    return getLocalStorage();
   }
 
   /**
    * Retrieves the identity address of the currently signed-in user.
-   * @returns The identity address.
+   * In v8, this returns the STX address as identity address is deprecated.
+   * @returns The STX address.
    */
   public getIdentityAddress() {
-    return this.userDataSignal()?.identityAddress || null;
+    return this.userAddressSignal();
   }
 
   /**
@@ -116,11 +112,20 @@ export class WalletService {
    * @returns The STX address.
    */
   public getSTXAddress() {
-    const userData = this.userDataSignal();
-    if (!userData) return null;
-    return environment.network === 'mainnet'
-      ? userData.profile.stxAddress.mainnet
-      : userData.profile.stxAddress.testnet;
+    return this.userAddressSignal();
+  }
+
+  /**
+   * Retrieves the STX address or throws an error if not available.
+   * @returns The STX address.
+   * @throws Error if user is not connected or address is not available.
+   */
+  public getSTXAddressOrThrow(): string {
+    const address = this.userAddressSignal();
+    if (!address) {
+      throw new Error('STX address not available. User may not be connected.');
+    }
+    return address;
   }
 
   public getNetwork() {
@@ -160,25 +165,18 @@ export class WalletService {
       throw new Error('User is not logged in');
     }
 
-    return new Promise((resolve, reject) => {
-      openSignatureRequestPopup({
-        message,
-        appDetails: {
-          name: myAppName,
-          icon: myAppIcon,
-        },
-        onFinish: (data) => {
-          console.log('Signature data:', data);
-          resolve({
-            signature: data.signature,
-            publicKey: data.publicKey
-          });
-        },
-        onCancel: () => {
-          reject(new Error('User cancelled message signing'));
-        }
+    try {
+      const response = await request('stx_signMessage', {
+        message
       });
-    });
+      
+      return {
+        signature: response.signature,
+        publicKey: response.publicKey
+      };
+    } catch (error) {
+      throw new Error('User cancelled message signing or an error occurred');
+    }
   }
 
 }

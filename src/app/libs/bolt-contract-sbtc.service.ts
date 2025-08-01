@@ -10,6 +10,7 @@ import {
     AssetString,
     cvToJSON,
     cvToValue,
+    deserializeTransaction,
 } from '@stacks/transactions';
 import { ContractUtil } from './contract.util';
 import { BoltProtocolService } from './bolt-protocol.service';
@@ -55,7 +56,7 @@ export class BoltContractSBTCService extends ContractUtil {
         return from(new Promise<any>((resolve, reject) => {
             const ftPostCondition: FungiblePostCondition = {
                 type: 'ft-postcondition',
-                address: this.walletService.getSTXAddress(),
+                address: this.walletService.getSTXAddressOrThrow(),
                 condition: 'eq',
                 amount: amount + this.getFee(),
                 asset: this.sbtcTokenService.getAsset()
@@ -85,7 +86,7 @@ export class BoltContractSBTCService extends ContractUtil {
         return from(new Promise<any>((resolve, reject) => {
             const ftPostCondition: FungiblePostCondition = {
                 type: 'ft-postcondition',
-                address: this.walletService.getSTXAddress(),
+                address: this.walletService.getSTXAddressOrThrow(),
                 condition: 'eq',
                 amount: amount,
                 asset: this.sbtcTokenService.getAsset()
@@ -110,7 +111,7 @@ export class BoltContractSBTCService extends ContractUtil {
         return from(new Promise<any>((resolve, reject) => {
             const ftPostCondition: FungiblePostCondition = {
                 type: 'ft-postcondition',
-                address: this.walletService.getSTXAddress(),
+                address: this.walletService.getSTXAddressOrThrow(),
                 condition: 'eq',
                 amount: amount,
                 asset: this.sbtcTokenService.getAsset()
@@ -138,13 +139,13 @@ export class BoltContractSBTCService extends ContractUtil {
         }));
     }
 
-    transferStacksToBolt(amount: number, recipient: string, memo: string = ''): Observable<BoltTransactionResponse> {
+    transferStacksToBolt(amount: number, recipient: string, memo: string = ''): Observable<string> {
         const memoParam = memo ? Cl.some(Cl.bufferFromAscii(memo)) : Cl.none();
 
         return from(new Promise<any>((resolve, reject) => {
             const ftPostCondition: FungiblePostCondition = {
                 type: 'ft-postcondition',
-                address: this.walletService.getSTXAddress(),
+                address: this.walletService.getSTXAddressOrThrow(),
                 condition: 'eq',
                 amount: amount + this.getFee(),
                 asset: this.sbtcTokenService.getAsset()
@@ -159,7 +160,8 @@ export class BoltContractSBTCService extends ContractUtil {
                     Cl.uint(this.getFee())
                 ],
                 (tx: any) => {
-                    console.log(tx);
+                    
+                    // resolve(tx);
                     this.boltProtocolService.sendTransaction(tx).subscribe({
                         next: (txid: string) => resolve(txid),
                         error: reject
@@ -242,7 +244,7 @@ export class BoltContractSBTCService extends ContractUtil {
         return from(new Promise<any>((resolve, reject) => {
             const ftPostCondition: FungiblePostCondition = {
                 type: 'ft-postcondition',
-                address: this.walletService.getSTXAddress(),
+                address: this.walletService.getSTXAddressOrThrow(),
                 condition: 'eq',
                 amount: amount + this.getFee(),
                 asset: this.sbtcTokenService.getAsset()
@@ -283,7 +285,7 @@ export class BoltContractSBTCService extends ContractUtil {
     }
 
     claimWithdrawal(): Observable<any> {
-        return this.getWalletData(this.walletService.getSTXAddress()).pipe(
+        return this.getWalletData(this.walletService.getSTXAddressOrThrow()).pipe(
             switchMap((walletData) => {
                 const withdrawAmount = walletData.withdrawRequestedAmount;
                 if (withdrawAmount <= 0) {

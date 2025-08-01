@@ -22,11 +22,11 @@ export class BoltProtocolService {
     return new HttpHeaders().set('x-client-source', 'boltproto-website');
   }
 
-  sendTransaction(transaction: any): Observable<any> {
-    const serializedTx = bytesToHex(transaction.serializeBytes());
+  sendTransaction(serializedTx: any): Observable<any> {
+    // const serializedTx = bytesToHex(transaction.serializeBytes());
     console.warn('NOT IMPLEMENTED: sendTransaction', serializedTx);
     return this.http.post(
-      `${this.apiUrl}/advertisements`,
+      `${this.apiUrl}/v1/advertisements`,
       { address_sell: 'address', token: 'sBTC', currency: 'BRL', price: 50, amount: 100, transaction: serializedTx},
       { headers: this.getClientHeaders() }
       // `${this.apiUrl}/transaction/${environment.supportedAsset.sBTC.contractToken}`,

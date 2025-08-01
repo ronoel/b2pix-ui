@@ -110,6 +110,11 @@ export class InvitesService {
 
   getWalletInvite(): Observable<InviteInfo> {
     const address = this.walletService.getSTXAddress();
+    
+    if (!address) {
+      // Return a default response if address is not available
+      return of({ status: 'not_found', bank_status: 'pending' });
+    }
 
     // Check if cached first
     const cachedInvite = this.inviteCache.get(address);

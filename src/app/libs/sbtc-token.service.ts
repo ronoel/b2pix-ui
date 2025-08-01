@@ -46,7 +46,7 @@ export class sBTCTokenService extends ContractUtil {
   }
 
   getBalance(): Observable<bigint> {
-    return from(this.callReadOnlyFunction('get-balance', [Cl.principal(this.walletService.getSTXAddress())])).pipe(
+    return from(this.callReadOnlyFunction('get-balance', [Cl.principal(this.walletService.getSTXAddressOrThrow())])).pipe(
       map(ClarityUtil.extractResponse),
       map((response) => cvToValue(response)),
       catchError(this.handleError)
