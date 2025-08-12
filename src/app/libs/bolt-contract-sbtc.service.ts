@@ -161,11 +161,11 @@ export class BoltContractSBTCService extends ContractUtil {
                 ],
                 (tx: any) => {
                     
-                    // resolve(tx);
-                    this.boltProtocolService.sendTransaction(tx).subscribe({
-                        next: (txid: string) => resolve(txid),
-                        error: reject
-                    })
+                    resolve(tx);
+                    // this.boltProtocolService.sendTransaction(tx).subscribe({
+                    //     next: (txid: string) => resolve(txid),
+                    //     error: reject
+                    // })
                 },
                 reject,
                 [ftPostCondition],

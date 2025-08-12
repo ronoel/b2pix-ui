@@ -8,6 +8,8 @@ import { LoadingService } from '../../services/loading.service';
 import { InvitesService } from '../../shared/api/invites.service';
 import { BoltContractSBTCService } from '../../libs/bolt-contract-sbtc.service';
 import { deserializeTransaction } from '@stacks/transactions';
+import { environment } from '../../../environments/environment';
+import { B2PIXService } from '../../libs/b2pix.service';
 
 @Component({
   selector: 'app-sell',
@@ -725,6 +727,7 @@ export class SellComponent implements OnInit {
   protected loadingService = inject(LoadingService);
   private invitesService = inject(InvitesService);
   private boltContractSBTCService = inject(BoltContractSBTCService);
+  private b2PIXService = inject(B2PIXService);
 
   hasPixAccount = false; // Changed to false as default, will be updated based on invite status
   currentBtcPrice = this.userService.currentBtcPrice;
@@ -832,42 +835,23 @@ export class SellComponent implements OnInit {
 
     // Convert BTC amount to satoshis for the transfer
     const amountInSats = Math.floor(this.sellOrder.amountBtc * this.SATS_PER_BTC);
-    const recipient = 'SP1E6P0KM6BEWF1CJQGGJXER0WG58JDZ32YYCN95R';
+    const recipient = environment.b2pixAddress;
 
     // First call the Bolt contract transfer
-    this.boltContractSBTCService.transferStacksToBolt(amountInSats, recipient, 'Racuna Matata').subscribe({
+    this.boltContractSBTCService.transferStacksToBolt(amountInSats, recipient, this.sellOrder.btcPrice.toString()).subscribe({
       next: (transactionSerialized) => {
         console.log('Transfer successful:', transactionSerialized);
 
-        console.log('SERIALIZED Sponsored transaction:', transactionSerialized);
-        
-                            // Deserialize the transaction to inspect it
-                            try {
-                                const deserializedTx = deserializeTransaction(transactionSerialized);
-                                console.log('Deserialized transaction:', deserializedTx);
-                                
-                                // this.boltProtocolService.sendTransaction(tx).subscribe({
-                                //     next: (txid: string) => resolve({ txid }),
-                                //     error: (err) => reject({ error: err })
-                                // });
-                            } catch (error) {
-                                console.error('Failed to deserialize transaction:', error);
-                            }
-        
-        // Then create the sell order in the transaction service
-        // this.transactionService.createSellOrder(
-        //   'mock-user-id',
-        //   this.sellOrder.amountBtc,
-        //   this.sellOrder.btcPrice
-        // ).subscribe({
-        //   next: () => {
-        //     this.sellConfirmed = true;
-        //   },
-        //   error: (error: any) => {
-        //     console.error('Erro ao criar anúncio:', error);
-        //     alert('Erro ao criar anúncio. Tente novamente.');
-        //   }
-        // });
+        this.b2PIXService.sendTransaction(transactionSerialized).subscribe({
+          next: (txid: string) => {
+            console.log('Transaction sent successfully:', txid);
+            // this.sellConfirmed = true;
+            // this.router.navigate(['/dashboard']);
+          },
+          error: (err) => {
+            console.error('Error sending transaction:', err);
+          }
+        });
       },
       error: (transferError: any) => {
         console.error('Erro na transferência:', transferError);

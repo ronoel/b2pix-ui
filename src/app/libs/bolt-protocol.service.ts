@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 import { bytesToHex } from "@stacks/common";
 import { environment } from '../../environments/environment';
+import { ContractCallPayload, deserializeTransaction, StacksTransactionWire } from "@stacks/transactions";
 
 interface WalletBalance {
   address: string;
@@ -24,11 +25,22 @@ export class BoltProtocolService {
 
   sendTransaction(serializedTx: any): Observable<any> {
     // const serializedTx = bytesToHex(transaction.serializeBytes());
+    const t = deserializeTransaction(serializedTx);
+    console.log('Deserialized Transaction:', t);
+
     console.warn('NOT IMPLEMENTED: sendTransaction', serializedTx);
     return this.http.post(
-      `${this.apiUrl}/v1/advertisements`,
-      { address_sell: 'address', token: 'sBTC', currency: 'BRL', price: 50, amount: 100, transaction: serializedTx},
+
+      // B2PIX API
+      // `${this.apiUrl}/v1/advertisements`,
+      // { address_sell: 'address', token: 'sBTC', currency: 'BRL', price: 50, amount: 100, transaction: serializedTx},
+      // { headers: this.getClientHeaders() }
+
+      `http://localhost:3000/api/v1/transaction/b2pix`,
+      { serializedTx },
       { headers: this.getClientHeaders() }
+
+      // BOLT PROTOCOL API
       // `${this.apiUrl}/transaction/${environment.supportedAsset.sBTC.contractToken}`,
       // { serializedTx },
       // { headers: this.getClientHeaders() }

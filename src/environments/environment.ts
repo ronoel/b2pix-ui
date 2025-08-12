@@ -22,5 +22,6 @@ export const environment = {
             image: 'https://ipfs.io/ipfs/bafkreiffe46h5voimvulxm2s4ddszdm4uli4rwcvx34cgzz3xkfcc2hiwi',
             fee: 20 // sats
         }
-    }
+    },
+    b2pixAddress: 'SP1E6P0KM6BEWF1CJQGGJXER0WG58JDZ32YYCN95R', // B2PIX address for mainnet
 };

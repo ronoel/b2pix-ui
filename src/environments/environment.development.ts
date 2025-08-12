@@ -20,7 +20,8 @@ export const environment = {
             name: 'sBTC',
             symbol: 'sBTC',
             image: 'https://ipfs.io/ipfs/bafkreiffe46h5voimvulxm2s4ddszdm4uli4rwcvx34cgzz3xkfcc2hiwi',
-            fee: 20 // sats
+            fee: 100 // sats
         }
-    }
+    },
+    b2pixAddress: 'ST3QZNX3CGT6V7PE1PBK17FCRK1TP1AT02W1N0YJF', // B2PIX address for mainnet
 };
