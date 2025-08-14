@@ -30,7 +30,7 @@ import { InvitesService } from '../../shared/api/invites.service';
             <!-- Hero Text -->
             <div class="hero-text">
               <h2 class="hero-title">
-                Compra e venda <span class="text-gradient">Bitcoin</span> com PIX
+                Compre e venda <span class="text-gradient">Bitcoin</span> com PIX
               </h2>
               <p class="hero-description">
                 Plataforma P2P sem custódia, focada em privacidade e automação. 
