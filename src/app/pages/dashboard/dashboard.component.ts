@@ -19,11 +19,17 @@ import { TransactionService } from '../../services/transaction.service';
           </div>
           <div class="header-right">
             <div class="wallet-info">
-              <div class="status-badge approved">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Acesso liberado
+              <div class="pix-account-badge" [ngClass]="{ 'active': hasPixAccount, 'inactive': !hasPixAccount }">
+                <div class="pix-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
+                    <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div class="pix-info">
+                  <div class="pix-title">Conta PIX</div>
+                  <div class="pix-status">{{ hasPixAccount ? 'Ativa' : 'Pendente' }}</div>
+                </div>
               </div>
               <button class="btn btn-outline btn-sm" (click)="logout()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -37,54 +43,8 @@ import { TransactionService } from '../../services/transaction.service';
           </div>
         </div>
 
-        <!-- Balance Cards -->
-        <div class="balance-section">
-          <div class="balance-grid">
-            <div class="balance-card primary">
-              <div class="balance-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-                  <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </div>
-              <div class="balance-info">
-                <div class="balance-label">Preço BTC Atual</div>
-                <div class="balance-value">R$ {{ formatCurrency(currentBtcPrice()) }}</div>
-                <div class="balance-fiat">Atualizado agora</div>
-              </div>
-            </div>
-
-            <div class="balance-card secondary">
-              <div class="balance-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                  <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </div>
-              <div class="balance-info">
-                <div class="balance-label">Transações</div>
-                <div class="balance-value">{{ recentTransactions().length }}</div>
-                <div class="balance-fiat">Total realizadas</div>
-              </div>
-            </div>
-
-            <div class="balance-card tertiary">
-              <div class="balance-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                  <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </div>
-              <div class="balance-info">
-                <div class="balance-label">Conta PIX</div>
-                <div class="balance-value">{{ hasPixAccount ? 'Ativa' : 'Pendente' }}</div>
-                <div class="balance-fiat">{{ hasPixAccount ? 'Configurada' : 'Necessária' }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <!-- Quick Actions -->
         <div class="actions-section">
-          <h2 class="section-title">Ações Rápidas</h2>
           <div class="actions-grid">
             <div class="action-card" (click)="goToBuy()">
               <div class="action-icon">
@@ -122,17 +82,16 @@ import { TransactionService } from '../../services/transaction.service';
               </div>
             </div>
 
-            <div class="action-card" (click)="goToPixAccount()">
+            <div class="action-card" (click)="goToMyAds()">
               <div class="action-icon">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2"/>
-                  <path d="M15 9L9 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M9 9H15V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </div>
               <div class="action-content">
-                <h3 class="action-title">Conta PIX</h3>
-                <p class="action-description">{{ hasPixAccount ? 'Gerenciar conta' : 'Cadastrar conta' }}</p>
+                <h3 class="action-title">Meus Anúncios</h3>
+                <p class="action-description">Gerencie seus anúncios</p>
               </div>
               <div class="action-arrow">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -223,90 +182,76 @@ import { TransactionService } from '../../services/transaction.service';
       font-weight: 500;
     }
 
-    .btn-sm {
-      padding: var(--spacing-sm) var(--spacing-md);
-      font-size: var(--font-size-sm);
-    }
-
-    /* Balance Section */
-    .balance-section {
-      margin-bottom: var(--spacing-2xl);
-    }
-
-    .balance-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: var(--spacing-lg);
-    }
-
-    .balance-card {
+    /* PIX Account Badge */
+    .pix-account-badge {
       display: flex;
       align-items: center;
-      gap: var(--spacing-lg);
-      padding: var(--spacing-xl);
+      gap: var(--spacing-md);
+      padding: var(--spacing-md) var(--spacing-lg);
       background: var(--background-card);
       border: 1px solid var(--border-color);
       border-radius: var(--border-radius-lg);
-      box-shadow: var(--shadow-md);
       transition: all var(--transition-normal);
     }
 
-    .balance-card:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-lg);
+    .pix-account-badge.active {
+      border-color: var(--success-green);
+      background: rgba(34, 197, 94, 0.1);
     }
 
-    .balance-card.primary {
-      border-left: 4px solid var(--primary-orange);
+    .pix-account-badge.inactive {
+      border-color: var(--warning-yellow);
+      background: rgba(245, 158, 11, 0.1);
     }
 
-    .balance-card.secondary {
-      border-left: 4px solid var(--primary-blue);
-    }
-
-    .balance-card.tertiary {
-      border-left: 4px solid var(--success-green);
-    }
-
-    .balance-icon {
+    .pix-icon {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 64px;
-      height: 64px;
-      border-radius: var(--border-radius-lg);
+      width: 32px;
+      height: 32px;
+      border-radius: var(--border-radius-md);
       background: var(--background-elevated);
-      color: var(--primary-orange);
     }
 
-    .balance-card.secondary .balance-icon {
-      color: var(--primary-blue);
-    }
-
-    .balance-card.tertiary .balance-icon {
+    .pix-account-badge.active .pix-icon {
       color: var(--success-green);
     }
 
-    .balance-info {
-      flex: 1;
+    .pix-account-badge.inactive .pix-icon {
+      color: var(--warning-yellow);
     }
 
-    .balance-label {
+    .pix-info {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-xs);
+    }
+
+    .pix-title {
       font-size: var(--font-size-sm);
-      color: var(--text-muted);
-      margin-bottom: var(--spacing-xs);
-    }
-
-    .balance-value {
-      font-size: var(--font-size-2xl);
-      font-weight: 700;
+      font-weight: 600;
       color: var(--text-primary);
-      margin-bottom: var(--spacing-xs);
+      margin: 0;
     }
 
-    .balance-fiat {
-      font-size: var(--font-size-sm);
+    .pix-status {
+      font-size: var(--font-size-xs);
       color: var(--text-secondary);
+      margin: 0;
+    }
+
+    .pix-account-badge.active .pix-status {
+      color: var(--success-green);
+    }
+
+    .pix-account-badge.inactive .pix-status {
+      color: var(--warning-yellow);
+    }
+
+    .btn-sm {
+      padding: var(--spacing-sm) var(--spacing-md);
+      font-size: var(--font-size-sm);
     }
 
     /* Actions Section */
@@ -470,21 +415,13 @@ import { TransactionService } from '../../services/transaction.service';
         justify-content: space-between;
       }
 
-      .balance-grid {
-        grid-template-columns: 1fr;
+      .pix-account-badge {
+        padding: var(--spacing-sm) var(--spacing-md);
       }
 
-      .balance-card {
-        padding: var(--spacing-lg);
-      }
-
-      .balance-icon {
-        width: 48px;
-        height: 48px;
-      }
-
-      .balance-value {
-        font-size: var(--font-size-xl);
+      .pix-icon {
+        width: 28px;
+        height: 28px;
       }
 
       .actions-grid {
@@ -517,10 +454,8 @@ import { TransactionService } from '../../services/transaction.service';
         gap: var(--spacing-sm);
       }
 
-      .balance-card {
-        flex-direction: column;
-        text-align: center;
-        gap: var(--spacing-md);
+      .pix-account-badge {
+        align-self: center;
       }
 
       .action-card {
@@ -570,6 +505,11 @@ export class DashboardComponent implements OnInit {
 
   goToPixAccount() {
     this.router.navigate(['/pix-account']);
+  }
+
+  goToMyAds() {
+    // Navigate to my ads page - placeholder for now
+    console.log('Navigate to my ads');
   }
 
   formatCurrency(value: number): string {
