@@ -5,6 +5,23 @@ import { switchMap, catchError, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { BoltContractSBTCService } from '../../libs/bolt-contract-sbtc.service';
 
+export enum AdvertisementStatus {
+    /** Advertisement created, not yet validated or funded */
+    DRAFT = 'draft',
+    /** Advertisement waiting the transaction confirmation */
+    PENDING = 'pending',
+    /** Advertisement validated and with funds available */
+    READY = 'ready',
+    /** Failed to validate bank account or PIX key for receiving */
+    BANK_FAILED = 'bank_failed',
+    /** Failed to receive the expected deposit/funding */
+    DEPOSIT_FAILED = 'deposit_failed',
+    /** Advertisement closed (manually or by fund exhaustion) */
+    CLOSED = 'closed',
+    /** Advertisement paused by user action or moderation */
+    DISABLED = 'disabled'
+}
+
 export interface Advertisement {
   id: string;
   seller_address: string;
@@ -13,7 +30,7 @@ export interface Advertisement {
   price: bigint;
   amount_fund: bigint;
   remaining_fund: bigint;
-  status: string;
+  status: AdvertisementStatus;
   is_active: boolean;
   created_at: string;
   updated_at: string;

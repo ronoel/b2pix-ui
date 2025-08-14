@@ -1,15 +1,11 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule, formatCurrency } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TransactionService } from '../../services/transaction.service';
 import { UserService } from '../../services/user.service';
 import { LoadingService } from '../../services/loading.service';
 import { InvitesService } from '../../shared/api/invites.service';
-import { BoltContractSBTCService } from '../../libs/bolt-contract-sbtc.service';
-import { deserializeTransaction } from '@stacks/transactions';
-import { environment } from '../../../environments/environment';
-import { B2PIXService } from '../../libs/b2pix.service';
 import { AdvertisementService } from '../../shared/api/advertisement.service';
 
 @Component({
