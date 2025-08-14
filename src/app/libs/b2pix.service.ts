@@ -18,7 +18,7 @@ export class B2PIXService {
 
       // B2PIX API
       `${this.apiUrl}/v1/advertisements`,
-      { address_sell: 'address-test', token: 'sBTC', currency: 'BRL', price: 50, amount: 100, transaction: serializedTx}
+      {transaction: serializedTx}
 
       // `http://localhost:3000/api/v1/transaction/b2pix`,
       // { serializedTx }

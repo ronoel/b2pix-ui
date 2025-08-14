@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, formatCurrency } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TransactionService } from '../../services/transaction.service';
@@ -10,6 +10,7 @@ import { BoltContractSBTCService } from '../../libs/bolt-contract-sbtc.service';
 import { deserializeTransaction } from '@stacks/transactions';
 import { environment } from '../../../environments/environment';
 import { B2PIXService } from '../../libs/b2pix.service';
+import { AdvertisementService } from '../../shared/api/advertisement.service';
 
 @Component({
   selector: 'app-sell',
@@ -162,12 +163,12 @@ import { B2PIXService } from '../../libs/b2pix.service';
                       type="number"
                       id="btcPrice"
                       name="btcPrice"
-                      [(ngModel)]="sellOrder.btcPrice"
+                      [value]="getBtcPriceDisplay()"
                       min="1"
                       class="form-input price-input"
                       [placeholder]="formatCurrency(currentBtcPrice())"
                       [readonly]="!isCustomPrice"
-                      (input)="calculateTotal()"
+                      (input)="onPriceChange($event)"
                       required>
                     <div class="input-info">
                       @if (!isCustomPrice) {
@@ -179,7 +180,7 @@ import { B2PIXService } from '../../libs/b2pix.service';
                   </div>
                 </div>
 
-                @if (sellOrder.amountBtc > 0 && sellOrder.btcPrice > 0) {
+                @if (isValidSellOrder()) {
                   <!-- Resumo da Venda -->
                   <div class="calculation-card">
                     <h3>Resumo da Venda</h3>
@@ -187,19 +188,19 @@ import { B2PIXService } from '../../libs/b2pix.service';
                       <div class="calc-item">
                         <div class="calc-label">• Quantidade:</div>
                         <div class="calc-value">
-                          {{ showInSats ? (getDisplayAmount() | number:'1.0-0') + ' sats' : sellOrder.amountBtc + ' BTC' }}
+                          {{ showInSats ? (getDisplayAmount() | number:'1.0-0') + ' sats' : getDisplayAmount() + ' BTC' }}
                           @if (showInSats) {
-                            <span class="btc-equivalent">({{ sellOrder.amountBtc }} BTC)</span>
+                            <span class="btc-equivalent">({{ getDisplayAmount() / 100000000 }} BTC)</span>
                           }
                         </div>
                       </div>
                       <div class="calc-item">
                         <div class="calc-label">• Preço por BTC:</div>
-                        <div class="calc-value">R$ {{ formatCurrency(sellOrder.btcPrice) }}</div>
+                        <div class="calc-value">R$ {{ formatCurrency(getBtcPriceDisplay()) }}</div>
                       </div>
                       <div class="calc-item total">
                         <div class="calc-label">• Total a receber:</div>
-                        <div class="calc-value total-value">R$ {{ formatCurrency(sellOrder.totalBrl) }}</div>
+                        <div class="calc-value total-value">R$ {{ formatCurrency(getTotalDisplay()) }}</div>
                       </div>
                     </div>
                   </div>
@@ -213,7 +214,7 @@ import { B2PIXService } from '../../libs/b2pix.service';
                   <button 
                     type="button" 
                     class="btn btn-primary"
-                    [disabled]="!sellOrder.amountBtc || !sellOrder.btcPrice || loadingService.getIsLoading()()"
+                    [disabled]="!isValidSellOrder() || loadingService.getIsLoading()()"
                     (click)="confirmSell()">
                     @if (loadingService.getIsLoading()()) {
                       <div class="btn-loading"></div>
@@ -726,16 +727,15 @@ export class SellComponent implements OnInit {
   private transactionService = inject(TransactionService);
   protected loadingService = inject(LoadingService);
   private invitesService = inject(InvitesService);
-  private boltContractSBTCService = inject(BoltContractSBTCService);
-  private b2PIXService = inject(B2PIXService);
+  private advertisementService = inject(AdvertisementService);
 
   hasPixAccount = false; // Changed to false as default, will be updated based on invite status
   currentBtcPrice = this.userService.currentBtcPrice;
   
   sellOrder = {
-    amountBtc: 0,
-    btcPrice: 0,
-    totalBrl: 0
+    amountSats: 0n, // Store as BigInt satoshis
+    btcPriceSats: 0n, // Store price per BTC in satoshis to avoid decimals
+    totalSats: 0n
   };
 
   pricingOption = 'market'; // 'immediate', 'fast', 'market', 'custom'
@@ -744,8 +744,8 @@ export class SellComponent implements OnInit {
   sellConfirmed = false;
   
   // Bitcoin/Satoshi unit toggle
-  showInSats = false;
-  readonly SATS_PER_BTC = 100000000; // 100 million satoshis per bitcoin
+  showInSats = true; // Default to sats
+  readonly SATS_PER_BTC = 100000000n; // 100 million satoshis per bitcoin as BigInt
 
   pricingOptions = [
     { value: 'immediate', label: 'Venda imediata', discount: 1.0 },
@@ -773,7 +773,12 @@ export class SellComponent implements OnInit {
   }
 
   calculateTotal() {
-    this.sellOrder.totalBrl = this.sellOrder.amountBtc * this.sellOrder.btcPrice;
+    if (this.sellOrder.amountSats > 0n && this.sellOrder.btcPriceSats > 0n) {
+      // Calculate total BRL in sats (amountSats * btcPriceSats / SATS_PER_BTC)
+      this.sellOrder.totalSats = (this.sellOrder.amountSats * this.sellOrder.btcPriceSats) / this.SATS_PER_BTC;
+    } else {
+      this.sellOrder.totalSats = 0n;
+    }
   }
 
   onPricingOptionChange() {
@@ -789,14 +794,15 @@ export class SellComponent implements OnInit {
     const selectedOption = this.pricingOptions.find(opt => opt.value === this.pricingOption);
     
     if (selectedOption) {
-      // Apply discount to current price
+      // Apply discount to current price and convert to sats
       const discountMultiplier = (100 - selectedOption.discount) / 100;
-      this.sellOrder.btcPrice = currentPrice * discountMultiplier;
+      const adjustedPrice = currentPrice * discountMultiplier;
+      this.sellOrder.btcPriceSats = BigInt(Math.round(adjustedPrice * Number(this.SATS_PER_BTC)));
     }
   }
 
   setMaxAmount() {
-    this.sellOrder.amountBtc = this.availableBtcBalance;
+    this.sellOrder.amountSats = BigInt(Math.floor(this.availableBtcBalance * Number(this.SATS_PER_BTC)));
     this.calculateTotal();
   }
 
@@ -805,19 +811,23 @@ export class SellComponent implements OnInit {
   }
 
   getDisplayAmount(): number {
-    return this.showInSats ? this.sellOrder.amountBtc * this.SATS_PER_BTC : this.sellOrder.amountBtc;
+    return this.showInSats ? Number(this.sellOrder.amountSats) : Number(this.sellOrder.amountSats) / Number(this.SATS_PER_BTC);
   }
 
   setDisplayAmount(value: number) {
-    this.sellOrder.amountBtc = this.showInSats ? value / this.SATS_PER_BTC : value;
+    if (this.showInSats) {
+      this.sellOrder.amountSats = BigInt(Math.floor(value));
+    } else {
+      this.sellOrder.amountSats = BigInt(Math.floor(value * Number(this.SATS_PER_BTC)));
+    }
   }
 
   getDisplayBalance(): number {
-    return this.showInSats ? this.availableBtcBalance * this.SATS_PER_BTC : this.availableBtcBalance;
+    return this.showInSats ? this.availableBtcBalance * Number(this.SATS_PER_BTC) : this.availableBtcBalance;
   }
 
   getMinAmount(): number {
-    return this.showInSats ? 0.001 * this.SATS_PER_BTC : 0.001;
+    return this.showInSats ? 0.001 * Number(this.SATS_PER_BTC) : 0.001;
   }
 
   getStepAmount(): number {
@@ -830,32 +840,39 @@ export class SellComponent implements OnInit {
     this.calculateTotal();
   }
 
+  getBtcPriceDisplay(): number {
+    return Number(this.sellOrder.btcPriceSats) / Number(this.SATS_PER_BTC);
+  }
+
+  onPriceChange(event: any) {
+    const value = parseFloat(event.target.value) || 0;
+    this.sellOrder.btcPriceSats = BigInt(Math.round(value * Number(this.SATS_PER_BTC)));
+    this.calculateTotal();
+  }
+
+  isValidSellOrder(): boolean {
+    return this.sellOrder.amountSats > 0n && this.sellOrder.btcPriceSats > 0n;
+  }
+
+  getTotalDisplay(): number {
+    return Number(this.sellOrder.totalSats) / Number(this.SATS_PER_BTC);
+  }
+
   confirmSell() {
-    if (!this.sellOrder.amountBtc || !this.sellOrder.btcPrice) return;
+    if (!this.sellOrder.amountSats || !this.sellOrder.btcPriceSats) return;
 
-    // Convert BTC amount to satoshis for the transfer
-    const amountInSats = Math.floor(this.sellOrder.amountBtc * this.SATS_PER_BTC);
-    const recipient = environment.b2pixAddress;
-
-    // First call the Bolt contract transfer
-    this.boltContractSBTCService.transferStacksToBolt(amountInSats, recipient, this.sellOrder.btcPrice.toString()).subscribe({
-      next: (transactionSerialized) => {
-        console.log('Transfer successful:', transactionSerialized);
-
-        this.b2PIXService.sendTransaction(transactionSerialized).subscribe({
-          next: (txid: string) => {
-            console.log('Transaction sent successfully:', txid);
-            // this.sellConfirmed = true;
-            // this.router.navigate(['/dashboard']);
-          },
-          error: (err) => {
-            console.error('Error sending transaction:', err);
-          }
-        });
+    // Amount is already in satoshis
+    const amountInSats = this.sellOrder.amountSats;
+    
+    this.advertisementService.createAdvertisement({
+      amountInSats,
+      price: this.sellOrder.btcPriceSats
+    }).subscribe({
+      next: (advertisement) => {
+        console.log('Advertisement created successfully:', advertisement);
       },
-      error: (transferError: any) => {
-        console.error('Erro na transferência:', transferError);
-        alert('Erro na transferência. Tente novamente.');
+      error: (error) => {
+        console.error('Error creating advertisement:', error);
       }
     });
   }

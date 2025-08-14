@@ -139,7 +139,7 @@ export class BoltContractSBTCService extends ContractUtil {
         }));
     }
 
-    transferStacksToBolt(amount: number, recipient: string, memo: string = ''): Observable<string> {
+    transferStacksToBolt(amount: bigint, recipient: string, memo: string = ''): Observable<string> {
         const memoParam = memo ? Cl.some(Cl.bufferFromAscii(memo)) : Cl.none();
 
         return from(new Promise<any>((resolve, reject) => {
@@ -147,7 +147,7 @@ export class BoltContractSBTCService extends ContractUtil {
                 type: 'ft-postcondition',
                 address: this.walletService.getSTXAddressOrThrow(),
                 condition: 'eq',
-                amount: amount + this.getFee(),
+                amount: amount + BigInt(this.getFee()),
                 asset: this.sbtcTokenService.getAsset()
             };
 
