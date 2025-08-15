@@ -57,192 +57,239 @@ import { AdvertisementService } from '../../shared/api/advertisement.service';
         } @else {
           <!-- Sell Form Section -->
           <div class="sell-section">
-            <!-- Market Info Card -->
-            <div class="market-info-card">
-              <div class="market-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-                  <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </div>
-              <div class="market-content">
-                <div class="market-label">Preço Atual do Bitcoin</div>
-                <div class="market-value">R$ {{ formatCurrency(currentBtcPrice()) }}</div>
-                <div class="market-status">
-                  <span class="status-indicator"></span>
-                  Atualizado
-                </div>
-              </div>
-            </div>
-
-            <!-- Sell Form -->
-            <div class="sell-form-card">
-              <div class="form-header">
-                <h2>Criar Anúncio de Venda</h2>
-                <p>Defina as condições da sua venda</p>
-              </div>
-
-              <div class="form-content">
-                <div class="form-grid">
-                  <!-- Quantidade de BTC -->
-                  <div class="form-group full-width">
-                    <div class="label-with-toggle">
-                      <label for="amountBtc">
+            @if (sellError) {
+              <!-- Error Section - Full Screen -->
+              <div class="error-section-fullscreen">
+                <div class="error-card-fullscreen">
+                  <div class="error-icon-large">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                      <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2"/>
+                      <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                  </div>
+                  <div class="error-content-fullscreen">
+                    <h3>Erro ao criar anúncio</h3>
+                    <p>{{ sellErrorMessage }}</p>
+                    <div class="error-actions">
+                      <button class="btn btn-primary" (click)="retryCreateAdvertisement()">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-                          <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M1 4V10H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M3.51 15A9 9 0 0 0 21 12A9 9 0 0 0 12.5 3.29L3.51 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
-                        Quantidade de {{ showInSats ? 'Satoshis' : 'Bitcoin' }} a vender:
-                      </label>
-                      <button 
-                        type="button" 
-                        class="unit-toggle-btn"
-                        (click)="toggleUnit()"
-                        title="Alternar entre BTC e Satoshis">
-                        {{ showInSats ? 'sats' : 'BTC' }}
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                          <path d="M7 13L12 18L17 13M7 6L12 11L17 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        Tentar Novamente
+                      </button>
+                      <button class="btn btn-outline" (click)="goBack()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                          <path d="M19 12H5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
+                        Voltar
                       </button>
                     </div>
-                    <div class="input-with-button">
-                      <input
-                        type="number"
-                        id="amountBtc"
-                        name="amountBtc"
-                        [value]="getDisplayAmount()"
-                        [min]="getMinAmount()"
-                        max="10"
-                        [step]="getStepAmount()"
-                        class="form-input"
-                        [placeholder]="showInSats ? '100000' : '0.00100'"
-                        (input)="onAmountChange($event)"
-                        required>
-                      <button 
-                        type="button" 
-                        class="btn btn-outline btn-sm max-btn"
-                        [disabled]="availableBtcBalance === 0"
-                        (click)="setMaxAmount()">
-                        Máximo
-                      </button>
-                    </div>
-                    <div class="input-info">
-                      Saldo disponível: {{ showInSats ? (getDisplayBalance() | number:'1.0-0') + ' sats' : availableBtcBalance + ' BTC' }} • 
-                      Mínimo: {{ showInSats ? (getMinAmount() | number:'1.0-0') + ' sats' : getMinAmount() + ' BTC' }}
-                    </div>
                   </div>
-
-                  <!-- Preço por BTC -->
-                  <div class="form-group full-width">
-                    <label for="pricingOption">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                        <line x1="12" y1="1" x2="12" y2="23" stroke="currentColor" stroke-width="2"/>
-                        <path d="M17 5H9.5C8.11929 5 7 6.11929 7 7.5S8.11929 10 9.5 10H14.5C15.8807 10 17 11.1193 17 12.5S15.8807 15 14.5 15H7" stroke="currentColor" stroke-width="2"/>
-                      </svg>
-                      Preço por BTC (R$)
-                    </label>
-                    
-                    <!-- Dropdown de opções de preço -->
-                    <select 
-                      id="pricingOption"
-                      name="pricingOption"
-                      [(ngModel)]="pricingOption"
-                      (change)="onPricingOptionChange()"
-                      class="form-select">
-                      @for (option of pricingOptions; track option.value) {
-                        <option [value]="option.value">{{ option.label }}</option>
-                      }
-                    </select>
-                    
-                    <!-- Campo de valor do preço -->
-                    <input
-                      type="number"
-                      id="btcPrice"
-                      name="btcPrice"
-                      [value]="getBtcPriceDisplay()"
-                      min="1"
-                      class="form-input price-input"
-                      [placeholder]="formatCurrency(currentBtcPrice())"
-                      [readonly]="!isCustomPrice"
-                      (input)="onPriceChange($event)"
-                      required>
-                    <div class="input-info">
-                      @if (!isCustomPrice) {
-                        <span class="auto-calculated">Valor calculado automaticamente</span>
-                      } @else {
-                        <span>Digite o preço desejado por BTC</span>
-                      }
-                    </div>
-                  </div>
-                </div>
-
-                @if (isValidSellOrder()) {
-                  <!-- Resumo da Venda -->
-                  <div class="calculation-card">
-                    <h3>Resumo da Venda</h3>
-                    <div class="calc-grid">
-                      <div class="calc-item">
-                        <div class="calc-label">• Quantidade:</div>
-                        <div class="calc-value">
-                          {{ showInSats ? (getDisplayAmount() | number:'1.0-0') + ' sats' : getDisplayAmount() + ' BTC' }}
-                          @if (showInSats) {
-                            <span class="btc-equivalent">({{ getDisplayAmount() / 100000000 }} BTC)</span>
-                          }
-                        </div>
-                      </div>
-                      <div class="calc-item">
-                        <div class="calc-label">• Preço por BTC:</div>
-                        <div class="calc-value">R$ {{ formatCurrency(getBtcPriceDisplay()) }}</div>
-                      </div>
-                      <div class="calc-item total">
-                        <div class="calc-label">• Total a receber:</div>
-                        <div class="calc-value total-value">R$ {{ formatCurrency(getTotalDisplay()) }}</div>
-                      </div>
-                    </div>
-                  </div>
-                }
-
-                <!-- Form Actions -->
-                <div class="form-actions">
-                  <button type="button" class="btn btn-outline" (click)="goBack()">
-                    ❌ Cancelar
-                  </button>
-                  <button 
-                    type="button" 
-                    class="btn btn-primary"
-                    [disabled]="!isValidSellOrder() || loadingService.getIsLoading()()"
-                    (click)="confirmSell()">
-                    @if (loadingService.getIsLoading()()) {
-                      <div class="btn-loading"></div>
-                      Processando...
-                    } @else {
-                      ✅ Criar Anúncio
-                    }
-                  </button>
                 </div>
               </div>
-            </div>
-
-            @if (sellConfirmed) {
-              <!-- Success Section -->
-              <div class="success-section">
-                <div class="success-icon">
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
-                    <path d="M9 11L12 14L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 20V9C3 8.46957 3.21071 7.96086 3.58579 7.58579C3.96086 7.21071 4.46957 7 5 7H13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            } @else if (sellConfirmed) {
+              <!-- Success Section - Full Screen -->
+              <div class="success-section-fullscreen">
+                <div class="success-card-fullscreen">
+                  <div class="success-icon-large">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
+                      <path d="M9 11L12 14L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 20V9C3 8.46957 3.21071 7.96086 3.58579 7.58579C3.96086 7.21071 4.46957 7 5 7H13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </div>
+                  <div class="success-content-fullscreen">
+                    <h3>Anúncio criado com sucesso!</h3>
+                    <p>Seu anúncio está ativo e aguardando compradores.</p>
+                    
+                    <div class="success-actions">
+                      <button class="btn btn-primary" (click)="goToMyAds()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                          <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M16 13H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M16 17H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M10 9H9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Ver Meus Anúncios
+                      </button>
+                      <button class="btn btn-outline" (click)="goToDashboard()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                          <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M9 22V12H15V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Ir para Dashboard
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            } @else {
+              <!-- Market Info Card -->
+              <div class="market-info-card">
+                <div class="market-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                    <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                 </div>
-                <div class="success-content">
-                  <h3>Anúncio criado com sucesso!</h3>
-                  <p>Seu anúncio está ativo e aguardando compradores.</p>
-                  
-                  <button class="btn btn-primary" (click)="goToDashboard()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                      <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      <path d="M9 22V12H15V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    Ir para Dashboard
-                  </button>
+                <div class="market-content">
+                  <div class="market-label">Preço Atual do Bitcoin</div>
+                  <div class="market-value">R$ {{ formatCurrency(currentBtcPrice()) }}</div>
+                  <div class="market-status">
+                    <span class="status-indicator"></span>
+                    Atualizado
+                  </div>
+                </div>
+              </div>
+
+              <!-- Sell Form -->
+              <div class="sell-form-card">
+                <div class="form-header">
+                  <h2>Criar Anúncio de Venda</h2>
+                  <p>Defina as condições da sua venda</p>
+                </div>
+
+                <div class="form-content">
+                  <div class="form-grid">
+                    <!-- Quantidade de BTC -->
+                    <div class="form-group full-width">
+                      <div class="label-with-toggle">
+                        <label for="amountBtc">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                          Quantidade de {{ showInSats ? 'Satoshis' : 'Bitcoin' }} a vender:
+                        </label>
+                        <button 
+                          type="button" 
+                          class="unit-toggle-btn"
+                          (click)="toggleUnit()"
+                          title="Alternar entre BTC e Satoshis">
+                          {{ showInSats ? 'sats' : 'BTC' }}
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                            <path d="M7 13L12 18L17 13M7 6L12 11L17 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                        </button>
+                      </div>
+                      <div class="input-with-button">
+                        <input
+                          type="number"
+                          id="amountBtc"
+                          name="amountBtc"
+                          [value]="getDisplayAmount()"
+                          [min]="getMinAmount()"
+                          max="10"
+                          [step]="getStepAmount()"
+                          class="form-input"
+                          [placeholder]="showInSats ? '100000' : '0.00100'"
+                          (input)="onAmountChange($event)"
+                          required>
+                        <button 
+                          type="button" 
+                          class="btn btn-outline btn-sm max-btn"
+                          [disabled]="availableBtcBalance === 0"
+                          (click)="setMaxAmount()">
+                          Máximo
+                        </button>
+                      </div>
+                      <div class="input-info">
+                        Saldo disponível: {{ showInSats ? (getDisplayBalance() | number:'1.0-0') + ' sats' : availableBtcBalance + ' BTC' }} • 
+                        Mínimo: {{ showInSats ? (getMinAmount() | number:'1.0-0') + ' sats' : getMinAmount() + ' BTC' }}
+                      </div>
+                    </div>
+
+                    <!-- Preço por BTC -->
+                    <div class="form-group full-width">
+                      <label for="pricingOption">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                          <line x1="12" y1="1" x2="12" y2="23" stroke="currentColor" stroke-width="2"/>
+                          <path d="M17 5H9.5C8.11929 5 7 6.11929 7 7.5S8.11929 10 9.5 10H14.5C15.8807 10 17 11.1193 17 12.5S15.8807 15 14.5 15H7" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        Preço por BTC (R$)
+                      </label>
+                      
+                      <!-- Dropdown de opções de preço -->
+                      <select 
+                        id="pricingOption"
+                        name="pricingOption"
+                        [(ngModel)]="pricingOption"
+                        (change)="onPricingOptionChange()"
+                        class="form-select">
+                        @for (option of pricingOptions; track option.value) {
+                          <option [value]="option.value">{{ option.label }}</option>
+                        }
+                      </select>
+                      
+                      <!-- Campo de valor do preço -->
+                      <input
+                        type="number"
+                        id="btcPrice"
+                        name="btcPrice"
+                        [value]="getBtcPriceDisplay()"
+                        min="1"
+                        class="form-input price-input"
+                        [placeholder]="formatCurrency(currentBtcPrice())"
+                        [readonly]="!isCustomPrice"
+                        (input)="onPriceChange($event)"
+                        required>
+                      <div class="input-info">
+                        @if (!isCustomPrice) {
+                          <span class="auto-calculated">Valor calculado automaticamente</span>
+                        } @else {
+                          <span>Digite o preço desejado por BTC</span>
+                        }
+                      </div>
+                    </div>
+                  </div>
+
+                  @if (isValidSellOrder()) {
+                    <!-- Resumo da Venda -->
+                    <div class="calculation-card">
+                      <h3>Resumo da Venda</h3>
+                      <div class="calc-grid">
+                        <div class="calc-item">
+                          <div class="calc-label">• Quantidade:</div>
+                          <div class="calc-value">
+                            {{ showInSats ? (getDisplayAmount() | number:'1.0-0') + ' sats' : getDisplayAmount() + ' BTC' }}
+                            @if (showInSats) {
+                              <span class="btc-equivalent">({{ getDisplayAmount() / 100000000 }} BTC)</span>
+                            }
+                          </div>
+                        </div>
+                        <div class="calc-item">
+                          <div class="calc-label">• Preço por BTC:</div>
+                          <div class="calc-value">R$ {{ formatCurrency(getBtcPriceDisplay()) }}</div>
+                        </div>
+                        <div class="calc-item total">
+                          <div class="calc-label">• Total a receber:</div>
+                          <div class="calc-value total-value">R$ {{ formatCurrency(getTotalDisplay()) }}</div>
+                        </div>
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Form Actions -->
+                  <div class="form-actions">
+                    <button type="button" class="btn btn-outline" (click)="goBack()">
+                      ❌ Cancelar
+                    </button>
+                    <button 
+                      type="button" 
+                      class="btn btn-primary"
+                      [disabled]="!isValidSellOrder() || loadingService.getIsLoading()()"
+                      (click)="confirmSell()">
+                      @if (loadingService.getIsLoading()()) {
+                        <div class="btn-loading"></div>
+                        Processando...
+                      } @else {
+                        ✅ Criar Anúncio
+                      }
+                    </button>
+                  </div>
                 </div>
               </div>
             }
@@ -602,6 +649,93 @@ import { AdvertisementService } from '../../shared/api/advertisement.service';
       100% { transform: rotate(360deg); }
     }
 
+    /* Error Section */
+    .error-section {
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .error-card {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--spacing-md);
+      padding: var(--spacing-lg);
+      background: var(--background-card);
+      border: 1px solid var(--error-red);
+      border-left: 4px solid var(--error-red);
+      border-radius: var(--border-radius-md);
+    }
+
+    .error-icon {
+      color: var(--error-red);
+      flex-shrink: 0;
+    }
+
+    .error-content {
+      flex: 1;
+    }
+
+    .error-content h4 {
+      font-size: var(--font-size-md);
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 0 0 var(--spacing-xs) 0;
+    }
+
+    .error-content p {
+      color: var(--text-secondary);
+      margin: 0 0 var(--spacing-md) 0;
+      font-size: var(--font-size-sm);
+    }
+
+    /* Error Section - Fullscreen */
+    .error-section-fullscreen {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 400px;
+      padding: var(--spacing-2xl);
+    }
+
+    .error-card-fullscreen {
+      max-width: 500px;
+      width: 100%;
+      padding: var(--spacing-2xl);
+      background: var(--background-card);
+      border: 1px solid var(--error-red);
+      border-left: 4px solid var(--error-red);
+      border-radius: var(--border-radius-lg);
+      text-align: center;
+    }
+
+    .error-icon-large {
+      color: var(--error-red);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .error-content-fullscreen h3 {
+      font-size: var(--font-size-xl);
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 0 0 var(--spacing-sm) 0;
+    }
+
+    .error-content-fullscreen p {
+      color: var(--text-secondary);
+      margin: 0 0 var(--spacing-xl) 0;
+      line-height: 1.6;
+    }
+
+    .error-actions {
+      display: flex;
+      gap: var(--spacing-md);
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .error-actions button {
+      min-width: 140px;
+    }
+
     /* Success Section */
     .success-section {
       display: flex;
@@ -633,6 +767,55 @@ import { AdvertisementService } from '../../shared/api/advertisement.service';
     .success-content p {
       color: var(--text-secondary);
       margin: 0 0 var(--spacing-lg) 0;
+    }
+
+    .success-actions {
+      display: flex;
+      gap: var(--spacing-md);
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .success-actions button {
+      min-width: 160px;
+    }
+
+    /* Success Section - Fullscreen */
+    .success-section-fullscreen {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 400px;
+      padding: var(--spacing-2xl);
+    }
+
+    .success-card-fullscreen {
+      max-width: 500px;
+      width: 100%;
+      padding: var(--spacing-2xl);
+      background: var(--background-card);
+      border: 1px solid var(--success-green);
+      border-left: 4px solid var(--success-green);
+      border-radius: var(--border-radius-lg);
+      text-align: center;
+    }
+
+    .success-icon-large {
+      color: var(--success-green);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .success-content-fullscreen h3 {
+      font-size: var(--font-size-xl);
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 0 0 var(--spacing-sm) 0;
+    }
+
+    .success-content-fullscreen p {
+      color: var(--text-secondary);
+      margin: 0 0 var(--spacing-xl) 0;
+      line-height: 1.6;
     }
 
     /* Responsividade */
@@ -692,6 +875,49 @@ import { AdvertisementService } from '../../shared/api/advertisement.service';
         justify-content: center;
       }
 
+      .success-actions {
+        flex-direction: column;
+      }
+
+      .success-actions button {
+        min-width: unset;
+      }
+
+      .error-card {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .error-icon {
+        align-self: center;
+      }
+
+      .error-actions {
+        flex-direction: column;
+      }
+
+      .error-actions button {
+        min-width: unset;
+      }
+
+      .error-section-fullscreen {
+        min-height: 300px;
+        padding: var(--spacing-lg);
+      }
+
+      .error-card-fullscreen {
+        padding: var(--spacing-lg);
+      }
+
+      .success-section-fullscreen {
+        min-height: 300px;
+        padding: var(--spacing-lg);
+      }
+
+      .success-card-fullscreen {
+        padding: var(--spacing-lg);
+      }
+
       /* Ensure calculation card is always visible on mobile */
       .calculation-card {
         position: sticky;
@@ -738,6 +964,8 @@ export class SellComponent implements OnInit {
   isCustomPrice = false;
   availableBtcBalance = 0.5; // Mock value - should come from wallet
   sellConfirmed = false;
+  sellError = false;
+  sellErrorMessage = '';
   
   // Bitcoin/Satoshi unit toggle
   showInSats = true; // Default to sats
@@ -857,6 +1085,13 @@ export class SellComponent implements OnInit {
   confirmSell() {
     if (!this.sellOrder.amountSats || !this.sellOrder.btcPriceSats) return;
 
+    // Reset error state
+    this.sellError = false;
+    this.sellErrorMessage = '';
+
+    // Set loading state
+    this.loadingService.show('Criando anúncio...');
+
     // Amount is already in satoshis
     const amountInSats = this.sellOrder.amountSats;
     
@@ -866,11 +1101,31 @@ export class SellComponent implements OnInit {
     }).subscribe({
       next: (advertisement) => {
         console.log('Advertisement created successfully:', advertisement);
+        this.loadingService.hide();
+        this.sellConfirmed = true;
       },
       error: (error) => {
         console.error('Error creating advertisement:', error);
+        this.loadingService.hide();
+        this.sellError = true;
+        this.sellErrorMessage = this.getErrorMessage(error);
       }
     });
+  }
+
+  private getErrorMessage(error: any): string {
+    if (error?.error?.message) {
+      return error.error.message;
+    }
+    if (error?.message) {
+      return error.message;
+    }
+    return 'Ocorreu um erro inesperado ao criar o anúncio. Tente novamente.';
+  }
+
+  retryCreateAdvertisement() {
+    this.sellError = false;
+    this.sellErrorMessage = '';
   }
 
   formatCurrency(value: number): string {
@@ -882,6 +1137,10 @@ export class SellComponent implements OnInit {
 
   goToPixAccount() {
     this.router.navigate(['/pix-account']);
+  }
+
+  goToMyAds() {
+    this.router.navigate(['/my-ads']);
   }
 
   goToDashboard() {
