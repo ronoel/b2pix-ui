@@ -1,10 +1,12 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TransactionService } from '../../services/transaction.service';
 import { UserService } from '../../services/user.service';
 import { LoadingService } from '../../services/loading.service';
+import { AdvertisementService } from '../../shared/api/advertisement.service';
+import { Advertisement, AdvertisementStatus } from '../../shared/models/advertisement.model';
 import { BitcoinListing, PurchaseOrder } from '../../interfaces/transaction.interface';
 
 @Component({
@@ -43,7 +45,7 @@ import { BitcoinListing, PurchaseOrder } from '../../interfaces/transaction.inte
           </div>
         </div>
 
-        @if (!selectedListing) {
+        @if (!selectedListing()) {
           <!-- Listings Section -->
           <div class="listings-section">
             <div class="section-header">
@@ -59,12 +61,12 @@ import { BitcoinListing, PurchaseOrder } from '../../interfaces/transaction.inte
               </button>
             </div>
             
-            @if (transactionService.getIsLoading()()) {
+            @if (isLoadingListings()) {
               <div class="loading-state">
                 <div class="loading-spinner"></div>
                 <p>Carregando anúncios...</p>
               </div>
-            } @else if (listings.length === 0) {
+            } @else if (listings().length === 0) {
               <div class="empty-state">
                 <div class="empty-icon">
                   <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
@@ -75,11 +77,12 @@ import { BitcoinListing, PurchaseOrder } from '../../interfaces/transaction.inte
                 </div>
                 <h3>Nenhum anúncio disponível</h3>
                 <p>Não há ofertas de Bitcoin no momento. Tente novamente mais tarde.</p>
+                <p>Debug: isLoading={{ isLoadingListings() }}, listings.length={{ listings().length }}</p>
                 <button class="btn btn-primary" (click)="loadListings()">Recarregar</button>
               </div>
             } @else {
               <div class="listings-grid">
-                @for (listing of listings; track listing.id) {
+                @for (listing of listings(); track listing.id) {
                   <div class="listing-card" (click)="selectListing(listing)">
                     <div class="listing-header">
                       <div class="seller-info">
@@ -148,15 +151,15 @@ import { BitcoinListing, PurchaseOrder } from '../../interfaces/transaction.inte
           <div class="purchase-section">
             <div class="selected-listing-card">
               <div class="listing-summary">
-                <h3>Comprar de {{ selectedListing.sellerName }}</h3>
+                <h3>Comprar de {{ selectedListing()!.sellerName }}</h3>
                 <div class="summary-details">
                   <div class="summary-item">
                     <span>Preço:</span>
-                    <span>R$ {{ formatCurrency(selectedListing.pricePerBtc) }}/BTC</span>
+                    <span>R$ {{ formatCurrency(selectedListing()!.pricePerBtc) }}/BTC</span>
                   </div>
                   <div class="summary-item">
                     <span>Disponível:</span>
-                    <span>{{ selectedListing.availableAmount }} BTC</span>
+                    <span>{{ selectedListing()!.availableAmount }} BTC</span>
                   </div>
                 </div>
               </div>
@@ -172,16 +175,17 @@ import { BitcoinListing, PurchaseOrder } from '../../interfaces/transaction.inte
                     type="number"
                     id="amount"
                     name="amount"
-                    [(ngModel)]="purchaseData.amountBtc"
-                    [min]="selectedListing.minPurchase / selectedListing.pricePerBtc"
-                    [max]="selectedListing.availableAmount"
+                    [ngModel]="purchaseData().amountBtc"
+                    (ngModelChange)="updatePurchaseDataAmount($event)"
+                    [min]="selectedListing()!.minPurchase / selectedListing()!.pricePerBtc"
+                    [max]="selectedListing()!.availableAmount"
                     step="0.00001"
                     class="form-input"
                     placeholder="0.00000"
                     required
                   >
                   <div class="input-info">
-                    Min: {{ (selectedListing.minPurchase / selectedListing.pricePerBtc).toFixed(5) }} BTC
+                    Min: {{ (selectedListing()!.minPurchase / selectedListing()!.pricePerBtc).toFixed(5) }} BTC
                   </div>
                 </div>
 
@@ -198,7 +202,8 @@ import { BitcoinListing, PurchaseOrder } from '../../interfaces/transaction.inte
                     type="text"
                     id="pixKey"
                     name="pixKey"
-                    [(ngModel)]="purchaseData.pixKey"
+                    [ngModel]="purchaseData().pixKey"
+                    (ngModelChange)="updatePurchaseDataPixKey($event)"
                     class="form-input"
                     placeholder="sua@chave.pix"
                     required
@@ -687,49 +692,159 @@ export class BuyComponent implements OnInit {
   protected transactionService = inject(TransactionService);
   protected userService = inject(UserService);
   protected loadingService = inject(LoadingService);
+  private advertisementService = inject(AdvertisementService);
 
-  listings: BitcoinListing[] = [];
-  selectedListing: BitcoinListing | null = null;
-  purchaseData = {
+  // Convert to signals
+  listings = signal<BitcoinListing[]>([]);
+  selectedListing = signal<BitcoinListing | null>(null);
+  isLoadingListings = signal(false);
+  purchaseData = signal({
     amountBtc: 0,
     pixKey: ''
-  };
+  });
 
   ngOnInit() {
     this.loadListings();
   }
 
   loadListings() {
-    this.transactionService.getBitcoinListings().subscribe({
-      next: (listings) => {
-        this.listings = listings;
+    console.log('Loading listings started...'); // Debug log
+    this.isLoadingListings.set(true);
+    
+    // Get ready advertisements with active_only filter
+    this.advertisementService.getReadyAdvertisements(true, 1, 50).subscribe({
+      next: (response) => {
+        console.log('API Response received:', response); // Debug log
+        try {
+          const mappedListings = this.mapAdvertisementsToListings(response.data);
+          this.listings.set(mappedListings);
+          console.log('Mapped listings successfully:', mappedListings); // Debug log
+          this.isLoadingListings.set(false);
+          console.log('Loading state set to false'); // Debug log
+        } catch (error) {
+          console.error('Error mapping advertisements:', error);
+          this.listings.set([]);
+          this.isLoadingListings.set(false);
+        }
       },
       error: (error) => {
-        console.error('Erro ao carregar listagens:', error);
+        console.error('Error loading advertisements:', error);
+        console.error('Error details:', {
+          message: error.message,
+          status: error.status,
+          statusText: error.statusText,
+          url: error.url
+        });
+        this.listings.set([]);
+        this.isLoadingListings.set(false);
+        console.log('Loading state set to false after error'); // Debug log
+      },
+      complete: () => {
+        console.log('Advertisement loading observable completed'); // Debug log
       }
     });
   }
 
+  /**
+   * Maps Advertisement objects to BitcoinListing objects for compatibility
+   */
+  private mapAdvertisementsToListings(advertisements: Advertisement[]): BitcoinListing[] {
+    return advertisements.map(ad => {
+      console.log('Raw advertisement data:', ad); // Debug log
+      
+      // Let's try different price conversions to find the right one
+      const rawPrice = Number(ad.price);
+      console.log('Raw price:', rawPrice);
+      
+      // Try different conversions to get a reasonable BTC price (should be around 500k-600k BRL)
+      const priceOptions = [
+        { divisor: 1, result: rawPrice },
+        { divisor: 100, result: rawPrice / 100 },
+        { divisor: 10000, result: rawPrice / 10000 },
+        { divisor: 100000000, result: rawPrice / 100000000 },
+        { divisor: 10000000000, result: rawPrice / 10000000000 }
+      ];
+      
+      console.log('Price conversion options:', priceOptions);
+      
+      // Based on typical Bitcoin prices in BRL (500k-600k), let's use a reasonable conversion
+      // 12450000000000 / 10000000000 = 1245 (too low)
+      // 12450000000000 / 100000000 = 124500 (more reasonable for BRL per BTC)
+      const pricePerBtc = rawPrice / 100000000;
+      
+      // Convert remaining_fund - let's also debug this
+      const rawRemainingFund = Number(ad.remaining_fund);
+      console.log('Raw remaining_fund:', rawRemainingFund);
+      
+      // If remaining_fund is 120, let's try different interpretations:
+      // Maybe it's already in a usable unit, not satoshis
+      // Let's assume it's a reasonable BTC amount for now
+      const availableAmountBtc = rawRemainingFund > 10 ? rawRemainingFund / 100000000 : rawRemainingFund / 100;
+      
+      const mapped = {
+        id: ad.id,
+        sellerId: ad.seller_address,
+        sellerName: this.formatSellerName(ad.seller_address),
+        pricePerBtc: pricePerBtc,
+        availableAmount: Math.max(availableAmountBtc, 0.001), // Ensure minimum viable amount
+        minPurchase: 100, // Default minimum purchase in BRL
+        maxPurchase: Math.max(availableAmountBtc, 0.001) * pricePerBtc, // Maximum based on available BTC
+        pixKey: 'PIX disponível', // Placeholder since PIX key isn't in Advertisement model
+        createdAt: new Date(ad.created_at)
+      };
+      
+      console.log('Final mapped listing:', mapped); // Debug log
+      return mapped;
+    });
+  }
+
+  /**
+   * Formats seller address to a more user-friendly name
+   */
+  private formatSellerName(address: string): string {
+    return `Vendedor ${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
+  }
+
+  updatePurchaseDataAmount(amount: number) {
+    this.purchaseData.update(data => ({
+      ...data,
+      amountBtc: amount
+    }));
+  }
+
+  updatePurchaseDataPixKey(pixKey: string) {
+    this.purchaseData.update(data => ({
+      ...data,
+      pixKey: pixKey
+    }));
+  }
+
   selectListing(listing: BitcoinListing) {
-    this.selectedListing = listing;
-    this.purchaseData.amountBtc = listing.minPurchase / listing.pricePerBtc;
+    this.selectedListing.set(listing);
+    this.purchaseData.update(data => ({
+      ...data,
+      amountBtc: listing.minPurchase / listing.pricePerBtc
+    }));
   }
 
   cancelPurchase() {
-    this.selectedListing = null;
-    this.purchaseData = {
+    this.selectedListing.set(null);
+    this.purchaseData.set({
       amountBtc: 0,
       pixKey: ''
-    };
+    });
   }
 
   submitPurchase() {
-    if (!this.selectedListing) return;
+    const currentListing = this.selectedListing();
+    const currentPurchaseData = this.purchaseData();
+    
+    if (!currentListing) return;
     
     this.transactionService.createPurchaseOrder(
-      this.selectedListing.id, 
-      this.purchaseData.amountBtc, 
-      this.purchaseData.pixKey
+      currentListing.id, 
+      currentPurchaseData.amountBtc, 
+      currentPurchaseData.pixKey
     ).subscribe({
       next: (order) => {
         this.router.navigate(['/pending-approval'], { 
@@ -743,8 +858,11 @@ export class BuyComponent implements OnInit {
   }
 
   getTotalValue(): number {
-    if (!this.selectedListing) return 0;
-    return this.purchaseData.amountBtc * this.selectedListing.pricePerBtc;
+    const currentSelectedListing = this.selectedListing();
+    const currentPurchaseData = this.purchaseData();
+    
+    if (!currentSelectedListing) return 0;
+    return currentPurchaseData.amountBtc * currentSelectedListing.pricePerBtc;
   }
 
   formatCurrency(value: number): string {

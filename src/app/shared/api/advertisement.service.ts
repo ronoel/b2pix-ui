@@ -38,6 +38,11 @@ export class AdvertisementService {
   private apiUrl = environment.apiUrl;
   private boltContractSBTCService = inject(BoltContractSBTCService);
 
+  constructor() {
+    console.log('AdvertisementService initialized with apiUrl:', this.apiUrl); // Debug log
+    console.log('Environment:', environment); // Debug log
+  }
+
   createAdvertisement(request: CreateAdvertisementRequest): Observable<Advertisement> {
     const recipient = environment.b2pixAddress;
 
@@ -65,16 +70,18 @@ export class AdvertisementService {
     let httpParams = new HttpParams();
 
     if (params) {
-      // Add status filter (can be multiple)
+      // Add status filter (can be multiple) - try standard array notation
       if (params.status && params.status.length > 0) {
         params.status.forEach(status => {
-          httpParams = httpParams.append('status', status);
+          httpParams = httpParams.append('status[]', status);
         });
+        console.log('Added status filters:', params.status); // Debug log
       }
 
       // Add active_only filter
       if (params.active_only !== undefined) {
         httpParams = httpParams.set('active_only', params.active_only.toString());
+        console.log('Added active_only filter:', params.active_only); // Debug log
       }
 
       // Add pagination parameters
@@ -96,7 +103,8 @@ export class AdvertisementService {
       }
     }
 
-    return this.http.get<AdvertisementsResponse>(`${this.apiUrl}/v1/advertisements`, { params: httpParams });
+    const url = `${this.apiUrl}/v1/advertisements`;
+    return this.http.get<AdvertisementsResponse>(url, { params: httpParams });
   }
 
   /**
