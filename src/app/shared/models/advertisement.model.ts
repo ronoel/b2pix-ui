@@ -20,9 +20,9 @@ export interface Advertisement {
     seller_address: string;
     token: string;
     currency: string;
-    price: bigint;
-    amount_fund: bigint;
-    remaining_fund: bigint;
+    price: bigint;  // Price per BTC in sats (1 BTC = 100,000,000 sats)
+    total_amount: bigint;  // Total amount in sats
+    available_amount: bigint;  // Available amount in sats
     status: AdvertisementStatus;
     is_active: boolean;
     created_at: string;

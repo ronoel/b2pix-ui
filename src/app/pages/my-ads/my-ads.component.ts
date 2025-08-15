@@ -189,14 +189,14 @@ import { Subscription } from 'rxjs';
                   </div>
                   <div class="ad-amount">
                     <span class="amount-label">Quantidade:</span>
-                    <span class="amount-value">{{ formatBTC(ad.amount_fund) }} BTC</span>
+                    <span class="amount-value">{{ formatBTC(ad.total_amount) }} BTC</span>
                   </div>
                 </div>
 
                 <div class="ad-details">
                   <div class="detail-item">
                     <span class="detail-label">Restante:</span>
-                    <span class="detail-value">{{ formatBTC(ad.remaining_fund) }} BTC</span>
+                    <span class="detail-value">{{ formatBTC(ad.available_amount) }} BTC</span>
                   </div>
                   <div class="detail-item">
                     <span class="detail-label">Criado:</span>
@@ -871,8 +871,9 @@ export class MyAdsComponent implements OnInit, OnDestroy {
     return this.myAds()
       .filter(ad => ad.status === AdvertisementStatus.CLOSED)
       .reduce((total, ad) => {
-        const soldAmount = Number(ad.amount_fund - ad.remaining_fund);
-        const earnings = (soldAmount / 100000000) * (Number(ad.price) / 100);
+        const soldAmount = Number(ad.total_amount - ad.available_amount);
+        const pricePerBtc = Number(ad.price) / 100000000; // Convert price from sats to BRL per BTC
+        const earnings = (soldAmount / 100000000) * pricePerBtc;
         return total + earnings;
       }, 0);
   }
@@ -963,10 +964,10 @@ export class MyAdsComponent implements OnInit, OnDestroy {
   }
 
   getProgressPercentage(ad: Advertisement): number {
-    const total = Number(ad.amount_fund);
-    const remaining = Number(ad.remaining_fund);
+    const total = Number(ad.total_amount);
+    const available = Number(ad.available_amount);
     if (total === 0) return 0;
-    return Math.round(((total - remaining) / total) * 100);
+    return Math.round(((total - available) / total) * 100);
   }
 
   formatCurrency(value: number): string {
@@ -979,7 +980,7 @@ export class MyAdsComponent implements OnInit, OnDestroy {
   }
 
   formatPriceCurrency(priceBigInt: bigint): string {
-    const price = Number(priceBigInt) / 100; // Convert from centavos to reais
+    const price = Number(priceBigInt) / 100000000; // Convert from sats to BRL per BTC
     return this.formatCurrency(price);
   }
 

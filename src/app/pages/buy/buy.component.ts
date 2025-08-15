@@ -772,14 +772,14 @@ export class BuyComponent implements OnInit {
       // 12450000000000 / 100000000 = 124500 (more reasonable for BRL per BTC)
       const pricePerBtc = rawPrice / 100000000;
       
-      // Convert remaining_fund - let's also debug this
-      const rawRemainingFund = Number(ad.remaining_fund);
-      console.log('Raw remaining_fund:', rawRemainingFund);
+      // Convert available_amount - let's also debug this
+      const rawAvailableAmount = Number(ad.available_amount);
+      console.log('Raw available_amount:', rawAvailableAmount);
       
-      // If remaining_fund is 120, let's try different interpretations:
+      // If available_amount is 120, let's try different interpretations:
       // Maybe it's already in a usable unit, not satoshis
       // Let's assume it's a reasonable BTC amount for now
-      const availableAmountBtc = rawRemainingFund > 10 ? rawRemainingFund / 100000000 : rawRemainingFund / 100;
+      const availableAmountBtc = rawAvailableAmount > 10 ? rawAvailableAmount / 100000000 : rawAvailableAmount / 100;
       
       const mapped = {
         id: ad.id,
