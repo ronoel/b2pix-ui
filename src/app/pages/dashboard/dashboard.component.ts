@@ -500,8 +500,7 @@ export class DashboardComponent implements OnInit {
   }
 
   goToMyAds() {
-    // Navigate to my ads page - placeholder for now
-    console.log('Navigate to my ads');
+    this.router.navigate(['/my-ads']);
   }
 
   formatCurrency(value: number): string {
