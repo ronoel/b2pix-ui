@@ -123,8 +123,29 @@ export class AdvertisementService {
     });
   }
 
-  getAdvertisementById(id: string): Observable<Advertisement> {
-    return this.http.get<Advertisement>(`${this.apiUrl}/v1/advertisements/${id}`);
+  /**
+   * Get advertisements by crypto address
+   * @param address The crypto address to search for (supports Bitcoin, Ethereum, and other formats)
+   * @returns Observable of array of advertisements for the given address
+   */
+  getAdvertisementByAddress(address: string): Observable<Advertisement[]> {
+    if (!address || address.trim() === '') {
+      return throwError(() => new Error('Address parameter is required'));
+    }
+
+    return this.http.get<Advertisement[]>(`${this.apiUrl}/v1/advertisements/address/${encodeURIComponent(address)}`).pipe(
+      catchError((error) => {
+        if (error.status === 400) {
+          console.error('Invalid address format:', address);
+          return throwError(() => new Error('Invalid address format'));
+        } else if (error.status === 500) {
+          console.error('Server error while fetching advertisements for address:', address);
+          return throwError(() => new Error('Database or server error'));
+        }
+        console.error('Unexpected error while fetching advertisements for address:', address, error);
+        return throwError(() => error);
+      })
+    );
   }
 
   updateAdvertisement(id: string, advertisement: Advertisement): Observable<Advertisement> {

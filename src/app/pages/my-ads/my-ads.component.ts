@@ -1,7 +1,11 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, OnDestroy, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Advertisement, AdvertisementStatus } from '../../shared/models/advertisement.model';
+import { AdvertisementService } from '../../shared/api/advertisement.service';
+import { WalletService } from '../../libs/wallet.service';
+import { LoadingService } from '../../services/loading.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-my-ads',
@@ -25,6 +29,12 @@ import { Advertisement, AdvertisementStatus } from '../../shared/models/advertis
             </div>
           </div>
           <div class="header-right">
+            <button class="refresh-button" (click)="refreshAds()" [disabled]="isLoading()" title="Atualizar">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" [class.spinning]="isLoading()">
+                <path d="M23 4V10H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M20.49 15C19.9828 16.8412 18.8943 18.4814 17.4001 19.6586C15.9059 20.8357 14.0932 21.4836 12.2188 21.4954C10.3445 21.5072 8.52416 20.8823 7.01362 19.7264C5.50309 18.5705 4.39074 16.9453 3.85848 15.1127C3.32621 13.2801 3.40362 11.3236 4.07803 9.54493C4.75244 7.76625 6.00477 6.2602 7.64736 5.26274C9.28995 4.26528 11.2197 3.83311 13.1294 4.03988C15.0392 4.24665 16.8295 5.08062 18.21 6.39L23 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
             <button class="create-ad-button" (click)="createNewAd()">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                 <path d="M12 5V19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -110,8 +120,38 @@ import { Advertisement, AdvertisementStatus } from '../../shared/models/advertis
             </div>
           </div>
 
-          <div class="ads-list" *ngIf="filteredAds().length > 0; else emptyState">
-            <div class="ad-card" *ngFor="let ad of filteredAds()">
+          <!-- Loading State -->
+          <div class="loading-state" *ngIf="isLoading()">
+            <div class="loading-spinner">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-dasharray="31.416" stroke-dashoffset="31.416">
+                  <animate attributeName="stroke-dasharray" dur="2s" values="0 31.416;15.708 15.708;0 31.416" repeatCount="indefinite"/>
+                  <animate attributeName="stroke-dashoffset" dur="2s" values="0;-15.708;-31.416" repeatCount="indefinite"/>
+                </circle>
+              </svg>
+            </div>
+            <p class="loading-text">Carregando anúncios...</p>
+          </div>
+
+          <!-- Error State -->
+          <div class="error-state" *ngIf="error() && !isLoading()">
+            <div class="error-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                <path d="M15 9L9 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M9 9L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <h3 class="error-title">Erro ao carregar anúncios</h3>
+            <p class="error-description">{{ error() }}</p>
+            <button class="retry-button" (click)="loadUserAds()">
+              Tentar Novamente
+            </button>
+          </div>
+
+          <!-- Ads List -->
+          <div class="ads-list" *ngIf="!isLoading() && !error() && filteredAds().length > 0">
+            <div class="ad-card" *ngFor="let ad of filteredAds()">>
               <div class="ad-header">
                 <div class="ad-status-badge" [ngClass]="getStatusClass(ad.status)">
                   {{ getStatusLabel(ad.status) }}
@@ -180,28 +220,27 @@ import { Advertisement, AdvertisementStatus } from '../../shared/models/advertis
             </div>
           </div>
 
-          <ng-template #emptyState>
-            <div class="empty-state">
-              <div class="empty-icon">
-                <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
-                  <path d="M9 11H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M9 15H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M17 3V5H7V3" stroke="currentColor" stroke-width="2"/>
-                  <path d="M19 5V19C19 20.1046 18.1046 21 17 21H7C5.89543 21 5 20.1046 5 19V5H19Z" stroke="currentColor" stroke-width="2"/>
-                </svg>
-              </div>
-              <h3 class="empty-title">Nenhum anúncio encontrado</h3>
-              <p class="empty-description">
-                {{ selectedFilter() === 'all' 
-                  ? 'Você ainda não criou nenhum anúncio. Comece criando seu primeiro anúncio de venda!' 
-                  : 'Não há anúncios nesta categoria.' 
-                }}
-              </p>
-              <button class="empty-action-button" (click)="createNewAd()" *ngIf="selectedFilter() === 'all'">
-                Criar Primeiro Anúncio
-              </button>
+          <!-- Empty State -->
+          <div class="empty-state" *ngIf="!isLoading() && !error() && filteredAds().length === 0">
+            <div class="empty-icon">
+              <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
+                <path d="M9 11H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M9 15H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M17 3V5H7V3" stroke="currentColor" stroke-width="2"/>
+                <path d="M19 5V19C19 20.1046 18.1046 21 17 21H7C5.89543 21 5 20.1046 5 19V5H19Z" stroke="currentColor" stroke-width="2"/>
+              </svg>
             </div>
-          </ng-template>
+            <h3 class="empty-title">Nenhum anúncio encontrado</h3>
+            <p class="empty-description">
+              {{ selectedFilter() === 'all' 
+                ? 'Você ainda não criou nenhum anúncio. Comece criando seu primeiro anúncio de venda!' 
+                : 'Não há anúncios nesta categoria.' 
+              }}
+            </p>
+            <button class="empty-action-button" (click)="createNewAd()" *ngIf="selectedFilter() === 'all'">
+              Criar Primeiro Anúncio
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -259,6 +298,46 @@ import { Advertisement, AdvertisementStatus } from '../../shared/models/advertis
     .page-subtitle {
       color: var(--text-secondary);
       margin: 0;
+    }
+
+    .header-right {
+      display: flex;
+      gap: var(--spacing-md);
+      align-items: center;
+    }
+
+    .refresh-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: var(--surface-color);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .refresh-button:hover:not(:disabled) {
+      background: var(--primary-color);
+      border-color: var(--primary-color);
+      color: white;
+    }
+
+    .refresh-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .refresh-button svg.spinning {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
 
     .create-ad-button {
@@ -549,6 +628,61 @@ import { Advertisement, AdvertisementStatus } from '../../shared/models/advertis
       text-align: center;
     }
 
+    /* Loading State */
+    .loading-state {
+      text-align: center;
+      padding: var(--spacing-3xl) var(--spacing-lg);
+    }
+
+    .loading-spinner {
+      margin: 0 auto var(--spacing-lg);
+      color: var(--primary-color);
+    }
+
+    .loading-text {
+      color: var(--text-secondary);
+      margin: 0;
+    }
+
+    /* Error State */
+    .error-state {
+      text-align: center;
+      padding: var(--spacing-3xl) var(--spacing-lg);
+    }
+
+    .error-icon {
+      margin: 0 auto var(--spacing-lg);
+      color: #ef4444;
+    }
+
+    .error-title {
+      font-size: var(--font-size-xl);
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 0 0 var(--spacing-sm) 0;
+    }
+
+    .error-description {
+      color: var(--text-secondary);
+      margin: 0 0 var(--spacing-lg) 0;
+    }
+
+    .retry-button {
+      padding: var(--spacing-md) var(--spacing-lg);
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: var(--border-radius);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .retry-button:hover {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+    }
+
     /* Empty State */
     .empty-state {
       text-align: center;
@@ -605,10 +739,17 @@ import { Advertisement, AdvertisementStatus } from '../../shared/models/advertis
 
       .header-right {
         width: 100%;
+        justify-content: space-between;
+      }
+
+      .refresh-button {
+        order: 1;
       }
 
       .create-ad-button {
-        width: 100%;
+        order: 2;
+        flex: 1;
+        margin-left: var(--spacing-md);
         justify-content: center;
       }
 
@@ -642,75 +783,68 @@ import { Advertisement, AdvertisementStatus } from '../../shared/models/advertis
     }
   `]
 })
-export class MyAdsComponent implements OnInit {
+export class MyAdsComponent implements OnInit, OnDestroy {
   private router = inject(Router);
+  private advertisementService = inject(AdvertisementService);
+  private walletService = inject(WalletService);
+  private loadingService = inject(LoadingService);
 
   // Signals for reactive state management
   myAds = signal<Advertisement[]>([]);
   selectedFilter = signal<'all' | 'active' | 'inactive'>('all');
+  isLoading = signal<boolean>(false);
+  error = signal<string | null>(null);
 
-  ngOnInit() {
-    this.loadMockData();
+  private subscription?: Subscription;
+
+  // Computed signals
+  userAddress = computed(() => this.walletService.walletAddressSignal());
+
+  constructor() {
+    // Effect to reload ads when wallet address changes
+    effect(() => {
+      const address = this.userAddress();
+      if (address) {
+        this.loadUserAds();
+      }
+    });
   }
 
-  // Load mock data for development
-  loadMockData() {
-    const mockAds: Advertisement[] = [
-      {
-        id: 'ad-001',
-        seller_address: 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM',
-        token: 'BTC',
-        currency: 'BRL',
-        price: BigInt(32000000), // R$ 320.000,00 por BTC (em centavos)
-        amount_fund: BigInt(100000000), // 1 BTC
-        remaining_fund: BigInt(75000000), // 0.75 BTC
-        status: AdvertisementStatus.READY,
-        is_active: true,
-        created_at: '2024-01-15T10:30:00Z',
-        updated_at: '2024-01-15T10:30:00Z'
-      },
-      {
-        id: 'ad-002',
-        seller_address: 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM',
-        token: 'BTC',
-        currency: 'BRL',
-        price: BigInt(31800000), // R$ 318.000,00 por BTC
-        amount_fund: BigInt(50000000), // 0.5 BTC
-        remaining_fund: BigInt(0), // Vendido completamente
-        status: AdvertisementStatus.CLOSED,
-        is_active: false,
-        created_at: '2024-01-10T14:20:00Z',
-        updated_at: '2024-01-12T16:45:00Z'
-      },
-      {
-        id: 'ad-003',
-        seller_address: 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM',
-        token: 'BTC',
-        currency: 'BRL',
-        price: BigInt(32500000), // R$ 325.000,00 por BTC
-        amount_fund: BigInt(200000000), // 2 BTC
-        remaining_fund: BigInt(200000000), // 2 BTC (não vendeu nada ainda)
-        status: AdvertisementStatus.PENDING,
-        is_active: true,
-        created_at: '2024-01-18T09:15:00Z',
-        updated_at: '2024-01-18T09:15:00Z'
-      },
-      {
-        id: 'ad-004',
-        seller_address: 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM',
-        token: 'BTC',
-        currency: 'BRL',
-        price: BigInt(31900000), // R$ 319.000,00 por BTC
-        amount_fund: BigInt(30000000), // 0.3 BTC
-        remaining_fund: BigInt(30000000), // 0.3 BTC
-        status: AdvertisementStatus.DISABLED,
-        is_active: false,
-        created_at: '2024-01-08T11:45:00Z',
-        updated_at: '2024-01-16T13:20:00Z'
-      }
-    ];
+  ngOnInit() {
+    // Initial load will be handled by the effect
+  }
 
-    this.myAds.set(mockAds);
+  ngOnDestroy() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
+  }
+
+  // Load user advertisements from API
+  loadUserAds() {
+    const address = this.userAddress();
+    
+    if (!address) {
+      this.error.set('Endereço da carteira não encontrado');
+      return;
+    }
+
+    this.isLoading.set(true);
+    this.error.set(null);
+    
+    this.subscription = this.advertisementService.getAdvertisementByAddress(address).subscribe({
+      next: (ads: Advertisement[]) => {
+        this.myAds.set(ads);
+        this.isLoading.set(false);
+      },
+      error: (error) => {
+        console.error('Error loading user ads:', error);
+        this.error.set('Erro ao carregar anúncios. Tente novamente.');
+        this.isLoading.set(false);
+        // Set empty array on error
+        this.myAds.set([]);
+      }
+    });
   }
 
   // Computed properties
@@ -755,6 +889,10 @@ export class MyAdsComponent implements OnInit {
 
   createNewAd() {
     this.router.navigate(['/sell']);
+  }
+
+  refreshAds() {
+    this.loadUserAds();
   }
 
   // Ad management methods
