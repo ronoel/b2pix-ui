@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Advertisement, AdvertisementStatus } from '../../shared/models/advertisement.model';
 import { AdvertisementService } from '../../shared/api/advertisement.service';
+import { InvitesService } from '../../shared/api/invites.service';
 import { WalletService } from '../../libs/wallet.service';
 import { LoadingService } from '../../services/loading.service';
 import { Subscription } from 'rxjs';
@@ -86,6 +87,49 @@ import { Subscription } from 'rxjs';
               <div class="stat-content">
                 <div class="stat-value">{{ formatCurrency(getTotalEarnings()) }}</div>
                 <div class="stat-label">Total Negociado</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PIX Account Section -->
+        <div class="pix-account-section">
+          <h2 class="section-title">Conta PIX</h2>
+          <div class="pix-account-card">
+            <div class="pix-account-content">
+              <div class="pix-account-info">
+                <div class="pix-account-badge" [ngClass]="{ 
+                  'active': bankStatus() === 'success', 
+                  'processing': bankStatus() === 'processing',
+                  'failed': bankStatus() === 'failed',
+                  'inactive': bankStatus() === 'pending' 
+                }">
+                  <div class="pix-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
+                      <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </div>
+                  <div class="pix-info">
+                    <div class="pix-title">Status da Conta PIX</div>
+                    <div class="pix-status">{{ getPixStatusMessage() }}</div>
+                    <div class="pix-description">
+                      {{ getPixDescriptionMessage() }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="pix-account-actions">
+                <button class="pix-action-button" (click)="goToPixAccount()" [ngClass]="{ 
+                  'primary': bankStatus() === 'pending' || bankStatus() === 'failed', 
+                  'secondary': bankStatus() === 'success' || bankStatus() === 'processing' 
+                }">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M11 4H4C2.89543 4 2 4.89543 2 6V18C2 19.1046 2.89543 20 4 20H16C17.1046 20 18 19.1046 18 18V11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M18.5 2.5C19.3284 1.67157 20.6716 1.67157 21.5 2.5C22.3284 3.32843 22.3284 4.67157 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  {{ getPixButtonText() }}
+                </button>
               </div>
             </div>
           </div>
@@ -414,6 +458,168 @@ import { Subscription } from 'rxjs';
     .stat-label {
       color: var(--text-secondary);
       font-size: var(--font-size-sm);
+    }
+
+    /* PIX Account Section */
+    .pix-account-section {
+      margin-bottom: var(--spacing-2xl);
+    }
+
+    .pix-account-card {
+      background: var(--surface-color);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-lg);
+      overflow: hidden;
+    }
+
+    .pix-account-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--spacing-xl);
+      gap: var(--spacing-lg);
+    }
+
+    .pix-account-info {
+      flex: 1;
+    }
+
+    .pix-account-badge {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-lg);
+      padding: var(--spacing-md) var(--spacing-lg);
+      border-radius: var(--border-radius-lg);
+      transition: all var(--transition-normal);
+    }
+
+    .pix-account-badge.active {
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid var(--success-green);
+    }
+
+    .pix-account-badge.processing {
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid var(--primary-blue);
+    }
+
+    .pix-account-badge.failed {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid #ef4444;
+    }
+
+    .pix-account-badge.inactive {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid var(--warning-yellow);
+    }
+
+    .pix-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border-radius: var(--border-radius-md);
+      background: var(--background-elevated);
+    }
+
+    .pix-account-badge.active .pix-icon {
+      color: var(--success-green);
+      background: rgba(34, 197, 94, 0.1);
+    }
+
+    .pix-account-badge.processing .pix-icon {
+      color: var(--primary-blue);
+      background: rgba(59, 130, 246, 0.1);
+    }
+
+    .pix-account-badge.failed .pix-icon {
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .pix-account-badge.inactive .pix-icon {
+      color: var(--warning-yellow);
+      background: rgba(245, 158, 11, 0.1);
+    }
+
+    .pix-info {
+      flex: 1;
+    }
+
+    .pix-title {
+      font-size: var(--font-size-lg);
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 0 0 var(--spacing-xs) 0;
+    }
+
+    .pix-status {
+      font-size: var(--font-size-md);
+      font-weight: 500;
+      margin: 0 0 var(--spacing-xs) 0;
+    }
+
+    .pix-account-badge.active .pix-status {
+      color: var(--success-green);
+    }
+
+    .pix-account-badge.processing .pix-status {
+      color: var(--primary-blue);
+    }
+
+    .pix-account-badge.failed .pix-status {
+      color: #ef4444;
+    }
+
+    .pix-account-badge.inactive .pix-status {
+      color: var(--warning-yellow);
+    }
+
+    .pix-description {
+      font-size: var(--font-size-sm);
+      color: var(--text-secondary);
+      margin: 0;
+      line-height: 1.4;
+    }
+
+    .pix-account-actions {
+      display: flex;
+      align-items: center;
+    }
+
+    .pix-action-button {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-md) var(--spacing-lg);
+      border: none;
+      border-radius: var(--border-radius);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-normal);
+      white-space: nowrap;
+    }
+
+    .pix-action-button.primary {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .pix-action-button.primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+    }
+
+    .pix-action-button.secondary {
+      background: var(--surface-color);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+    }
+
+    .pix-action-button.secondary:hover {
+      background: var(--background-elevated);
+      border-color: var(--primary-color);
     }
 
     /* Ads Section */
@@ -780,12 +986,34 @@ import { Subscription } from 'rxjs';
       .ad-details {
         grid-template-columns: 1fr;
       }
+
+      .pix-account-content {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--spacing-lg);
+      }
+
+      .pix-account-badge {
+        padding: var(--spacing-md);
+        gap: var(--spacing-md);
+      }
+
+      .pix-icon {
+        width: 40px;
+        height: 40px;
+      }
+
+      .pix-action-button {
+        width: 100%;
+        justify-content: center;
+      }
     }
   `]
 })
 export class MyAdsComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private advertisementService = inject(AdvertisementService);
+  private invitesService = inject(InvitesService);
   private walletService = inject(WalletService);
   private loadingService = inject(LoadingService);
 
@@ -794,6 +1022,8 @@ export class MyAdsComponent implements OnInit, OnDestroy {
   selectedFilter = signal<'all' | 'active' | 'inactive'>('all');
   isLoading = signal<boolean>(false);
   error = signal<string | null>(null);
+  hasPixAccount = false;
+  bankStatus = signal<'pending' | 'processing' | 'success' | 'failed'>('pending');
 
   private subscription?: Subscription;
 
@@ -806,12 +1036,14 @@ export class MyAdsComponent implements OnInit, OnDestroy {
       const address = this.userAddress();
       if (address) {
         this.loadUserAds();
+        this.checkPixAccount();
       }
     });
   }
 
   ngOnInit() {
     // Initial load will be handled by the effect
+    this.checkPixAccount();
   }
 
   ngOnDestroy() {
@@ -894,6 +1126,74 @@ export class MyAdsComponent implements OnInit, OnDestroy {
 
   refreshAds() {
     this.loadUserAds();
+    this.checkPixAccount();
+  }
+
+  goToPixAccount() {
+    this.router.navigate(['/pix-account']);
+  }
+
+  // PIX Account methods
+  private checkPixAccount() {
+    this.invitesService.getWalletInvite().subscribe({
+      next: (invite) => {
+        if (invite) {
+          this.bankStatus.set(invite.bank_status);
+          // 'success' indica que a conta PIX foi configurada com sucesso
+          this.hasPixAccount = invite.bank_status === 'success';
+        } else {
+          this.bankStatus.set('pending');
+          this.hasPixAccount = false;
+        }
+      },
+      error: (error) => {
+        console.error('Error checking PIX account status:', error);
+        this.bankStatus.set('failed');
+        this.hasPixAccount = false;
+      }
+    });
+  }
+
+  getPixStatusMessage(): string {
+    switch (this.bankStatus()) {
+      case 'success':
+        return 'Conta Ativa';
+      case 'processing':
+        return 'Em Processamento';
+      case 'failed':
+        return 'Falha na Configuração';
+      case 'pending':
+      default:
+        return 'Conta Pendente';
+    }
+  }
+
+  getPixDescriptionMessage(): string {
+    switch (this.bankStatus()) {
+      case 'success':
+        return 'Sua conta PIX está configurada e ativa para transações.';
+      case 'processing':
+        return 'Sua conta PIX está sendo processada. Aguarde a confirmação.';
+      case 'failed':
+        return 'Houve um erro na configuração da conta PIX. Tente novamente.';
+      case 'pending':
+      default:
+        return 'Configure sua conta PIX para receber pagamentos.';
+    }
+  }
+
+  getPixButtonText(): string {
+    switch (this.bankStatus()) {
+      case 'success':
+        return 'Editar Conta PIX';
+      case 'processing':
+        return 'Verificar Status';
+      case 'failed':
+        return 'Tentar Novamente';
+      case 'pending':
+      default:
+        return 'Configurar Conta PIX';
+    }
   }
 
   // Ad management methods

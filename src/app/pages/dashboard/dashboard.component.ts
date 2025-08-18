@@ -17,22 +17,6 @@ import { TransactionService } from '../../services/transaction.service';
             <h1 class="dashboard-title">Dashboard</h1>
             <p class="dashboard-subtitle">Plataforma P2P - Compre e venda Bitcoin com PIX</p>
           </div>
-          <div class="header-right">
-            <div class="wallet-info">
-              <div class="pix-account-badge" [ngClass]="{ 'active': hasPixAccount, 'inactive': !hasPixAccount }">
-                <div class="pix-icon">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
-                    <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </div>
-                <div class="pix-info">
-                  <div class="pix-title">Conta PIX</div>
-                  <div class="pix-status">{{ hasPixAccount ? 'Ativa' : 'Pendente' }}</div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
         <!-- Quick Actions -->
@@ -172,78 +156,6 @@ import { TransactionService } from '../../services/transaction.service';
       border-radius: var(--border-radius-sm);
       font-size: var(--font-size-xs);
       font-weight: 500;
-    }
-
-    /* PIX Account Badge */
-    .pix-account-badge {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-md);
-      padding: var(--spacing-md) var(--spacing-lg);
-      background: var(--background-card);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius-lg);
-      transition: all var(--transition-normal);
-    }
-
-    .pix-account-badge.active {
-      border-color: var(--success-green);
-      background: rgba(34, 197, 94, 0.1);
-    }
-
-    .pix-account-badge.inactive {
-      border-color: var(--warning-yellow);
-      background: rgba(245, 158, 11, 0.1);
-    }
-
-    .pix-icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 32px;
-      height: 32px;
-      border-radius: var(--border-radius-md);
-      background: var(--background-elevated);
-    }
-
-    .pix-account-badge.active .pix-icon {
-      color: var(--success-green);
-    }
-
-    .pix-account-badge.inactive .pix-icon {
-      color: var(--warning-yellow);
-    }
-
-    .pix-info {
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-xs);
-    }
-
-    .pix-title {
-      font-size: var(--font-size-sm);
-      font-weight: 600;
-      color: var(--text-primary);
-      margin: 0;
-    }
-
-    .pix-status {
-      font-size: var(--font-size-xs);
-      color: var(--text-secondary);
-      margin: 0;
-    }
-
-    .pix-account-badge.active .pix-status {
-      color: var(--success-green);
-    }
-
-    .pix-account-badge.inactive .pix-status {
-      color: var(--warning-yellow);
-    }
-
-    .btn-sm {
-      padding: var(--spacing-sm) var(--spacing-md);
-      font-size: var(--font-size-sm);
     }
 
     /* Actions Section */
@@ -402,20 +314,6 @@ import { TransactionService } from '../../services/transaction.service';
         gap: var(--spacing-lg);
       }
 
-      .wallet-info {
-        width: 100%;
-        justify-content: space-between;
-      }
-
-      .pix-account-badge {
-        padding: var(--spacing-sm) var(--spacing-md);
-      }
-
-      .pix-icon {
-        width: 28px;
-        height: 28px;
-      }
-
       .actions-grid {
         grid-template-columns: 1fr;
       }
@@ -440,16 +338,6 @@ import { TransactionService } from '../../services/transaction.service';
     }
 
     @media (max-width: 480px) {
-      .wallet-info {
-        flex-direction: column;
-        align-items: stretch;
-        gap: var(--spacing-sm);
-      }
-
-      .pix-account-badge {
-        align-self: center;
-      }
-
       .action-card {
         flex-direction: column;
         text-align: center;
@@ -468,10 +356,8 @@ export class DashboardComponent implements OnInit {
   private transactionService = inject(TransactionService);
 
   recentOrders: any[] = [];
-  hasPixAccount = false;
 
   ngOnInit() {
-    this.checkPixAccount();
     this.loadRecentOrders();
   }
 
@@ -493,10 +379,6 @@ export class DashboardComponent implements OnInit {
 
   goToSell() {
     this.router.navigate(['/sell']);
-  }
-
-  goToPixAccount() {
-    this.router.navigate(['/pix-account']);
   }
 
   goToMyAds() {
@@ -540,11 +422,6 @@ export class DashboardComponent implements OnInit {
     } else {
       return 'Agora mesmo';
     }
-  }
-
-  private checkPixAccount() {
-    // Simular verificação de conta PIX
-    this.hasPixAccount = Math.random() > 0.5;
   }
 
   private loadRecentOrders() {
