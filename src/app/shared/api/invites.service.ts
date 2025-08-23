@@ -4,22 +4,11 @@ import { environment } from '../../../environments/environment';
 import { Observable, of, from } from 'rxjs';
 import { switchMap, tap, map } from 'rxjs/operators';
 import { WalletService } from '../../libs/wallet.service';
-
-export interface SendInviteRequest {
-  publicKey: string;
-  signature: string;
-  payload: string;
-}
+import { SignedRequest } from '../models/api.model';
 
 export interface SendInviteResponse {
   code: string;
   status: string;
-}
-
-export interface ClaimInviteRequest {
-  publicKey: string;
-  signature: string;
-  payload: string;
 }
 
 export interface ClaimInviteResponse {
@@ -68,7 +57,7 @@ export class InvitesService {
     // Use from to convert Promise to Observable, then chain the observables
     return from(this.walletService.signMessage(payload)).pipe(
       switchMap(signedMessage => {
-        const data: SendInviteRequest = {
+        const data: SignedRequest = {
           publicKey: signedMessage.publicKey,
           signature: signedMessage.signature,
           payload
@@ -89,7 +78,7 @@ export class InvitesService {
     // Use from to convert Promise to Observable, then chain the observables
     return from(this.walletService.signMessage(payload)).pipe(
       switchMap(signedMessage => {
-        const data: ClaimInviteRequest = {
+        const data: SignedRequest = {
           publicKey: signedMessage.publicKey,
           signature: signedMessage.signature,
           payload

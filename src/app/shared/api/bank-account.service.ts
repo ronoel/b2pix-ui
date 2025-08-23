@@ -5,11 +5,9 @@ import { Observable, from } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
 import { WalletService } from '../../libs/wallet.service';
 import { InvitesService } from './invites.service';
+import { SignedRequest } from '../models/api.model';
 
-export interface BankSetupRequest {
-  signature: string;
-  publicKey: string;
-  payload: string;
+export interface BankSetupRequest extends SignedRequest {
   certificate: string; // base64 encoded .p12 file
   filename: string;    // must end with .p12
 }
