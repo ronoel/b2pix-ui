@@ -1084,13 +1084,22 @@ export class MyAdsComponent implements OnInit, OnDestroy {
     const ads = this.myAds();
     const filter = this.selectedFilter();
 
+    let filteredAds: Advertisement[];
+
     if (filter === 'active') {
-      return ads.filter(ad => ad.is_active && (ad.status === AdvertisementStatus.READY || ad.status === AdvertisementStatus.PENDING));
+      filteredAds = ads.filter(ad => ad.is_active && (ad.status === AdvertisementStatus.READY || ad.status === AdvertisementStatus.PENDING));
     } else if (filter === 'inactive') {
-      return ads.filter(ad => !ad.is_active || ad.status === AdvertisementStatus.CLOSED || ad.status === AdvertisementStatus.DISABLED);
+      filteredAds = ads.filter(ad => !ad.is_active || ad.status === AdvertisementStatus.CLOSED || ad.status === AdvertisementStatus.DISABLED);
+    } else {
+      filteredAds = ads;
     }
 
-    return ads;
+    // Sort by creation date - most recent first
+    return filteredAds.sort((a, b) => {
+      const dateA = new Date(a.created_at).getTime();
+      const dateB = new Date(b.created_at).getTime();
+      return dateB - dateA; // Descending order (most recent first)
+    });
   }
 
   getActiveAdsCount(): number {

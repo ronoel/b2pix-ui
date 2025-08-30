@@ -23,7 +23,7 @@ export class BuyService {
    */
   startBuy(amount: number, price: number, advertisementId: string): Observable<Buy> {
     const addressBuy = this.walletService.getSTXAddress();
-    const payload = `B2PIX - Iniciar Compra\n${environment.domain}\n${amount}\n${price}\n${addressBuy}\n${advertisementId}\n${this.getTimestamp()}`;
+    const payload = `B2PIX - Comprar\n${environment.domain}\n${amount}\n${price}\n${addressBuy}\n${advertisementId}\n${this.getTimestamp()}`;
 
     return from(this.walletService.signMessage(payload)).pipe(
       switchMap(signedMessage => {

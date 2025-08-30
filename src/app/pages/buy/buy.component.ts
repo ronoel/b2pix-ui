@@ -6,6 +6,7 @@ import { TransactionService } from '../../services/transaction.service';
 import { UserService } from '../../services/user.service';
 import { LoadingService } from '../../services/loading.service';
 import { AdvertisementService } from '../../shared/api/advertisement.service';
+import { BuyService } from '../../shared/api/buy.service';
 import { Advertisement, AdvertisementStatus } from '../../shared/models/advertisement.model';
 import { BitcoinListing, PurchaseOrder } from '../../interfaces/transaction.interface';
 
@@ -124,7 +125,7 @@ import { BitcoinListing, PurchaseOrder } from '../../interfaces/transaction.inte
                             <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
                             <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                           </svg>
-                          <span>{{ listing.availableAmount }} BTC disponível</span>
+                          <span>{{ (listing.availableAmount * 100000000 | number:'1.0-0') }} sats disponível</span>
                         </div>
                         <div class="detail-item">
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -187,7 +188,8 @@ import { BitcoinListing, PurchaseOrder } from '../../interfaces/transaction.inte
               </div>
 
               <div class="calculation-result">
-                <p>Você irá receber: <span class="btc-amount">{{ purchaseData().amountBtc.toFixed(8) }} BTC</span></p>
+                <p>Você irá receber: <span class="btc-amount">{{ (purchaseData().amountBtc * 100000000 | number:'1.0-0') }} sats</span></p>
+                <p class="btc-equivalent">({{ purchaseData().amountBtc.toFixed(8) }} BTC)</p>
               </div>
 
               <div class="step-actions">
@@ -279,7 +281,7 @@ import { BitcoinListing, PurchaseOrder } from '../../interfaces/transaction.inte
                 <div class="pix-section">
                   <label>Chave Pix:</label>
                   <div class="pix-key-container">
-                    <input type="text" readonly value="example-pix-key@email.com" class="pix-key-input">
+                    <input type="text" readonly [value]="pixKeyFromAPI()" class="pix-key-input">
                     <button type="button" class="btn btn-outline btn-sm" (click)="copyPixKey()">
                       📋 Copiar chave
                     </button>
@@ -853,6 +855,12 @@ import { BitcoinListing, PurchaseOrder } from '../../interfaces/transaction.inte
       font-size: var(--font-size-lg);
     }
 
+    .btc-equivalent {
+      color: var(--text-muted);
+      font-size: var(--font-size-sm);
+      margin-top: var(--spacing-xs);
+    }
+
     .step-actions {
       display: flex;
       gap: var(--spacing-md);
@@ -1144,6 +1152,7 @@ export class BuyComponent implements OnInit, OnDestroy {
   protected userService = inject(UserService);
   protected loadingService = inject(LoadingService);
   private advertisementService = inject(AdvertisementService);
+  private buyService = inject(BuyService);
 
   // Convert to signals
   listings = signal<BitcoinListing[]>([]);
@@ -1160,6 +1169,9 @@ export class BuyComponent implements OnInit, OnDestroy {
     transactionId: '',
     noTransactionId: false
   });
+  
+  // PIX key from API response
+  pixKeyFromAPI = signal<string>('');
   
   // Timer for payment step
   paymentTimeLeft = signal(900); // 15 minutes in seconds
@@ -1214,34 +1226,17 @@ export class BuyComponent implements OnInit, OnDestroy {
     return advertisements.map(ad => {
       console.log('Raw advertisement data:', ad); // Debug log
       
-      // Let's try different price conversions to find the right one
+      // Following sell component standard - assume API returns values in satoshis
       const rawPrice = Number(ad.price);
-      console.log('Raw price:', rawPrice);
-      
-      // Try different conversions to get a reasonable BTC price (should be around 500k-600k BRL)
-      const priceOptions = [
-        { divisor: 1, result: rawPrice },
-        { divisor: 100, result: rawPrice / 100 },
-        { divisor: 10000, result: rawPrice / 10000 },
-        { divisor: 100000000, result: rawPrice / 100000000 },
-        { divisor: 10000000000, result: rawPrice / 10000000000 }
-      ];
-      
-      console.log('Price conversion options:', priceOptions);
-      
-      // Based on typical Bitcoin prices in BRL (500k-600k), let's use a reasonable conversion
-      // 12450000000000 / 10000000000 = 1245 (too low)
-      // 12450000000000 / 100000000 = 124500 (more reasonable for BRL per BTC)
-      const pricePerBtc = rawPrice / 100000000;
-      
-      // Convert available_amount - let's also debug this
       const rawAvailableAmount = Number(ad.available_amount);
-      console.log('Raw available_amount:', rawAvailableAmount);
       
-      // If available_amount is 120, let's try different interpretations:
-      // Maybe it's already in a usable unit, not satoshis
-      // Let's assume it's a reasonable BTC amount for now
-      const availableAmountBtc = rawAvailableAmount > 10 ? rawAvailableAmount / 100000000 : rawAvailableAmount / 100;
+      console.log('Raw price (sats):', rawPrice, 'Raw available_amount (sats):', rawAvailableAmount);
+      
+      // Convert from satoshis to BRL/BTC (following SATS_PER_BTC standard)
+      const pricePerBtc = Math.floor(rawPrice / Number(this.SATS_PER_BTC));
+      
+      // Convert available amount from satoshis to BTC
+      const availableAmountBtc = rawAvailableAmount / Number(this.SATS_PER_BTC);
       
       const mapped = {
         id: ad.id,
@@ -1249,8 +1244,8 @@ export class BuyComponent implements OnInit, OnDestroy {
         sellerName: this.formatSellerName(ad.seller_address),
         pricePerBtc: pricePerBtc,
         availableAmount: Math.max(availableAmountBtc, 0.001), // Ensure minimum viable amount
-        minPurchase: 100, // Default minimum purchase in BRL
-        maxPurchase: Math.max(availableAmountBtc, 0.001) * pricePerBtc, // Maximum based on available BTC
+        minPurchase: 100, // Default minimum purchase in BRL (integer value)
+        maxPurchase: Math.floor(availableAmountBtc * pricePerBtc), // Maximum based on available BTC (integer value)
         pixKey: 'PIX disponível', // Placeholder since PIX key isn't in Advertisement model
         createdAt: new Date(ad.created_at)
       };
@@ -1317,10 +1312,12 @@ export class BuyComponent implements OnInit, OnDestroy {
   }
 
   formatCurrency(value: number): string {
+    // Round to avoid decimal places for large currency values (following sell component standard)
+    const roundedValue = Math.round(value);
     return new Intl.NumberFormat('pt-BR', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(value);
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(roundedValue);
   }
 
   goBack() {
@@ -1372,11 +1369,48 @@ export class BuyComponent implements OnInit, OnDestroy {
     }));
   }
 
+  // Constants for satoshi conversions
+  readonly SATS_PER_BTC = 100000000n; // 100 million satoshis per bitcoin as BigInt
+
   proceedToStep3() {
-    if (this.purchaseData().userAgreed) {
-      this.currentStep.set('step3');
-      this.startPaymentTimer();
-    }
+    if (!this.purchaseData().userAgreed) return;
+
+    const listing = this.selectedListing();
+    const purchaseData = this.purchaseData();
+    
+    if (!listing) return;
+
+    // Show loading state
+    this.loadingService.show('Iniciando compra...');
+
+    // Convert amounts to satoshis for API call (following sell component standard)
+    const amountSats = Math.floor(purchaseData.amountBtc * Number(this.SATS_PER_BTC));
+    const priceSats = Math.floor(listing.pricePerBtc * Number(this.SATS_PER_BTC));
+
+    // Call BuyService.startBuy with satoshi values
+    this.buyService.startBuy(
+      amountSats,
+      priceSats,
+      listing.id
+    ).subscribe({
+      next: (buyResponse) => {
+        // Store the PIX key from the API response
+        this.pixKeyFromAPI.set(buyResponse.pix_key);
+        
+        // Move to step 3 and start the payment timer
+        this.currentStep.set('step3');
+        this.startPaymentTimer();
+        
+        this.loadingService.hide();
+      },
+      error: (error) => {
+        console.error('Erro ao iniciar compra:', error);
+        this.loadingService.hide();
+        
+        // Show error message to user
+        alert('Erro ao iniciar a compra. Tente novamente.');
+      }
+    });
   }
 
   // Step 3 methods
@@ -1438,11 +1472,17 @@ export class BuyComponent implements OnInit, OnDestroy {
   }
 
   copyPixKey() {
-    const pixKey = 'example-pix-key@email.com'; // This should come from the listing or backend
-    navigator.clipboard.writeText(pixKey).then(() => {
-      // Could show a toast notification here
-      console.log('PIX key copied to clipboard');
-    });
+    const pixKey = this.pixKeyFromAPI();
+    if (pixKey) {
+      navigator.clipboard.writeText(pixKey).then(() => {
+        // Could show a toast notification here
+        console.log('PIX key copied to clipboard');
+        alert('Chave PIX copiada para a área de transferência!');
+      }).catch(() => {
+        console.error('Failed to copy PIX key');
+        alert('Erro ao copiar chave PIX. Copie manualmente.');
+      });
+    }
   }
 
   confirmPayment() {
