@@ -7,6 +7,7 @@ import { InvitesService } from '../../shared/api/invites.service';
 import { WalletService } from '../../libs/wallet.service';
 import { LoadingService } from '../../services/loading.service';
 import { Subscription } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-my-ads',
@@ -247,8 +248,25 @@ import { Subscription } from 'rxjs';
                     <span class="detail-value">{{ formatDate(ad.created_at) }}</span>
                   </div>
                   <div class="detail-item">
-                    <span class="detail-label">ID:</span>
-                    <span class="detail-value">{{ ad.id.substring(0, 8) }}...</span>
+                    <span class="detail-label">Blockchain:</span>
+                    <span class="detail-value">
+                      <button 
+                        *ngIf="ad.transaction_id"
+                        class="blockchain-link" 
+                        (click)="openBlockchainExplorer(ad.transaction_id)"
+                        title="Ver transação na blockchain"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                          <path d="M18 13V19C18 20.1046 17.1046 21 16 21H5C3.89543 21 3 20.1046 3 19V8C3 6.89543 3.89543 6 5 6H11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M15 3H21V9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M10 14L21 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Ver na Blockchain
+                      </button>
+                      <span *ngIf="!ad.transaction_id" class="no-transaction">
+                        Aguardando transação
+                      </span>
+                    </span>
                   </div>
                 </div>
 
@@ -809,6 +827,39 @@ import { Subscription } from 'rxjs';
       color: var(--text-primary);
     }
 
+    .blockchain-link {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      padding: var(--spacing-xs) var(--spacing-sm);
+      background: transparent;
+      color: var(--primary-color);
+      border: 1px solid var(--primary-color);
+      border-radius: var(--border-radius);
+      font-size: var(--font-size-xs);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .blockchain-link:hover {
+      background: var(--primary-color);
+      color: white;
+      transform: translateY(-1px);
+    }
+
+    .blockchain-link svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .no-transaction {
+      font-size: var(--font-size-xs);
+      color: var(--text-secondary);
+      font-style: italic;
+    }
+
     .ad-progress {
       margin-top: var(--spacing-md);
     }
@@ -1309,5 +1360,18 @@ export class MyAdsComponent implements OnInit, OnDestroy {
       month: '2-digit',
       year: 'numeric'
     }).format(date);
+  }
+
+  // Generate blockchain explorer link
+  getBlockchainExplorerLink(transactionId: string): string {
+    // Add 0x prefix if not present and generate Hiro explorer link
+    const txId = transactionId.startsWith('0x') ? transactionId : `0x${transactionId}`;
+    const chain = environment.network === 'mainnet' ? 'mainnet' : 'testnet';
+    return `https://explorer.hiro.so/txid/${txId}?chain=${chain}`;
+  }
+
+  openBlockchainExplorer(transactionId: string): void {
+    const url = this.getBlockchainExplorerLink(transactionId);
+    window.open(url, '_blank');
   }
 }
