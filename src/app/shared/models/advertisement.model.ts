@@ -23,6 +23,8 @@ export interface Advertisement {
     price: bigint;  // Price per BTC in sats (1 BTC = 100,000,000 sats)
     total_amount: bigint;  // Total amount in sats
     available_amount: bigint;  // Available amount in sats
+    min_amount: number;  // Minimum purchase amount in cents (BRL)
+    max_amount: number;  // Maximum purchase amount in cents (BRL)
     transaction_id: string | null;  // ID of the funding transaction
     status: AdvertisementStatus;
     is_active: boolean;

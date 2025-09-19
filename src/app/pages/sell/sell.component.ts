@@ -202,6 +202,58 @@ import { AdvertisementService } from '../../shared/api/advertisement.service';
                       </div>
                     </div>
 
+                    <!-- Valores Mínimo e Máximo -->
+                    <div class="form-group">
+                      <label for="minAmount">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                          <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Valor Mínimo por Compra (R$)
+                      </label>
+                      <input
+                        type="number"
+                        id="minAmount"
+                        name="minAmount"
+                        [(ngModel)]="sellOrder.minAmountReais"
+                        min="1"
+                        max="50000"
+                        step="1"
+                        class="form-input"
+                        placeholder="100,00"
+                        required>
+                      <div class="input-info">
+                        Valor mínimo que o comprador pode investir
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="maxAmount">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                          <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Valor Máximo por Compra (R$)
+                      </label>
+                      <input
+                        type="number"
+                        id="maxAmount"
+                        name="maxAmount"
+                        [(ngModel)]="sellOrder.maxAmountReais"
+                        [min]="sellOrder.minAmountReais"
+                        max="100000"
+                        step="1"
+                        class="form-input"
+                        placeholder="2000,00"
+                        required>
+                      <div class="input-info">
+                        Valor máximo que o comprador pode investir
+                      </div>
+                      @if (sellOrder.maxAmountReais < sellOrder.minAmountReais && sellOrder.maxAmountReais > 0) {
+                        <div class="error-message">
+                          O valor máximo deve ser maior ou igual ao valor mínimo
+                        </div>
+                      }
+                    </div>
+
                     <!-- Preço por BTC -->
                     <div class="form-group full-width">
                       <label for="pricingOption">
@@ -263,6 +315,14 @@ import { AdvertisementService } from '../../shared/api/advertisement.service';
                         <div class="calc-item">
                           <div class="calc-label">• Preço por BTC:</div>
                           <div class="calc-value">R$ {{ formatCurrency(getBtcPriceDisplay()) }}</div>
+                        </div>
+                        <div class="calc-item">
+                          <div class="calc-label">• Compra mínima:</div>
+                          <div class="calc-value">R$ {{ formatCurrency(sellOrder.minAmountReais) }}</div>
+                        </div>
+                        <div class="calc-item">
+                          <div class="calc-label">• Compra máxima:</div>
+                          <div class="calc-value">R$ {{ formatCurrency(sellOrder.maxAmountReais) }}</div>
                         </div>
                         <div class="calc-item total">
                           <div class="calc-label">• Total a receber:</div>
@@ -564,6 +624,16 @@ import { AdvertisementService } from '../../shared/api/advertisement.service';
     .auto-calculated {
       color: var(--success-green);
       font-weight: 500;
+    }
+
+    .error-message {
+      font-size: var(--font-size-xs);
+      color: var(--error-color, #ef4444);
+      margin-top: var(--spacing-xs);
+      padding: var(--spacing-xs);
+      background: rgba(239, 68, 68, 0.1);
+      border-radius: var(--border-radius);
+      border-left: 3px solid var(--error-color, #ef4444);
     }
 
     /* Calculation Card */
@@ -957,7 +1027,9 @@ export class SellComponent implements OnInit {
   sellOrder = {
     amountSats: 0n, // Store as BigInt satoshis
     btcPriceSats: 0n, // Store price per BTC in satoshis to avoid decimals
-    totalSats: 0n
+    totalSats: 0n,
+    minAmountReais: 100, // Minimum purchase amount in reais (pre-filled with R$100,00)
+    maxAmountReais: 2000 // Maximum purchase amount in reais (pre-filled with R$2000,00)
   };
 
   pricingOption = 'market'; // 'immediate', 'fast', 'market', 'custom'
@@ -1075,7 +1147,15 @@ export class SellComponent implements OnInit {
   }
 
   isValidSellOrder(): boolean {
-    return this.sellOrder.amountSats > 0n && this.sellOrder.btcPriceSats > 0n;
+    return this.sellOrder.amountSats > 0n && 
+           this.sellOrder.btcPriceSats > 0n &&
+           this.isValidAmountRange();
+  }
+
+  isValidAmountRange(): boolean {
+    return this.sellOrder.minAmountReais > 0 && 
+           this.sellOrder.maxAmountReais > 0 &&
+           this.sellOrder.maxAmountReais >= this.sellOrder.minAmountReais;
   }
 
   getTotalDisplay(): number {
@@ -1097,7 +1177,9 @@ export class SellComponent implements OnInit {
     
     this.advertisementService.createAdvertisement({
       amountInSats,
-      price: this.sellOrder.btcPriceSats
+      price: this.sellOrder.btcPriceSats,
+      minAmount: this.sellOrder.minAmountReais * 100, // Convert reais to cents
+      maxAmount: this.sellOrder.maxAmountReais * 100  // Convert reais to cents
     }).subscribe({
       next: (advertisement) => {
         console.log('Advertisement created successfully:', advertisement);

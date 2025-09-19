@@ -244,6 +244,14 @@ import { environment } from '../../../environments/environment';
                     <span class="detail-value">{{ formatBTC(ad.available_amount) }} BTC</span>
                   </div>
                   <div class="detail-item">
+                    <span class="detail-label">Valor Mínimo:</span>
+                    <span class="detail-value">{{ formatCentsToReais(ad.min_amount) }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Valor Máximo:</span>
+                    <span class="detail-value">{{ formatCentsToReais(ad.max_amount) }}</span>
+                  </div>
+                  <div class="detail-item">
                     <span class="detail-label">Criado:</span>
                     <span class="detail-value">{{ formatDate(ad.created_at) }}</span>
                   </div>
@@ -1360,6 +1368,11 @@ export class MyAdsComponent implements OnInit, OnDestroy {
       month: '2-digit',
       year: 'numeric'
     }).format(date);
+  }
+
+  formatCentsToReais(cents: number): string {
+    const reais = cents / 100; // Convert cents to reais
+    return this.formatCurrency(reais);
   }
 
   // Generate blockchain explorer link

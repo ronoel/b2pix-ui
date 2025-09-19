@@ -1238,14 +1238,18 @@ export class BuyComponent implements OnInit, OnDestroy {
       // Convert available amount from satoshis to BTC
       const availableAmountBtc = rawAvailableAmount / Number(this.SATS_PER_BTC);
       
+      // Convert min/max amounts from cents to reais
+      const minPurchaseReais = ad.min_amount / 100;
+      const maxPurchaseReais = ad.max_amount / 100;
+      
       const mapped = {
         id: ad.id,
         sellerId: ad.seller_address,
         sellerName: this.formatSellerName(ad.seller_address),
         pricePerBtc: pricePerBtc,
         availableAmount: Math.max(availableAmountBtc, 0.001), // Ensure minimum viable amount
-        minPurchase: 100, // Default minimum purchase in BRL (integer value)
-        maxPurchase: Math.floor(availableAmountBtc * pricePerBtc), // Maximum based on available BTC (integer value)
+        minPurchase: minPurchaseReais, // Use the min_amount from API (converted from cents)
+        maxPurchase: maxPurchaseReais, // Use the max_amount from API (converted from cents)
         pixKey: 'PIX disponível', // Placeholder since PIX key isn't in Advertisement model
         createdAt: new Date(ad.created_at)
       };

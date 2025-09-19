@@ -9,6 +9,8 @@ import { Advertisement, AdvertisementStatus } from '../models/advertisement.mode
 export interface CreateAdvertisementRequest {
     amountInSats: bigint
     price: bigint
+    minAmount: number  // Minimum purchase amount in cents
+    maxAmount: number  // Maximum purchase amount in cents
 }
 
 export interface GetAdvertisementsParams {
@@ -51,7 +53,9 @@ export class AdvertisementService {
       switchMap((transactionSerialized) => {
         console.log('Signed successful:', transactionSerialized);
         return this.http.post<Advertisement>(`${this.apiUrl}/v1/advertisements`, {
-          transaction: transactionSerialized
+          transaction: transactionSerialized,
+          min_amount: request.minAmount,
+          max_amount: request.maxAmount
         });
       }),
       catchError((transferError: any) => {
