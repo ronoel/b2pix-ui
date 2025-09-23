@@ -127,7 +127,7 @@ import { Buy } from '../../shared/models/buy.model';
                   type="button" 
                   class="btn btn-primary btn-success"
                   [disabled]="!canConfirmPayment()"
-                  (click)="confirmPayment()"
+                  (click)="confirmPayment($event)"
                 >
                   ✅ Confirmar Pagamento
                 </button>
@@ -659,20 +659,64 @@ export class BuyPaymentComponent implements OnInit, OnDestroy {
     }
   }
 
-  confirmPayment() {
-    if (!this.canConfirmPayment()) return;
-    
-    // TODO: Implement payment confirmation logic
-    // This could call a service to confirm the payment
-    console.log('Confirming payment with transaction ID:', this.transactionId());
-    
-    // For now, navigate to pending approval
-    const buy = this.buyData();
-    if (buy) {
-      this.router.navigate(['/pending-approval'], { 
-        queryParams: { orderId: buy.id } 
-      });
+  confirmPayment(event?: Event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
     }
+    
+    console.log('confirmPayment called');
+    console.log('canConfirmPayment:', this.canConfirmPayment());
+    
+    if (!this.canConfirmPayment()) {
+      console.log('Cannot confirm payment - validation failed');
+      return;
+    }
+    
+    const buy = this.buyData();
+    console.log('Buy data:', buy);
+    
+    if (!buy) {
+      console.log('No buy data available');
+      return;
+    }
+    
+    console.log('Starting payment confirmation...');
+    this.loadingService.show();
+    
+    // Get the pix ID (transaction ID) or pass undefined if "no transaction ID" is checked
+    const pixId = this.noTransactionId() ? undefined : this.transactionId();
+    console.log('Pix ID:', pixId, 'No transaction ID:', this.noTransactionId());
+    
+    this.buyService.markBuyAsPaid(buy.id, pixId).subscribe({
+      next: (updatedBuy) => {
+        console.log('Payment confirmed successfully:', updatedBuy);
+        this.loadingService.hide();
+        this.buyData.set(updatedBuy);
+        
+        // Show success message
+        alert('Pagamento confirmado com sucesso! Aguarde a liberação dos bitcoins.');
+        
+        // Navigate back to dashboard or buy page
+        this.router.navigate(['/dashboard']);
+      },
+      error: (error) => {
+        console.error('Error confirming payment:', error);
+        console.error('Error status:', error.status);
+        console.error('Error message:', error.message);
+        console.error('Error body:', error.error);
+        this.loadingService.hide();
+        
+        let errorMessage = 'Erro ao confirmar pagamento. Tente novamente.';
+        if (error.error && error.error.message) {
+          errorMessage = error.error.message;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        
+        alert(errorMessage);
+      }
+    });
   }
 
   cancelPurchase() {
