@@ -1026,7 +1026,7 @@ export class SellComponent implements OnInit {
   
   sellOrder = {
     amountSats: 0n, // Store as BigInt satoshis
-    btcPriceSats: 0n, // Store price per BTC in satoshis to avoid decimals
+    btcPriceCentsPerBtc: 0, // Store price in cents per Bitcoin (API format) as regular number
     totalSats: 0n,
     minAmountReais: 100, // Minimum purchase amount in reais (pre-filled with R$100,00)
     maxAmountReais: 2000 // Maximum purchase amount in reais (pre-filled with R$2000,00)
@@ -1069,9 +1069,9 @@ export class SellComponent implements OnInit {
   }
 
   calculateTotal() {
-    if (this.sellOrder.amountSats > 0n && this.sellOrder.btcPriceSats > 0n) {
-      // Calculate total BRL in sats (amountSats * btcPriceSats / SATS_PER_BTC)
-      this.sellOrder.totalSats = (this.sellOrder.amountSats * this.sellOrder.btcPriceSats) / this.SATS_PER_BTC;
+    if (this.sellOrder.amountSats > 0n && this.sellOrder.btcPriceCentsPerBtc > 0) {
+      // Calculate total BRL in cents: amountSats * priceCentsPerBtc / SATS_PER_BTC
+      this.sellOrder.totalSats = BigInt(Math.round(Number(this.sellOrder.amountSats) * this.sellOrder.btcPriceCentsPerBtc / Number(this.SATS_PER_BTC)));
     } else {
       this.sellOrder.totalSats = 0n;
     }
@@ -1090,10 +1090,14 @@ export class SellComponent implements OnInit {
     const selectedOption = this.pricingOptions.find(opt => opt.value === this.pricingOption);
     
     if (selectedOption) {
-      // Apply discount to current price and convert to sats
+      // Apply discount to current price and convert to cents per Bitcoin
       const discountMultiplier = (100 - selectedOption.discount) / 100;
       const adjustedPrice = currentPrice * discountMultiplier;
-      this.sellOrder.btcPriceSats = BigInt(Math.round(adjustedPrice * Number(this.SATS_PER_BTC)));
+      
+      // Convert BRL per BTC to cents per Bitcoin
+      // price_reais_per_btc * 100_cents_per_real = price_cents_per_btc
+      const priceCentsPerBtc = adjustedPrice * 100;
+      this.sellOrder.btcPriceCentsPerBtc = priceCentsPerBtc; // Store actual cents per Bitcoin value
     }
   }
 
@@ -1137,18 +1141,23 @@ export class SellComponent implements OnInit {
   }
 
   getBtcPriceDisplay(): number {
-    return Number(this.sellOrder.btcPriceSats) / Number(this.SATS_PER_BTC);
+    // Convert cents per Bitcoin back to BRL per Bitcoin for display
+    // price_cents_per_btc / 100_cents_per_real = price_reais_per_btc
+    return this.sellOrder.btcPriceCentsPerBtc / 100;
   }
 
   onPriceChange(event: any) {
     const value = parseFloat(event.target.value) || 0;
-    this.sellOrder.btcPriceSats = BigInt(Math.round(value * Number(this.SATS_PER_BTC)));
+    // Convert BRL per BTC to cents per Bitcoin
+    // price_reais_per_btc * 100_cents_per_real = price_cents_per_btc
+    const priceCentsPerBtc = value * 100;
+    this.sellOrder.btcPriceCentsPerBtc = priceCentsPerBtc; // Store actual cents per Bitcoin value
     this.calculateTotal();
   }
 
   isValidSellOrder(): boolean {
     return this.sellOrder.amountSats > 0n && 
-           this.sellOrder.btcPriceSats > 0n &&
+           this.sellOrder.btcPriceCentsPerBtc > 0 &&
            this.isValidAmountRange();
   }
 
@@ -1159,11 +1168,12 @@ export class SellComponent implements OnInit {
   }
 
   getTotalDisplay(): number {
-    return Number(this.sellOrder.totalSats) / Number(this.SATS_PER_BTC);
+    // totalSats contains total amount in cents, convert to reais
+    return Number(this.sellOrder.totalSats) / 100;
   }
 
   confirmSell() {
-    if (!this.sellOrder.amountSats || !this.sellOrder.btcPriceSats) return;
+    if (!this.sellOrder.amountSats || !this.sellOrder.btcPriceCentsPerBtc) return;
 
     // Reset error state
     this.sellError = false;
@@ -1175,9 +1185,16 @@ export class SellComponent implements OnInit {
     // Amount is already in satoshis
     const amountInSats = this.sellOrder.amountSats;
     
+    // Debug logging to check price conversion
+    const priceForAPI = BigInt(Math.round(this.sellOrder.btcPriceCentsPerBtc));
+    console.log('Price Conversion Debug:');
+    console.log('- Display price (BRL per BTC):', this.getBtcPriceDisplay());
+    console.log('- Internal price (cents per BTC):', this.sellOrder.btcPriceCentsPerBtc);
+    console.log('- Price for API (cents per BTC):', priceForAPI.toString());
+    
     this.advertisementService.createAdvertisement({
       amountInSats,
-      price: this.sellOrder.btcPriceSats,
+      price: priceForAPI,  // Price in cents per Bitcoin
       minAmount: this.sellOrder.minAmountReais * 100, // Convert reais to cents
       maxAmount: this.sellOrder.maxAmountReais * 100  // Convert reais to cents
     }).subscribe({
@@ -1212,6 +1229,7 @@ export class SellComponent implements OnInit {
 
   formatCurrency(value: number): string {
     return new Intl.NumberFormat('pt-BR', {
+      style: 'decimal',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     }).format(value);

@@ -20,7 +20,7 @@ export interface Advertisement {
     seller_address: string;
     token: string;
     currency: string;
-    price: bigint;  // Price per BTC in sats (1 BTC = 100,000,000 sats)
+    price: bigint;  // Price in cents per Bitcoin (BRL cents per 1 BTC)
     total_amount: bigint;  // Total amount in sats
     available_amount: bigint;  // Available amount in sats
     min_amount: number;  // Minimum purchase amount in cents (BRL)

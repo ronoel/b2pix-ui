@@ -21,9 +21,9 @@ export class BuyService {
   /**
    * Start a buy order with wallet signature
    */
-  startBuy(amount: number, price: number, advertisementId: string): Observable<Buy> {
+  startBuy(payValue: number, advertisementId: string): Observable<Buy> {
     const addressBuy = this.walletService.getSTXAddress();
-    const payload = `B2PIX - Comprar\n${environment.domain}\n${amount}\n${price}\n${addressBuy}\n${advertisementId}\n${this.getTimestamp()}`;
+    const payload = `B2PIX - Comprar\n${environment.domain}\n${payValue}\n${addressBuy}\n${advertisementId}\n${this.getTimestamp()}`;
 
     return from(this.walletService.signMessage(payload)).pipe(
       switchMap(signedMessage => {
@@ -35,6 +35,13 @@ export class BuyService {
         return this.http.post<Buy>(`${this.apiUrl}/v1/buys`, data);
       })
     );
+  }
+
+  /**
+   * Get a buy order by ID
+   */
+  getBuyById(id: string): Observable<Buy> {
+    return this.http.get<Buy>(`${this.apiUrl}/v1/buys/${id}`);
   }
 
 }

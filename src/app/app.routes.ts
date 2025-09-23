@@ -26,6 +26,11 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'buy/:id',
+    loadComponent: () => import('./pages/buy-payment/buy-payment.component').then(m => m.BuyPaymentComponent),
+    canActivate: [authGuard]
+  },
+  {
     path: 'sell',
     loadComponent: () => import('./pages/sell/sell.component').then(m => m.SellComponent),
     canActivate: [authGuard]

@@ -1172,8 +1172,10 @@ export class MyAdsComponent implements OnInit, OnDestroy {
       .filter(ad => ad.status === AdvertisementStatus.CLOSED)
       .reduce((total, ad) => {
         const soldAmount = Number(ad.total_amount - ad.available_amount);
-        const pricePerBtc = Number(ad.price) / 100000000; // Convert price from sats to BRL per BTC
-        const earnings = (soldAmount / 100000000) * pricePerBtc;
+        // Convert from cents per Bitcoin to BRL per Bitcoin
+        const priceCentsPerBtc = Number(ad.price);
+        const priceReaisPerBtc = priceCentsPerBtc / 100;
+        const earnings = (soldAmount / 100000000) * priceReaisPerBtc;
         return total + earnings;
       }, 0);
   }
@@ -1340,16 +1342,18 @@ export class MyAdsComponent implements OnInit, OnDestroy {
 
   formatCurrency(value: number): string {
     return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
+      style: 'decimal',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     }).format(value);
   }
 
   formatPriceCurrency(priceBigInt: bigint): string {
-    const price = Number(priceBigInt) / 100000000; // Convert from sats to BRL per BTC
-    return this.formatCurrency(price);
+    // Convert from cents per Bitcoin to BRL per Bitcoin for display
+    // price_cents_per_btc / 100_cents_per_real = price_reais_per_btc
+    const priceCentsPerBtc = Number(priceBigInt);
+    const priceReaisPerBtc = priceCentsPerBtc / 100;
+    return this.formatCurrency(priceReaisPerBtc);
   }
 
   formatBTC(satoshisBigInt: bigint): string {

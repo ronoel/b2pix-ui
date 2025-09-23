@@ -8,6 +8,7 @@ import { LoadingService } from '../../services/loading.service';
 import { AdvertisementService } from '../../shared/api/advertisement.service';
 import { BuyService } from '../../shared/api/buy.service';
 import { Advertisement, AdvertisementStatus } from '../../shared/models/advertisement.model';
+import { Buy } from '../../shared/models/buy.model';
 import { BitcoinListing, PurchaseOrder } from '../../interfaces/transaction.interface';
 
 @Component({
@@ -30,33 +31,17 @@ import { BitcoinListing, PurchaseOrder } from '../../interfaces/transaction.inte
             <h1 class="page-title">
               @if (currentStep() === 'listings') { Comprar Bitcoin }
               @else if (currentStep() === 'step1') { Comprar Bitcoin }
-              @else if (currentStep() === 'step2') { Antes de prosseguir }
-              @else { Pagamento via Pix }
+              @else { Antes de prosseguir }
             </h1>
             <p class="page-subtitle">
               @if (currentStep() === 'listings') { Encontre as melhores ofertas do mercado }
               @else if (currentStep() === 'step1') { Informe o valor que deseja comprar }
-              @else if (currentStep() === 'step2') { Informações importantes sobre o processo }
-              @else { Efetue o pagamento via PIX }
+              @else { Informações importantes sobre o processo }
             </p>
           </div>
         </div>
 
         @if (currentStep() === 'listings') {
-          <!-- Price Info Card -->
-          <div class="price-info-card">
-            <div class="price-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-                <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-            <div class="price-content">
-              <div class="price-label">Preço de Referência BTC</div>
-              <div class="price-value">R$ {{ formatCurrency(userService.currentBtcPrice()) }}</div>
-            </div>
-          </div>
-
           <!-- Listings Section -->
           <div class="listings-section">
             <div class="section-header">
@@ -257,97 +242,6 @@ import { BitcoinListing, PurchaseOrder } from '../../interfaces/transaction.inte
             </div>
           </div>
         }
-
-        <!-- Step 3: Pagamento via Pix -->
-        @if (currentStep() === 'step3' && selectedListing()) {
-          <div class="step-container">
-            <div class="step-card payment-card">
-              <div class="payment-header">
-                <div class="timer-section">
-                  <div class="timer-icon">⏱️</div>
-                  <div class="timer-content">
-                    <p>Tempo restante para concluir pagamento:</p>
-                    <div class="timer-display">{{ getFormattedTime() }}</div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="payment-info">
-                <div class="amount-section">
-                  <p>Valor exato a pagar:</p>
-                  <div class="payment-amount">R$ {{ formatCurrency(purchaseData().amountBrl) }}</div>
-                </div>
-
-                <div class="pix-section">
-                  <label>Chave Pix:</label>
-                  <div class="pix-key-container">
-                    <input type="text" readonly [value]="pixKeyFromAPI()" class="pix-key-input">
-                    <button type="button" class="btn btn-outline btn-sm" (click)="copyPixKey()">
-                      📋 Copiar chave
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div class="transaction-id-section">
-                <div class="form-group">
-                  <label for="transactionId">Digite os 3 últimos caracteres do ID da transação</label>
-                  <input
-                    type="text"
-                    id="transactionId"
-                    maxlength="3"
-                    [value]="purchaseData().transactionId"
-                    (input)="onTransactionIdChange($any($event.target).value)"
-                    [disabled]="purchaseData().noTransactionId"
-                    class="form-input transaction-input"
-                    [class.disabled]="purchaseData().noTransactionId"
-                    placeholder="Ex: 7A9"
-                    autocomplete="off"
-                  >
-                  <div class="input-help">
-                    <span class="help-icon">ℹ️</span>
-                    O ID aparece no comprovante Pix. Informe apenas os 3 últimos caracteres (letras e/ou números) para validar seu pagamento.
-                  </div>
-                  @if (purchaseData().transactionId.length > 0 && !canConfirmPayment() && !purchaseData().noTransactionId) {
-                    <div class="error-message">
-                      Informe exatamente 3 caracteres, que podem ser letras e/ou números.
-                    </div>
-                  }
-                </div>
-
-                <div class="form-group">
-                  <label class="checkbox-label">
-                    <input
-                      type="checkbox"
-                      [checked]="purchaseData().noTransactionId"
-                      (change)="onNoTransactionIdChange($any($event.target).checked)"
-                    >
-                    <span class="checkbox-custom"></span>
-                    <span class="checkbox-text">Não encontrei o ID da transação</span>
-                  </label>
-                  <div class="input-help" style="margin-top: var(--spacing-xs); margin-left: 28px;">
-                    <span class="help-icon">⚠️</span>
-                    Marque esta opção apenas se não conseguir localizar o ID no comprovante Pix. Isso pode atrasar a validação do seu pagamento.
-                  </div>
-                </div>
-              </div>
-
-              <div class="step-actions">
-                <button type="button" class="btn btn-outline btn-danger" (click)="cancelPurchase()">
-                  ❌ Cancelar compra
-                </button>
-                <button 
-                  type="button" 
-                  class="btn btn-primary btn-success"
-                  [disabled]="!canConfirmPayment()"
-                  (click)="confirmPayment()"
-                >
-                  ✅ Confirmar Pagamento
-                </button>
-              </div>
-            </div>
-          </div>
-        }
       </div>
     </div>
   `,
@@ -386,46 +280,6 @@ import { BitcoinListing, PurchaseOrder } from '../../interfaces/transaction.inte
       font-size: var(--font-size-md);
       color: var(--text-secondary);
       margin: 0;
-    }
-
-    /* Price Info Card */
-    .price-info-card {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-lg);
-      padding: var(--spacing-lg);
-      background: var(--background-card);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius-lg);
-      margin-bottom: var(--spacing-xl);
-      border-left: 4px solid var(--primary-orange);
-    }
-
-    .price-icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 48px;
-      height: 48px;
-      background: var(--background-elevated);
-      border-radius: var(--border-radius-md);
-      color: var(--primary-orange);
-    }
-
-    .price-content {
-      flex: 1;
-    }
-
-    .price-label {
-      font-size: var(--font-size-sm);
-      color: var(--text-muted);
-      margin-bottom: var(--spacing-xs);
-    }
-
-    .price-value {
-      font-size: var(--font-size-xl);
-      font-weight: 700;
-      color: var(--text-primary);
     }
 
     /* Section Header */
@@ -1160,22 +1014,19 @@ export class BuyComponent implements OnInit, OnDestroy {
   isLoadingListings = signal(false);
   
   // Purchase flow state
-  currentStep = signal<'listings' | 'step1' | 'step2' | 'step3'>('listings');
+  currentStep = signal<'listings' | 'step1' | 'step2'>('listings');
   purchaseData = signal({
     amountBrl: 0,
     amountBtc: 0,
     pixKey: '',
-    userAgreed: false,
-    transactionId: '',
-    noTransactionId: false
+    userAgreed: false
   });
   
   // PIX key from API response
   pixKeyFromAPI = signal<string>('');
   
-  // Timer for payment step
-  paymentTimeLeft = signal(900); // 15 minutes in seconds
-  private paymentTimer: any;
+  // Buy record from API
+  buyRecord = signal<Buy | null>(null);
 
   ngOnInit() {
     this.loadListings();
@@ -1226,14 +1077,15 @@ export class BuyComponent implements OnInit, OnDestroy {
     return advertisements.map(ad => {
       console.log('Raw advertisement data:', ad); // Debug log
       
-      // Following sell component standard - assume API returns values in satoshis
-      const rawPrice = Number(ad.price);
+      // API returns price in cents per Bitcoin
+      const rawPriceCentsPerBtc = Number(ad.price);
       const rawAvailableAmount = Number(ad.available_amount);
       
-      console.log('Raw price (sats):', rawPrice, 'Raw available_amount (sats):', rawAvailableAmount);
+      console.log('Raw price (cents per BTC):', rawPriceCentsPerBtc, 'Raw available_amount (sats):', rawAvailableAmount);
       
-      // Convert from satoshis to BRL/BTC (following SATS_PER_BTC standard)
-      const pricePerBtc = Math.floor(rawPrice / Number(this.SATS_PER_BTC));
+      // Convert from cents per Bitcoin to BRL per Bitcoin for display
+      // price_cents_per_btc / 100_cents_per_real = price_reais_per_btc
+      const pricePerBtc = Math.floor(rawPriceCentsPerBtc / 100);
       
       // Convert available amount from satoshis to BTC
       const availableAmountBtc = rawAvailableAmount / Number(this.SATS_PER_BTC);
@@ -1246,7 +1098,7 @@ export class BuyComponent implements OnInit, OnDestroy {
         id: ad.id,
         sellerId: ad.seller_address,
         sellerName: this.formatSellerName(ad.seller_address),
-        pricePerBtc: pricePerBtc,
+        pricePerBtc: pricePerBtc, // This is now in BRL per BTC for display
         availableAmount: Math.max(availableAmountBtc, 0.001), // Ensure minimum viable amount
         minPurchase: minPurchaseReais, // Use the min_amount from API (converted from cents)
         maxPurchase: maxPurchaseReais, // Use the max_amount from API (converted from cents)
@@ -1288,23 +1140,20 @@ export class BuyComponent implements OnInit, OnDestroy {
       amountBrl: listing.minPurchase,
       amountBtc: listing.minPurchase / listing.pricePerBtc,
       pixKey: '',
-      userAgreed: false,
-      transactionId: '',
-      noTransactionId: false
+      userAgreed: false
     });
   }
 
   cancelPurchase() {
     this.selectedListing.set(null);
     this.currentStep.set('listings');
-    this.clearPaymentTimer();
+    this.buyRecord.set(null);
+    this.pixKeyFromAPI.set('');
     this.purchaseData.set({
       amountBrl: 0,
       amountBtc: 0,
       pixKey: '',
-      userAgreed: false,
-      transactionId: '',
-      noTransactionId: false
+      userAgreed: false
     });
   }
 
@@ -1316,12 +1165,11 @@ export class BuyComponent implements OnInit, OnDestroy {
   }
 
   formatCurrency(value: number): string {
-    // Round to avoid decimal places for large currency values (following sell component standard)
-    const roundedValue = Math.round(value);
     return new Intl.NumberFormat('pt-BR', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(roundedValue);
+      style: 'decimal',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(value);
   }
 
   goBack() {
@@ -1330,9 +1178,6 @@ export class BuyComponent implements OnInit, OnDestroy {
       this.selectedListing.set(null);
     } else if (this.currentStep() === 'step2') {
       this.currentStep.set('step1');
-    } else if (this.currentStep() === 'step3') {
-      this.currentStep.set('step2');
-      this.clearPaymentTimer();
     } else {
       this.router.navigate(['/dashboard']);
     }
@@ -1388,24 +1233,25 @@ export class BuyComponent implements OnInit, OnDestroy {
     this.loadingService.show('Iniciando compra...');
 
     // Convert amounts to satoshis for API call (following sell component standard)
-    const amountSats = Math.floor(purchaseData.amountBtc * Number(this.SATS_PER_BTC));
-    const priceSats = Math.floor(listing.pricePerBtc * Number(this.SATS_PER_BTC));
+    // const amountSats = Math.floor(purchaseData.amountBtc * Number(this.SATS_PER_BTC));
+    
+    // Calculate the total amount the user will pay in cents (BRL)
+    // amount_btc * price_reais_per_btc * 100_cents_per_real = pay_amount_cents
+    const payAmountCents = Math.round(purchaseData.amountBtc * listing.pricePerBtc * 100);
 
-    // Call BuyService.startBuy with satoshi values
+    // Call BuyService.startBuy with satoshi amount and pay amount in cents
     this.buyService.startBuy(
-      amountSats,
-      priceSats,
+      payAmountCents,
       listing.id
     ).subscribe({
       next: (buyResponse) => {
-        // Store the PIX key from the API response
+        // Store the Buy record and PIX key from the API response
+        this.buyRecord.set(buyResponse);
         this.pixKeyFromAPI.set(buyResponse.pix_key);
         
-        // Move to step 3 and start the payment timer
-        this.currentStep.set('step3');
-        this.startPaymentTimer();
-        
+        // Navigate to the payment component with the buy ID
         this.loadingService.hide();
+        this.router.navigate(['/buy', buyResponse.id]);
       },
       error: (error) => {
         console.error('Erro ao iniciar compra:', error);
@@ -1418,103 +1264,7 @@ export class BuyComponent implements OnInit, OnDestroy {
   }
 
   // Step 3 methods
-  startPaymentTimer() {
-    this.paymentTimeLeft.set(900); // 15 minutes
-    this.paymentTimer = setInterval(() => {
-      const currentTime = this.paymentTimeLeft();
-      if (currentTime <= 0) {
-        this.clearPaymentTimer();
-        this.cancelPurchaseDueToTimeout();
-      } else {
-        this.paymentTimeLeft.set(currentTime - 1);
-      }
-    }, 1000);
-  }
-
-  clearPaymentTimer() {
-    if (this.paymentTimer) {
-      clearInterval(this.paymentTimer);
-      this.paymentTimer = null;
-    }
-  }
-
-  cancelPurchaseDueToTimeout() {
-    // Handle timeout - could show a message and redirect
-    this.cancelPurchase();
-    alert('O tempo de pagamento foi excedido. Sua compra foi cancelada e os Bitcoins foram liberados.');
-  }
-
-  getFormattedTime(): string {
-    const time = this.paymentTimeLeft();
-    const minutes = Math.floor(time / 60);
-    const seconds = time % 60;
-    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-  }
-
-  onTransactionIdChange(transactionId: string) {
-    this.purchaseData.update(data => ({
-      ...data,
-      transactionId: transactionId.toUpperCase(),
-      noTransactionId: transactionId.length === 0 ? data.noTransactionId : false
-    }));
-  }
-
-  onNoTransactionIdChange(noTransactionId: boolean) {
-    this.purchaseData.update(data => ({
-      ...data,
-      noTransactionId: noTransactionId,
-      transactionId: noTransactionId ? '' : data.transactionId
-    }));
-  }
-
-  canConfirmPayment(): boolean {
-    const data = this.purchaseData();
-    if (data.noTransactionId) {
-      return true;
-    }
-    return data.transactionId.length === 3 && /^[A-Z0-9]{3}$/.test(data.transactionId);
-  }
-
-  copyPixKey() {
-    const pixKey = this.pixKeyFromAPI();
-    if (pixKey) {
-      navigator.clipboard.writeText(pixKey).then(() => {
-        // Could show a toast notification here
-        console.log('PIX key copied to clipboard');
-        alert('Chave PIX copiada para a área de transferência!');
-      }).catch(() => {
-        console.error('Failed to copy PIX key');
-        alert('Erro ao copiar chave PIX. Copie manualmente.');
-      });
-    }
-  }
-
-  confirmPayment() {
-    if (!this.canConfirmPayment()) return;
-
-    const currentListing = this.selectedListing();
-    const currentPurchaseData = this.purchaseData();
-    
-    if (!currentListing) return;
-    
-    this.transactionService.createPurchaseOrder(
-      currentListing.id, 
-      currentPurchaseData.amountBtc, 
-      currentPurchaseData.pixKey
-    ).subscribe({
-      next: (order) => {
-        this.clearPaymentTimer();
-        this.router.navigate(['/pending-approval'], { 
-          queryParams: { orderId: order.id } 
-        });
-      },
-      error: (error) => {
-        console.error('Erro ao criar pedido:', error);
-      }
-    });
-  }
-
   ngOnDestroy() {
-    this.clearPaymentTimer();
+    // Component cleanup if needed
   }
 }
