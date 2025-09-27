@@ -75,6 +75,26 @@ import { environment } from '../../../environments/environment';
               <div class="ad-status-badge" [ngClass]="getStatusClass(advertisement()!.status)">
                 {{ getStatusLabel(advertisement()!.status) }}
               </div>
+              <div class="ad-actions" *ngIf="canFinishAdvertisement()">
+                <button 
+                  class="finish-ad-button" 
+                  (click)="finishAdvertisement()" 
+                  [disabled]="isFinishing()"
+                  title="Finalizar anúncio"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" *ngIf="!isFinishing()">
+                    <path d="M9 11L12 14L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M21 12V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V5C3 3.89543 3.89543 3 5 3H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" *ngIf="isFinishing()" class="spinning">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-dasharray="31.416" stroke-dashoffset="31.416">
+                      <animate attributeName="stroke-dasharray" dur="2s" values="0 31.416;15.708 15.708;0 31.416" repeatCount="indefinite"/>
+                      <animate attributeName="stroke-dashoffset" dur="2s" values="0;-15.708;-31.416" repeatCount="indefinite"/>
+                    </circle>
+                  </svg>
+                  {{ isFinishing() ? 'Finalizando...' : 'Finalizar Anúncio' }}
+                </button>
+              </div>
             </div>
 
             <div class="ad-content">
@@ -412,6 +432,37 @@ import { environment } from '../../../environments/environment';
       letter-spacing: 0.5px;
     }
 
+    .ad-actions {
+      display: flex;
+      gap: var(--spacing-sm);
+    }
+
+    .finish-ad-button {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-sm) var(--spacing-lg);
+      background: #ef4444;
+      color: white;
+      border: none;
+      border-radius: var(--border-radius);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: var(--font-size-sm);
+    }
+
+    .finish-ad-button:hover:not(:disabled) {
+      background: #dc2626;
+      transform: translateY(-2px);
+    }
+
+    .finish-ad-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
     .ad-status-badge.ready {
       background: #22c55e20;
       color: #22c55e;
@@ -425,6 +476,11 @@ import { environment } from '../../../environments/environment';
     .ad-status-badge.disabled {
       background: #64748b20;
       color: #64748b;
+    }
+
+    .ad-status-badge.closed {
+      background: #ef444420;
+      color: #ef4444;
     }
 
     .ad-content {
@@ -716,6 +772,7 @@ export class AdDetailsComponent implements OnInit {
   private loadingService = inject(LoadingService);
 
   public isLoading = signal(false);
+  public isFinishing = signal(false);
   public error = signal<string | null>(null);
   public advertisement = signal<Advertisement | null>(null);
   public buys = signal<Buy[]>([]);
@@ -744,6 +801,50 @@ export class AdDetailsComponent implements OnInit {
     const advertisementId = this.route.snapshot.paramMap.get('advertisement_id');
     if (advertisementId) {
       this.loadData(advertisementId);
+    }
+  }
+
+  canFinishAdvertisement(): boolean {
+    const ad = this.advertisement();
+    if (!ad) return false;
+    
+    // Can only finish advertisements that are READY or PENDING
+    return ad.status === AdvertisementStatus.READY || ad.status === AdvertisementStatus.PENDING;
+  }
+
+  finishAdvertisement() {
+    const ad = this.advertisement();
+    if (!ad || !this.canFinishAdvertisement()) return;
+
+    const confirmMessage = `Tem certeza que deseja finalizar este anúncio?
+    
+Esta ação irá:
+• Fechar o anúncio permanentemente
+• Impedir novas compras
+• Requerer assinatura da carteira
+
+Esta ação não pode ser desfeita.`;
+
+    if (confirm(confirmMessage)) {
+      this.isFinishing.set(true);
+      
+      this.advertisementService.finishAdvertisement(ad.id).subscribe({
+        next: (updatedAd: Advertisement) => {
+          this.advertisement.set(updatedAd);
+          this.isFinishing.set(false);
+          
+          // Show success message
+          alert('Anúncio finalizado com sucesso!');
+        },
+        error: (error: any) => {
+          console.error('Error finishing advertisement:', error);
+          this.isFinishing.set(false);
+          
+          // Show error message
+          const errorMessage = error.message || 'Erro ao finalizar anúncio. Tente novamente.';
+          alert(errorMessage);
+        }
+      });
     }
   }
 
@@ -783,8 +884,9 @@ export class AdDetailsComponent implements OnInit {
         return 'ready';
       case AdvertisementStatus.PENDING:
         return 'pending';
-      case AdvertisementStatus.DISABLED:
       case AdvertisementStatus.CLOSED:
+        return 'closed';
+      case AdvertisementStatus.DISABLED:
         return 'disabled';
       default:
         return 'pending';

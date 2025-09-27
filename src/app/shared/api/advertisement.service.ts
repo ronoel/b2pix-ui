@@ -1,10 +1,12 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, from } from 'rxjs';
 import { switchMap, catchError, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { BoltContractSBTCService } from '../../libs/bolt-contract-sbtc.service';
+import { WalletService } from '../../libs/wallet.service';
 import { Advertisement, AdvertisementStatus } from '../models/advertisement.model';
+import { SignedRequest } from '../models/api.model';
 
 export interface CreateAdvertisementRequest {
     amountInSats: bigint
@@ -39,10 +41,15 @@ export class AdvertisementService {
   private http = inject(HttpClient);
   private apiUrl = environment.apiUrl;
   private boltContractSBTCService = inject(BoltContractSBTCService);
+  private walletService = inject(WalletService);
 
   constructor() {
     console.log('AdvertisementService initialized with apiUrl:', this.apiUrl); // Debug log
     console.log('Environment:', environment); // Debug log
+  }
+
+  private getTimestamp(): string {
+    return new Date().toISOString();
   }
 
   createAdvertisement(request: CreateAdvertisementRequest): Observable<Advertisement> {
@@ -159,6 +166,34 @@ export class AdvertisementService {
    */
   getAdvertisementById(id: string): Observable<Advertisement> {
     return this.http.get<Advertisement>(`${this.apiUrl}/v1/advertisements/${id}`);
+  }
+
+  /**
+   * Finish an advertisement with wallet signature
+   * @param advertisementId The advertisement ID to finish
+   * @returns Observable of updated advertisement
+   */
+  finishAdvertisement(advertisementId: string): Observable<Advertisement> {
+    const action = 'B2PIX - Finalizar Anúncio';
+    const payload = `${action}\n${environment.domain}\n${advertisementId}\n${this.getTimestamp()}`;
+
+    return from(this.walletService.signMessage(payload)).pipe(
+      switchMap(signedMessage => {
+        const data: SignedRequest = {
+          publicKey: signedMessage.publicKey,
+          signature: signedMessage.signature,
+          payload
+        };
+        return this.http.put<Advertisement>(`${this.apiUrl}/v1/advertisements/finish`, data);
+      }),
+      catchError((error: any) => {
+        console.error('Error in finishAdvertisement:', error);
+        if (error.message && error.message.includes('User denied')) {
+          throw new Error('Assinatura cancelada pelo usuário');
+        }
+        throw error;
+      })
+    );
   }
 
   updateAdvertisement(id: string, advertisement: Advertisement): Observable<Advertisement> {
