@@ -110,13 +110,29 @@ import { BitcoinListing, PurchaseOrder } from '../../interfaces/transaction.inte
                             <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
                             <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                           </svg>
-                          <span>{{ (listing.availableAmount * 100000000 | number:'1.0-0') }} sats disponível</span>
+                          <span>{{ (listing.availableAmount | number:'1.0-0') }} sats disponível</span>
                         </div>
                         <div class="detail-item">
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                             <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                           </svg>
                           <span>Min: R$ {{ formatCurrency(listing.minPurchase) }}</span>
+                        </div>
+                      </div>
+                      <div class="detail-row">
+                        <div class="detail-item">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M8 17L12 13L16 17M8 7L12 3L16 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                          <span>Max: R$ {{ formatCurrency(listing.maxPurchase) }}</span>
+                        </div>
+                        <div class="detail-item">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                            <path d="M16 12L12 8L8 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 16V8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                          <span>Limite por compra</span>
                         </div>
                       </div>
                       
@@ -149,7 +165,21 @@ import { BitcoinListing, PurchaseOrder } from '../../interfaces/transaction.inte
             <div class="step-card">
               <div class="step-info">
                 <h3>Preço por Bitcoin: <span class="highlight">R$ {{ formatCurrency(selectedListing()!.pricePerBtc) }}</span></h3>
-                <p>Valor máximo que você pode comprar: <span class="highlight">R$ {{ formatCurrency(selectedListing()!.maxPurchase) }}</span></p>
+                <p>Valor máximo que você pode comprar: <span class="highlight">R$ {{ formatCurrency(getEffectiveMaxPurchase(selectedListing()!)) }}</span></p>
+                @if (isMaxPurchaseLimitedByAvailability(selectedListing()!)) {
+                  <div class="availability-notice">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                      <path d="M12 16V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M12 8H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <div class="availability-details">
+                      <div>Quantidade disponível: <strong>{{ (selectedListing()!.availableAmount | number:'1.0-0') }} sats</strong></div>
+                      <div>Valor máximo do anúncio: <strong>R$ {{ formatCurrency(selectedListing()!.maxPurchase) }}</strong></div>
+                      <div>Valor máximo disponível: <strong>R$ {{ formatCurrency(getEffectiveMaxPurchase(selectedListing()!)) }}</strong></div>
+                    </div>
+                  </div>
+                }
               </div>
 
               <div class="form-group">
@@ -160,14 +190,14 @@ import { BitcoinListing, PurchaseOrder } from '../../interfaces/transaction.inte
                   [value]="purchaseData().amountBrl"
                   (input)="onAmountBrlChange(+$any($event.target).value)"
                   [min]="selectedListing()!.minPurchase"
-                  [max]="selectedListing()!.maxPurchase"
+                  [max]="getEffectiveMaxPurchase(selectedListing()!)"
                   step="0.01"
                   class="form-input"
                   placeholder="Digite o valor em reais"
                 >
                 @if (!canProceedFromStep1() && purchaseData().amountBrl > 0) {
                   <div class="error-message">
-                    O valor deve estar entre R$ {{ formatCurrency(selectedListing()!.minPurchase) }} e R$ {{ formatCurrency(selectedListing()!.maxPurchase) }}.
+                    O valor deve estar entre R$ {{ formatCurrency(selectedListing()!.minPurchase) }} e R$ {{ formatCurrency(getEffectiveMaxPurchase(selectedListing()!)) }}.
                   </div>
                 }
               </div>
@@ -690,6 +720,43 @@ import { BitcoinListing, PurchaseOrder } from '../../interfaces/transaction.inte
       color: var(--text-secondary);
     }
 
+    .availability-notice {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--spacing-sm);
+      margin-top: var(--spacing-sm) !important;
+      padding: var(--spacing-md);
+      background: rgba(255, 193, 7, 0.1);
+      border: 1px solid var(--warning-yellow);
+      border-radius: var(--border-radius-sm);
+      color: var(--warning-yellow) !important;
+      font-size: var(--font-size-sm);
+    }
+
+    .availability-notice svg {
+      flex-shrink: 0;
+      color: var(--warning-yellow);
+      margin-top: 2px;
+    }
+
+    .availability-details {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-xs);
+    }
+
+    .availability-details div {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .availability-details strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
     .highlight {
       color: var(--primary-orange);
       font-weight: 600;
@@ -1087,8 +1154,8 @@ export class BuyComponent implements OnInit, OnDestroy {
       // price_cents_per_btc / 100_cents_per_real = price_reais_per_btc
       const pricePerBtc = Math.floor(rawPriceCentsPerBtc / 100);
       
-      // Convert available amount from satoshis to BTC
-      const availableAmountBtc = rawAvailableAmount / Number(this.SATS_PER_BTC);
+      // Keep available amount in satoshis (no conversion needed)
+      const availableAmountSats = rawAvailableAmount;
       
       // Convert min/max amounts from cents to reais
       const minPurchaseReais = ad.min_amount / 100;
@@ -1099,7 +1166,7 @@ export class BuyComponent implements OnInit, OnDestroy {
         sellerId: ad.seller_address,
         sellerName: this.formatSellerName(ad.seller_address),
         pricePerBtc: pricePerBtc, // This is now in BRL per BTC for display
-        availableAmount: Math.max(availableAmountBtc, 0.001), // Ensure minimum viable amount
+        availableAmount: Math.max(availableAmountSats, 1000), // Ensure minimum viable amount in sats
         minPurchase: minPurchaseReais, // Use the min_amount from API (converted from cents)
         maxPurchase: maxPurchaseReais, // Use the max_amount from API (converted from cents)
         pixKey: 'PIX disponível', // Placeholder since PIX key isn't in Advertisement model
@@ -1172,6 +1239,28 @@ export class BuyComponent implements OnInit, OnDestroy {
     }).format(value);
   }
 
+  /**
+   * Calculates the effective maximum purchase amount based on available satoshis
+   */
+  getEffectiveMaxPurchase(listing: BitcoinListing): number {
+    // Calculate the maximum value possible based on available satoshis
+    // availableAmount is now in satoshis, convert to BTC then to BRL
+    const availableBtc = listing.availableAmount / Number(this.SATS_PER_BTC);
+    const maxValueFromAvailability = availableBtc * listing.pricePerBtc;
+    
+    // Return the smaller of the two: listing max purchase or available value
+    return Math.min(listing.maxPurchase, maxValueFromAvailability);
+  }
+
+  /**
+   * Checks if the maximum purchase is limited by availability rather than listing limit
+   */
+  isMaxPurchaseLimitedByAvailability(listing: BitcoinListing): boolean {
+    const availableBtc = listing.availableAmount / Number(this.SATS_PER_BTC);
+    const maxValueFromAvailability = availableBtc * listing.pricePerBtc;
+    return maxValueFromAvailability < listing.maxPurchase;
+  }
+
   goBack() {
     if (this.currentStep() === 'step1') {
       this.currentStep.set('listings');
@@ -1200,8 +1289,9 @@ export class BuyComponent implements OnInit, OnDestroy {
     const data = this.purchaseData();
     if (!listing) return false;
     
+    const effectiveMaxPurchase = this.getEffectiveMaxPurchase(listing);
     return data.amountBrl >= listing.minPurchase && 
-           data.amountBrl <= listing.maxPurchase;
+           data.amountBrl <= effectiveMaxPurchase;
   }
 
   proceedToStep2() {
