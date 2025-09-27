@@ -152,6 +152,15 @@ export class AdvertisementService {
     );
   }
 
+  /**
+   * Get a single advertisement by ID
+   * @param id The advertisement ID
+   * @returns Observable of advertisement
+   */
+  getAdvertisementById(id: string): Observable<Advertisement> {
+    return this.http.get<Advertisement>(`${this.apiUrl}/v1/advertisements/${id}`);
+  }
+
   updateAdvertisement(id: string, advertisement: Advertisement): Observable<Advertisement> {
     return this.http.put<Advertisement>(`${this.apiUrl}/v1/advertisements/${id}`, advertisement);
   }

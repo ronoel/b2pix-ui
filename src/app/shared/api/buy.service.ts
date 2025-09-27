@@ -45,6 +45,13 @@ export class BuyService {
   }
 
   /**
+   * Get buy orders by advertisement ID
+   */
+  getBuysByAdvertisementId(advertisementId: string): Observable<Buy[]> {
+    return this.http.get<Buy[]>(`${this.apiUrl}/v1/buys/advertisement/${advertisementId}`);
+  }
+
+  /**
    * Mark a buy order as paid with wallet signature
    */
   markBuyAsPaid(buyId: string, pixId?: string): Observable<Buy> {

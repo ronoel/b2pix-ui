@@ -41,6 +41,11 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'my-ads/:advertisement_id',
+    loadComponent: () => import('./pages/ad-details/ad-details.component').then(m => m.AdDetailsComponent),
+    canActivate: [authGuard]
+  },
+  {
     path: 'pix-account',
     loadComponent: () => import('./pages/pix-account/pix-account.component').then(m => m.PixAccountComponent),
     canActivate: [authGuard]

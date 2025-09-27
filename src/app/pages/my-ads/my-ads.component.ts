@@ -202,25 +202,10 @@ import { environment } from '../../../environments/environment';
                   {{ getStatusLabel(ad.status) }}
                 </div>
                 <div class="ad-actions">
-                  <button class="action-button" (click)="editAd(ad)" title="Editar">
+                  <button class="action-button" (click)="viewAdDetails(ad)" title="Ver detalhes">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                      <path d="M11 4H4C2.89543 4 2 4.89543 2 6V18C2 19.1046 2.89543 20 4 20H16C17.1046 20 18 19.1046 18 18V11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      <path d="M18.5 2.5C19.3284 1.67157 20.6716 1.67157 21.5 2.5C22.3284 3.32843 22.3284 4.67157 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                  </button>
-                  <button class="action-button" (click)="toggleAdStatus(ad)" [title]="ad.is_active ? 'Pausar' : 'Ativar'">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" *ngIf="ad.is_active">
-                      <rect x="6" y="4" width="4" height="16" stroke="currentColor" stroke-width="2"/>
-                      <rect x="14" y="4" width="4" height="16" stroke="currentColor" stroke-width="2"/>
-                    </svg>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" *ngIf="!ad.is_active">
-                      <polygon points="5,3 19,12 5,21" stroke="currentColor" stroke-width="2" fill="currentColor"/>
-                    </svg>
-                  </button>
-                  <button class="action-button delete" (click)="deleteAd(ad)" title="Excluir">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                      <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      <path d="M8 6V4C8 3.44772 8.44772 3 9 3H15C15.5523 3 16 3.44772 16 4V6M19 6V20C19 21.1046 18.1046 22 17 22H7C5.89543 22 5 21.1046 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M1 12S5 4 12 4S23 12 23 12S19 20 12 20S1 12 1 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
                     </svg>
                   </button>
                 </div>
@@ -1267,6 +1252,10 @@ export class MyAdsComponent implements OnInit, OnDestroy {
   }
 
   // Ad management methods
+  viewAdDetails(ad: Advertisement) {
+    this.router.navigate(['/my-ads', ad.id]);
+  }
+
   editAd(ad: Advertisement) {
     console.log('Edit ad:', ad.id);
     // TODO: Implement edit functionality
