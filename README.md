@@ -1,59 +1,145 @@
-# B2pixUiClaude
+# B2PIX - Bitcoin PIX Exchange
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.1.0.
+A peer-to-peer Bitcoin trading platform that enables seamless Bitcoin transactions using Brazil's PIX instant payment system. Built on the Stacks blockchain with sBTC integration for secure, non-custodial trading.
 
-## Development server
+## 🚀 Overview
 
-To start a local development server, run:
+**B2PIX** is a privacy-focused, automated P2P Bitcoin exchange platform that bridges traditional Brazilian banking (PIX) with Bitcoin. Users can buy and sell Bitcoin directly with each other using instant PIX transfers, all while maintaining custody of their funds through smart contracts on the Stacks blockchain.
 
-```bash
-ng serve
-```
+### Key Features
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- **Non-Custodial Trading**: Your Bitcoin stays in your wallet until the trade is completed
+- **PIX Integration**: Instant Brazilian real transfers using PIX payment system
+- **Stacks Blockchain**: Built on Bitcoin's most advanced layer-2 solution
+- **sBTC Support**: Trade with synthetic Bitcoin (sBTC) for faster, cheaper transactions
+- **Privacy First**: Invite-only platform with minimal data collection
+- **Smart Contracts**: Automated escrow and trade settlement
+- **Bank Integration**: Direct integration with Brazilian banks for PIX setup
 
-## Code scaffolding
+## 🛠 Technology Stack
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+- **Frontend**: Angular 20+ with TypeScript
+- **Blockchain**: Stacks blockchain smart contracts
+- **Wallet**: Stacks Connect wallet integration
+- **Payments**: PIX (Brazilian instant payment system)
+- **Styling**: SCSS with custom design system
+- **Assets**: sBTC (synthetic Bitcoin) tokens
 
-```bash
-ng generate component component-name
-```
+## 🏗 Architecture
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+The platform consists of several key components:
 
-```bash
-ng generate --help
-```
+### Core Services
+- **Wallet Service**: Stacks wallet connection and management
+- **sBTC Token Service**: Smart contract interactions for sBTC transfers
+- **Bolt Protocol Service**: Lightning-fast Bitcoin layer integration
+- **PIX Integration**: Brazilian banking system connectivity
 
-## Building
+### Smart Contract Features
+- Escrow management for secure trading
+- Automated trade settlement
+- Fee management and distribution
+- Multi-signature transaction support
 
-To build the project run:
+### User Interface
+- **Landing Page**: Public information and invite requests
+- **Dashboard**: Trade overview and account management  
+- **Buy/Sell**: P2P marketplace for Bitcoin trading
+- **PIX Account**: Bank account setup and management
+- **Ad Management**: Create and manage trading advertisements
 
-```bash
-ng build
-```
+## 🚦 Getting Started
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+### Prerequisites
 
-## Running unit tests
+- Node.js 18+ and npm
+- Stacks wallet (Leather, Xverse, etc.)
+- Brazilian bank account with PIX support (for trading)
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+### Development Setup
 
-```bash
-ng test
-```
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/ronoel/b2pix-ui.git
+   cd b2pix-ui
+   ```
 
-## Running end-to-end tests
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-For end-to-end (e2e) testing, run:
+3. **Start the development server**
+   ```bash
+   npm start
+   ```
 
-```bash
-ng e2e
-```
+4. **Open your browser**
+   Navigate to `http://localhost:4200/`
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+### Available Scripts
 
-## Additional Resources
+- `npm start` - Start development server
+- `npm run build` - Build for production
+- `npm test` - Run unit tests
+- `npm run watch` - Build with file watching
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## 🌐 Environment Configuration
+
+The app supports multiple environments:
+
+- **Development**: Local testing with testnet
+- **Staging**: Pre-production testing
+- **Production**: Live mainnet deployment
+
+Each environment configures:
+- Stacks network (testnet/mainnet)
+- API endpoints
+- Smart contract addresses
+- sBTC token configuration
+
+## 🔐 Security Features
+
+- **Non-custodial**: Users maintain control of their private keys
+- **Smart contract escrow**: Funds are locked in smart contracts during trades
+- **PIX verification**: Bank account verification for secure payments
+- **Invite system**: Controlled access to maintain platform quality
+- **Transaction verification**: All blockchain transactions are verified
+
+## 🎯 How It Works
+
+1. **Get Invited**: Request an invitation to join the platform
+2. **Connect Wallet**: Link your Stacks-compatible wallet
+3. **Setup PIX**: Configure your Brazilian bank account
+4. **Trade Bitcoin**: Buy or sell Bitcoin with other users
+5. **Instant Settlement**: PIX payments and Bitcoin transfers happen simultaneously
+
+## 🤝 Contributing
+
+This is an open-source project. Contributions are welcome!
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+## 📄 License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+## 🔗 Links
+
+- **Website**: [b2pix.org](https://b2pix.org)
+- **Stacks Blockchain**: [stacks.org](https://stacks.org)
+- **PIX**: [bcb.gov.br](https://www.bcb.gov.br/estabilidadefinanceira/pix)
+
+## ⚡ About sBTC
+
+sBTC (synthetic Bitcoin) is a 1:1 Bitcoin-backed asset on the Stacks blockchain that enables:
+- Fast, cheap Bitcoin transactions
+- Smart contract programmability
+- DeFi integration while maintaining Bitcoin exposure
+- Seamless conversion to/from real Bitcoin
+
+---
+
