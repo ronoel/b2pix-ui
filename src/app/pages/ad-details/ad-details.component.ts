@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Advertisement, AdvertisementStatus } from '../../shared/models/advertisement.model';
@@ -12,6 +12,7 @@ import { environment } from '../../../environments/environment';
   selector: 'app-ad-details',
   standalone: true,
   imports: [CommonModule],
+  encapsulation: ViewEncapsulation.None,
   template: `
     <div class="ad-details">
       <div class="container">
@@ -242,96 +243,112 @@ import { environment } from '../../../environments/environment';
   styles: [`
     .ad-details {
       min-height: 100vh;
-      background: var(--background-dark);
-      padding: var(--spacing-xl) 0;
+      background: var(--background-primary);
+      padding: var(--spacing-8) 0;
+      font-family: var(--font-family-primary);
     }
 
-    .container {
-      max-width: 1200px;
+    .ad-details .container {
+      max-width: var(--container-max-width);
       margin: 0 auto;
-      padding: 0 var(--spacing-lg);
+      padding: 0 var(--spacing-6);
     }
 
     /* Header */
-    .page-header {
+    .ad-details .page-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: var(--spacing-2xl);
-      padding-bottom: var(--spacing-lg);
-      border-bottom: 1px solid var(--border-color);
+      margin-bottom: var(--spacing-12);
+      padding: var(--spacing-6);
+      background: var(--background-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-lg);
+      backdrop-filter: blur(10px);
     }
 
-    .header-left {
+    .ad-details .header-left {
       display: flex;
       align-items: center;
-      gap: var(--spacing-lg);
+      gap: var(--spacing-6);
     }
 
-    .back-button {
+    .ad-details .back-button {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 40px;
-      height: 40px;
-      background: var(--surface-color);
+      width: 48px;
+      height: 48px;
+      background: var(--background-secondary);
       border: 1px solid var(--border-color);
-      border-radius: var(--border-radius);
-      color: var(--text-secondary);
+      border-radius: var(--border-radius-md);
+      color: var(--text-muted);
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: var(--transition-all);
+      box-shadow: var(--shadow-sm);
     }
 
-    .back-button:hover {
-      background: var(--primary-color);
-      border-color: var(--primary-color);
-      color: white;
+    .ad-details .back-button:hover {
+      background: var(--gradient-primary);
+      border-color: var(--color-primary);
+      color: var(--color-white);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-primary);
     }
 
-    .page-title {
-      font-size: var(--font-size-3xl);
-      font-weight: 700;
+    .ad-details .page-title {
+      font-size: var(--font-size-2xl);
+      font-weight: var(--font-weight-bold);
       color: var(--text-primary);
-      margin: 0 0 var(--spacing-xs) 0;
+      margin: 0 0 var(--spacing-2) 0;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
-    .page-subtitle {
-      color: var(--text-secondary);
+    .ad-details .page-subtitle {
+      color: var(--text-muted);
       margin: 0;
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-normal);
     }
 
-    .header-right {
+    .ad-details .header-right {
       display: flex;
-      gap: var(--spacing-md);
+      gap: var(--spacing-4);
       align-items: center;
     }
 
-    .refresh-button {
+    .ad-details .refresh-button {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 40px;
-      height: 40px;
-      background: var(--surface-color);
+      width: 48px;
+      height: 48px;
+      background: var(--background-secondary);
       border: 1px solid var(--border-color);
-      border-radius: var(--border-radius);
-      color: var(--text-secondary);
+      border-radius: var(--border-radius-md);
+      color: var(--text-muted);
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: var(--transition-all);
+      box-shadow: var(--shadow-sm);
     }
 
-    .refresh-button:hover:not(:disabled) {
-      background: var(--primary-color);
-      border-color: var(--primary-color);
-      color: white;
+    .ad-details .refresh-button:hover:not(:disabled) {
+      background: var(--gradient-primary);
+      border-color: var(--color-primary);
+      color: var(--color-white);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-primary);
     }
 
-    .refresh-button:disabled {
+    .ad-details .refresh-button:disabled {
       opacity: 0.5;
       cursor: not-allowed;
     }
 
-    .spinning {
+    .ad-details .spinning {
       animation: spin 1s linear infinite;
     }
 
@@ -341,65 +358,61 @@ import { environment } from '../../../environments/environment';
     }
 
     /* Loading State */
-    .loading-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: var(--spacing-4xl) var(--spacing-xl);
+    .ad-details .loading-state {
       text-align: center;
+      padding: var(--spacing-16) var(--spacing-6);
     }
 
-    .loading-spinner {
-      margin-bottom: var(--spacing-lg);
-      color: var(--primary-color);
+    .ad-details .loading-spinner {
+      margin: 0 auto var(--spacing-6);
+      color: var(--color-primary);
     }
 
-    .loading-text {
-      color: var(--text-secondary);
+    .ad-details .loading-text {
+      color: var(--text-muted);
       margin: 0;
+      font-size: var(--font-size-base);
     }
 
     /* Error State */
-    .error-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: var(--spacing-4xl) var(--spacing-xl);
+    .ad-details .error-state {
       text-align: center;
+      padding: var(--spacing-16) var(--spacing-6);
     }
 
-    .error-icon {
-      margin-bottom: var(--spacing-lg);
-      color: var(--error-color);
+    .ad-details .error-icon {
+      margin: 0 auto var(--spacing-6);
+      color: var(--color-danger);
     }
 
-    .error-title {
+    .ad-details .error-title {
       font-size: var(--font-size-xl);
-      font-weight: 600;
+      font-weight: var(--font-weight-semibold);
       color: var(--text-primary);
-      margin: 0 0 var(--spacing-md) 0;
+      margin: 0 0 var(--spacing-3) 0;
     }
 
-    .error-description {
-      color: var(--text-secondary);
-      margin: 0 0 var(--spacing-lg) 0;
+    .ad-details .error-description {
+      color: var(--text-muted);
+      margin: 0 0 var(--spacing-6) 0;
+      font-size: var(--font-size-base);
     }
 
-    .retry-button {
-      background: var(--primary-color);
-      color: white;
+    .ad-details .retry-button {
+      padding: var(--spacing-3) var(--spacing-7);
+      background: var(--gradient-primary);
+      color: var(--color-white);
       border: none;
-      border-radius: var(--border-radius);
-      padding: var(--spacing-sm) var(--spacing-lg);
-      font-weight: 500;
+      border-radius: var(--border-radius-md);
+      font-weight: var(--font-weight-semibold);
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: var(--transition-all);
+      box-shadow: var(--shadow-primary);
     }
 
-    .retry-button:hover {
-      background: var(--primary-hover);
+    .ad-details .retry-button:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-primary-lg);
     }
 
     /* Advertisement Section */
