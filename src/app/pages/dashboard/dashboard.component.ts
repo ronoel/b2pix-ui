@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { UserService } from '../../services/user.service';
@@ -8,6 +8,7 @@ import { TransactionService } from '../../services/transaction.service';
   selector: 'app-dashboard',
   standalone: true,
   imports: [CommonModule],
+  encapsulation: ViewEncapsulation.None,
   template: `
     <div class="dashboard">
       <div class="container">
@@ -111,10 +112,28 @@ import { TransactionService } from '../../services/transaction.service';
     </div>
   `,
   styles: [`
+    /* Global text selection fix */
+    .dashboard ::selection {
+      background: #3B82F6;
+      color: #FFFFFF;
+    }
+
+    .dashboard ::-moz-selection {
+      background: #3B82F6;
+      color: #FFFFFF;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
     .dashboard {
       min-height: 100vh;
-      background: var(--background-dark);
-      padding: var(--spacing-xl) 0;
+      background: #F8FAFC;
+      padding: 32px 0;
     }
 
     /* Header */
@@ -122,230 +141,333 @@ import { TransactionService } from '../../services/transaction.service';
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: var(--spacing-2xl);
-      padding-bottom: var(--spacing-lg);
-      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 48px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid #E5E7EB;
     }
 
     .dashboard-title {
-      font-size: var(--font-size-3xl);
+      font-size: 36px;
       font-weight: 700;
-      color: var(--text-primary);
-      margin: 0 0 var(--spacing-xs) 0;
+      color: #1F2937;
+      margin: 0 0 8px 0;
     }
 
     .dashboard-subtitle {
-      font-size: var(--font-size-md);
-      color: var(--text-secondary);
+      font-size: 16px;
+      color: #6B7280;
       margin: 0;
     }
 
     .wallet-info {
       display: flex;
       align-items: center;
-      gap: var(--spacing-md);
+      gap: 16px;
     }
 
     .status-badge {
       display: flex;
       align-items: center;
-      gap: var(--spacing-xs);
-      padding: var(--spacing-xs) var(--spacing-sm);
-      background: var(--success-green);
+      gap: 8px;
+      padding: 8px 12px;
+      background: #16A34A;
       color: white;
-      border-radius: var(--border-radius-sm);
-      font-size: var(--font-size-xs);
+      border-radius: 8px;
+      font-size: 12px;
       font-weight: 500;
     }
 
     /* Actions Section */
     .actions-section {
-      margin-bottom: var(--spacing-2xl);
+      margin-bottom: 48px;
     }
 
     .section-title {
-      font-size: var(--font-size-xl);
+      font-size: 20px;
       font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: var(--spacing-lg);
+      color: #1F2937;
+      margin-bottom: 24px;
     }
 
     .actions-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: var(--spacing-lg);
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
     }
 
     .action-card {
       display: flex;
       align-items: center;
-      gap: var(--spacing-lg);
-      padding: var(--spacing-xl);
-      background: var(--background-card);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius-lg);
+      gap: 24px;
+      padding: 32px;
+      background: #FFFFFF;
+      border: 1px solid #E5E7EB;
+      border-radius: 16px;
       cursor: pointer;
-      transition: all var(--transition-normal);
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
     }
 
     .action-card:hover {
       transform: translateY(-2px);
-      box-shadow: var(--shadow-lg);
-      border-color: var(--primary-orange);
+      box-shadow: 0 10px 25px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.05);
+      border-color: #F59E0B;
     }
 
     .action-icon {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 48px;
-      height: 48px;
-      border-radius: var(--border-radius-md);
-      background: var(--background-elevated);
-      color: var(--primary-orange);
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      background: #F9FAFB;
+      color: #F59E0B;
+      flex-shrink: 0;
     }
 
     .action-content {
       flex: 1;
+      min-width: 0;
     }
 
     .action-title {
-      font-size: var(--font-size-lg);
+      font-size: 18px;
       font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: var(--spacing-xs);
+      color: #1F2937;
+      margin: 0 0 8px 0;
     }
 
     .action-description {
-      font-size: var(--font-size-sm);
-      color: var(--text-secondary);
+      font-size: 14px;
+      color: #6B7280;
       margin: 0;
+      line-height: 1.5;
     }
 
     .action-arrow {
-      color: var(--text-muted);
-      transition: all var(--transition-normal);
+      color: #9CA3AF;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
     }
 
     .action-card:hover .action-arrow {
-      color: var(--primary-orange);
+      color: #F59E0B;
       transform: translateX(4px);
     }
 
     /* Activity Section */
     .activity-section {
-      margin-bottom: var(--spacing-2xl);
+      margin-bottom: 48px;
     }
 
     .activity-list {
       display: flex;
       flex-direction: column;
-      gap: var(--spacing-md);
+      gap: 16px;
     }
 
     .activity-item {
       display: flex;
       align-items: center;
-      gap: var(--spacing-lg);
-      padding: var(--spacing-lg);
-      background: var(--background-card);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius-md);
-      transition: all var(--transition-normal);
+      gap: 24px;
+      padding: 24px;
+      background: #FFFFFF;
+      border: 1px solid #E5E7EB;
+      border-radius: 12px;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
     }
 
     .activity-item:hover {
-      background: var(--background-elevated);
+      background: #F9FAFB;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06);
     }
 
     .activity-icon {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 32px;
-      height: 32px;
-      border-radius: var(--border-radius-sm);
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
       color: white;
+      flex-shrink: 0;
     }
 
     .activity-icon.success {
-      background: var(--success-green);
+      background: #16A34A;
     }
 
     .activity-icon.info {
-      background: var(--primary-blue);
+      background: #1E40AF;
     }
 
     .activity-icon.warning {
-      background: var(--warning-yellow);
+      background: #F59E0B;
     }
 
     .activity-content {
       flex: 1;
+      min-width: 0;
     }
 
     .activity-title {
-      font-size: var(--font-size-md);
+      font-size: 16px;
       font-weight: 500;
-      color: var(--text-primary);
-      margin-bottom: var(--spacing-xs);
+      color: #1F2937;
+      margin: 0 0 8px 0;
     }
 
     .activity-details {
-      font-size: var(--font-size-sm);
-      color: var(--text-secondary);
+      font-size: 14px;
+      color: #6B7280;
+      margin: 0;
+      line-height: 1.5;
     }
 
     .activity-time {
-      font-size: var(--font-size-xs);
-      color: var(--text-muted);
+      font-size: 12px;
+      color: #9CA3AF;
       white-space: nowrap;
+      font-weight: 500;
     }
 
-    /* Responsividade */
+    /* Responsive Design */
     @media (max-width: 768px) {
       .dashboard {
-        padding: var(--spacing-lg) 0;
+        padding: 24px 0;
+      }
+
+      .container {
+        padding: 0 12px;
       }
 
       .dashboard-header {
         flex-direction: column;
         align-items: flex-start;
-        gap: var(--spacing-lg);
+        gap: 24px;
+        margin-bottom: 32px;
+        padding-bottom: 16px;
+      }
+
+      .dashboard-title {
+        font-size: 28px;
+      }
+
+      .dashboard-subtitle {
+        font-size: 14px;
+      }
+
+      .actions-section {
+        margin-bottom: 32px;
       }
 
       .actions-grid {
         grid-template-columns: 1fr;
+        gap: 16px;
       }
 
       .action-card {
-        padding: var(--spacing-lg);
+        padding: 24px;
+        gap: 16px;
       }
 
       .action-icon {
-        width: 40px;
-        height: 40px;
+        width: 48px;
+        height: 48px;
+      }
+
+      .action-title {
+        font-size: 16px;
+      }
+
+      .action-description {
+        font-size: 13px;
+      }
+
+      .activity-section {
+        margin-bottom: 32px;
       }
 
       .activity-item {
-        padding: var(--spacing-md);
+        padding: 16px;
+        gap: 16px;
       }
 
       .activity-icon {
-        width: 28px;
-        height: 28px;
+        width: 36px;
+        height: 36px;
+      }
+
+      .activity-title {
+        font-size: 15px;
+      }
+
+      .activity-details {
+        font-size: 13px;
+      }
+
+      .activity-time {
+        font-size: 11px;
       }
     }
 
     @media (max-width: 480px) {
+      .dashboard {
+        padding: 16px 0;
+      }
+
+      .container {
+        padding: 0 8px;
+      }
+
+      .dashboard-title {
+        font-size: 24px;
+      }
+
       .action-card {
         flex-direction: column;
         text-align: center;
-        gap: var(--spacing-md);
+        gap: 16px;
+        padding: 20px;
       }
 
       .action-arrow {
         display: none;
+      }
+
+      .activity-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 16px;
+      }
+
+      .activity-icon {
+        align-self: flex-start;
+      }
+
+      .activity-time {
+        align-self: flex-end;
+        margin-top: 8px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .actions-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .action-card {
+        padding: 16px;
+      }
+
+      .action-icon {
+        width: 44px;
+        height: 44px;
       }
     }
   `]

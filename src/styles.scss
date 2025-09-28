@@ -1,208 +1,397 @@
-/* CSS Reset e variáveis CSS para B2PIX */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+/* Trusted Financial App Design System for B2PIX */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  /* Cores da B2PIX */
-  --primary-orange: #F7931A; /* Bitcoin Orange */
-  --primary-orange-dark: #E6851F;
-  --primary-orange-bg: rgba(247, 147, 26, 0.1);
-  --primary-blue: #5546FF; /* Stacks Blue */
-  --primary-purple: #9C27B0;
-  --background-dark: #0A0A0A;
-  --background-card: #1A1A1A;
-  --background-elevated: #2A2A2A;
-  --text-primary: #FFFFFF;
-  --text-secondary: #B0B0B0;
-  --text-muted: #808080;
-  --border-color: #333333;
-  --success-green: #00D4AA;
-  --success-green-bg: rgba(0, 212, 170, 0.1);
-  --error-red: #FF6B6B;
-  --warning-yellow: #FFD93D;
-  --warning-yellow-bg: rgba(255, 217, 61, 0.1);
-  --warning-yellow-text: #B8860B;
+  /* Primary Financial Colors - Trust & Security */
+  --primary-trust-blue: #1E40AF; /* Deep trust blue */
+  --primary-trust-blue-light: #3B82F6;
+  --primary-trust-blue-dark: #1E3A8A;
+  --primary-trust-green: #059669; /* Financial success green */
+  --primary-trust-green-light: #10B981;
+  --primary-bitcoin-orange: #F7931A; /* Bitcoin accent */
+  --primary-bitcoin-orange-light: #FFA726;
+
+  /* Background System - Light & Professional */
+  --background-primary: #FFFFFF;
+  --background-secondary: #F8FAFC;
+  --background-card: #FFFFFF;
+  --background-elevated: #F1F5F9;
+  --background-accent: #EEF2FF;
+  --background-success: #ECFDF5;
+  --background-warning: #FFFBEB;
+  --background-error: #FEF2F2;
+
+  /* Text System - Clear Hierarchy */
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+  --text-inverse: #FFFFFF;
+  --text-success: #059669;
+  --text-warning: #D97706;
+  --text-error: #DC2626;
+
+  /* Border System */
+  --border-color: #E2E8F0;
+  --border-focus: #3B82F6;
+  --border-success: #10B981;
+  --border-warning: #F59E0B;
+  --border-error: #EF4444;
+
+  /* Financial Status Colors */
+  --success-green: #10B981;
+  --success-green-bg: #ECFDF5;
+  --success-green-border: #A7F3D0;
+  --warning-amber: #F59E0B;
+  --warning-amber-bg: #FFFBEB;
+  --warning-amber-border: #FDE68A;
+  --error-red: #EF4444;
+  --error-red-bg: #FEF2F2;
+  --error-red-border: #FECACA;
   
-  /* Gradientes */
-  --gradient-orange: linear-gradient(135deg, #F7931A 0%, #FFA726 100%);
-  --gradient-blue: linear-gradient(135deg, #5546FF 0%, #7C4DFF 100%);
-  --gradient-dark: linear-gradient(135deg, #1A1A1A 0%, #2A2A2A 100%);
+  /* Financial App Gradients */
+  --gradient-trust-blue: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
+  --gradient-trust-green: linear-gradient(135deg, #059669 0%, #10B981 100%);
+  --gradient-bitcoin: linear-gradient(135deg, #F7931A 0%, #FFA726 100%);
+  --gradient-subtle: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+
+  /* Professional Shadows - Softer & More Subtle */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1), 0 10px 10px rgba(0, 0, 0, 0.04);
+  --shadow-trust: 0 4px 14px rgba(30, 64, 175, 0.15);
+  --shadow-success: 0 4px 14px rgba(5, 150, 105, 0.15);
+  --shadow-bitcoin: 0 4px 14px rgba(247, 147, 26, 0.15);
   
-  /* Sombras */
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 20px rgba(247, 147, 26, 0.3);
-  
-  /* Bordas */
-  --border-radius-sm: 8px;
-  --border-radius-md: 12px;
-  --border-radius-lg: 16px;
-  --border-radius-xl: 24px;
-  
-  /* Espaçamentos */
-  --spacing-xs: 4px;
-  --spacing-sm: 8px;
-  --spacing-md: 16px;
-  --spacing-lg: 24px;
-  --spacing-xl: 32px;
-  --spacing-2xl: 48px;
-  
-  /* Tipografia */
-  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-size-2xs: 10px;
+  /* Border Radius - Financial App Standard */
+  --border-radius-xs: 4px;
+  --border-radius-sm: 6px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  --border-radius-xl: 16px;
+  --border-radius-2xl: 20px;
+  --border-radius-full: 9999px;
+
+  /* Spacing System - Consistent & Professional */
+  --spacing-0: 0px;
+  --spacing-px: 1px;
+  --spacing-0_5: 2px;
+  --spacing-1: 4px;
+  --spacing-1_5: 6px;
+  --spacing-2: 8px;
+  --spacing-2_5: 10px;
+  --spacing-3: 12px;
+  --spacing-3_5: 14px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-7: 28px;
+  --spacing-8: 32px;
+  --spacing-10: 40px;
+  --spacing-12: 48px;
+  --spacing-16: 64px;
+  --spacing-20: 80px;
+  --spacing-24: 96px;
+
+  /* Typography System - Professional & Clear */
+  --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-family-mono: 'JetBrains Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
+
   --font-size-xs: 12px;
   --font-size-sm: 14px;
-  --font-size-md: 16px;
+  --font-size-base: 16px;
   --font-size-lg: 18px;
   --font-size-xl: 20px;
   --font-size-2xl: 24px;
-  --font-size-3xl: 32px;
-  --font-size-4xl: 48px;
+  --font-size-3xl: 30px;
+  --font-size-4xl: 36px;
+  --font-size-5xl: 48px;
+  --font-size-6xl: 60px;
+
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+
+  --line-height-tight: 1.25;
+  --line-height-snug: 1.375;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.625;
+  --line-height-loose: 2;
   
-  /* Transições */
-  --transition-fast: 0.15s ease;
-  --transition-normal: 0.3s ease;
-  --transition-slow: 0.5s ease;
+  /* Transitions - Smooth & Professional */
+  --transition-fast: 0.1s ease-out;
+  --transition-normal: 0.2s ease-out;
+  --transition-slow: 0.3s ease-out;
+  --transition-bounce: 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
+/* Base Reset */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* Base Body - Light Financial App Theme */
 html, body {
   height: 100%;
-  font-family: var(--font-family);
-  background-color: var(--background-dark);
+  font-family: var(--font-family-primary);
+  background-color: var(--background-secondary);
   color: var(--text-primary);
-  line-height: 1.6;
+  line-height: var(--line-height-normal);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 }
 
 body {
   margin: 0;
-  font-family: var(--font-family);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
 }
 
-/* Scrollbar personalizada */
+/* Scrollbar - Clean & Professional */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--background-card);
+  background: var(--background-elevated);
 }
 
 ::-webkit-scrollbar-thumb {
   background: var(--border-color);
-  border-radius: 4px;
+  border-radius: var(--border-radius-full);
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
 }
 
-/* Classes utilitárias */
+/* Layout Utilities */
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 var(--spacing-md);
+  padding: 0 var(--spacing-4);
 }
 
+.container-sm {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-4);
+}
+
+.container-lg {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-4);
+}
+
+/* Card Components - Financial App Style */
 .card {
   background: var(--background-card);
-  border-radius: var(--border-radius-md);
+  border-radius: var(--border-radius-lg);
   border: 1px solid var(--border-color);
-  padding: var(--spacing-lg);
-  box-shadow: var(--shadow-md);
+  padding: var(--spacing-6);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
 }
 
+.card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.card-elevated {
+  background: var(--background-card);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+  padding: var(--spacing-8);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Button System - Financial App Standard */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md) var(--spacing-lg);
+  gap: var(--spacing-2);
+  padding: var(--spacing-3) var(--spacing-6);
   border-radius: var(--border-radius-md);
-  border: none;
-  font-family: var(--font-family);
-  font-size: var(--font-size-md);
-  font-weight: 500;
+  border: 1px solid transparent;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
   text-decoration: none;
   cursor: pointer;
   transition: all var(--transition-normal);
   white-space: nowrap;
+  position: relative;
+  overflow: hidden;
 }
 
+/* Primary Button - Trust Blue for Main Actions */
 .btn-primary {
-  background: var(--gradient-orange);
-  color: white;
+  background: var(--gradient-trust-blue);
+  color: var(--text-inverse);
+  border-color: var(--primary-trust-blue);
+  box-shadow: var(--shadow-trust);
 }
 
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-glow);
+.btn-primary:hover:not(:disabled) {
+  background: var(--primary-trust-blue-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg);
 }
 
-.btn-secondary {
-  background: var(--gradient-blue);
-  color: white;
+/* Success Button - For Bitcoin Buying */
+.btn-success {
+  background: var(--gradient-trust-green);
+  color: var(--text-inverse);
+  border-color: var(--primary-trust-green);
+  box-shadow: var(--shadow-success);
 }
 
-.btn-secondary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0 20px rgba(85, 70, 255, 0.3);
+.btn-success:hover:not(:disabled) {
+  background: var(--primary-trust-green);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg);
 }
 
+/* Bitcoin Button - For Bitcoin-specific Actions */
+.btn-bitcoin {
+  background: var(--gradient-bitcoin);
+  color: var(--text-inverse);
+  border-color: var(--primary-bitcoin-orange);
+  box-shadow: var(--shadow-bitcoin);
+}
+
+.btn-bitcoin:hover:not(:disabled) {
+  background: var(--primary-bitcoin-orange);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Outline Button - Secondary Actions */
 .btn-outline {
-  background: transparent;
+  background: var(--background-card);
   color: var(--text-primary);
-  border: 1px solid var(--border-color);
+  border-color: var(--border-color);
 }
 
-.btn-outline:hover {
+.btn-outline:hover:not(:disabled) {
   background: var(--background-elevated);
-  border-color: var(--primary-orange);
+  border-color: var(--primary-trust-blue);
+  color: var(--primary-trust-blue);
 }
 
+/* Ghost Button - Subtle Actions */
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border-color: transparent;
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--background-elevated);
+  color: var(--text-primary);
+}
+
+/* Button Sizes */
+.btn-sm {
+  padding: var(--spacing-2) var(--spacing-4);
+  font-size: var(--font-size-xs);
+  gap: var(--spacing-1);
+}
+
+.btn-lg {
+  padding: var(--spacing-4) var(--spacing-8);
+  font-size: var(--font-size-base);
+  gap: var(--spacing-3);
+  border-radius: var(--border-radius-lg);
+}
+
+.btn-xl {
+  padding: var(--spacing-5) var(--spacing-10);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  gap: var(--spacing-3);
+  border-radius: var(--border-radius-xl);
+}
+
+/* Button States */
 .btn:disabled {
-  opacity: 0.5;
+  opacity: 0.6;
   cursor: not-allowed;
   transform: none !important;
+  box-shadow: none !important;
 }
 
-.text-gradient {
-  background: var(--gradient-orange);
+.btn:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+/* Text Utilities */
+.text-gradient-trust {
+  background: var(--gradient-trust-blue);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-.text-center {
-  text-align: center;
+.text-gradient-bitcoin {
+  background: var(--gradient-bitcoin);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.text-left {
-  text-align: left;
-}
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
 
-.text-right {
-  text-align: right;
-}
+/* Typography Utilities */
+.text-xs { font-size: var(--font-size-xs); }
+.text-sm { font-size: var(--font-size-sm); }
+.text-base { font-size: var(--font-size-base); }
+.text-lg { font-size: var(--font-size-lg); }
+.text-xl { font-size: var(--font-size-xl); }
+.text-2xl { font-size: var(--font-size-2xl); }
+.text-3xl { font-size: var(--font-size-3xl); }
 
-.mb-1 { margin-bottom: var(--spacing-xs); }
-.mb-2 { margin-bottom: var(--spacing-sm); }
-.mb-3 { margin-bottom: var(--spacing-md); }
-.mb-4 { margin-bottom: var(--spacing-lg); }
-.mb-5 { margin-bottom: var(--spacing-xl); }
+.font-light { font-weight: var(--font-weight-light); }
+.font-normal { font-weight: var(--font-weight-normal); }
+.font-medium { font-weight: var(--font-weight-medium); }
+.font-semibold { font-weight: var(--font-weight-semibold); }
+.font-bold { font-weight: var(--font-weight-bold); }
 
-.mt-1 { margin-top: var(--spacing-xs); }
-.mt-2 { margin-top: var(--spacing-sm); }
-.mt-3 { margin-top: var(--spacing-md); }
-.mt-4 { margin-top: var(--spacing-lg); }
-.mt-5 { margin-top: var(--spacing-xl); }
+/* Color Utilities */
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-muted { color: var(--text-muted); }
+.text-success { color: var(--text-success); }
+.text-warning { color: var(--text-warning); }
+.text-error { color: var(--text-error); }
+
+/* Spacing Utilities */
+.mb-1 { margin-bottom: var(--spacing-1); }
+.mb-2 { margin-bottom: var(--spacing-2); }
+.mb-3 { margin-bottom: var(--spacing-3); }
+.mb-4 { margin-bottom: var(--spacing-4); }
+.mb-6 { margin-bottom: var(--spacing-6); }
+.mb-8 { margin-bottom: var(--spacing-8); }
+
+.mt-1 { margin-top: var(--spacing-1); }
+.mt-2 { margin-top: var(--spacing-2); }
+.mt-3 { margin-top: var(--spacing-3); }
+.mt-4 { margin-top: var(--spacing-4); }
+.mt-6 { margin-top: var(--spacing-6); }
+.mt-8 { margin-top: var(--spacing-8); }
 
 .p-1 { padding: var(--spacing-xs); }
 .p-2 { padding: var(--spacing-sm); }

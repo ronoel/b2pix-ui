@@ -1,4 +1,4 @@
-import { Component, inject, effect } from '@angular/core';
+import { Component, inject, effect, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { WalletService } from '../../libs/wallet.service';
@@ -7,6 +7,7 @@ import { InvitesService } from '../../shared/api/invites.service';
 @Component({
   selector: 'app-landing',
   imports: [CommonModule],
+  encapsulation: ViewEncapsulation.None,
   template: `
     <div class="landing-page">
       <div class="hero-section">
@@ -115,6 +116,64 @@ import { InvitesService } from '../../shared/api/invites.service';
         </div>
       </div>
 
+      <!-- Trust Section -->
+      <div class="trust-section">
+        <div class="container">
+          <h3 class="trust-title">Por que escolher B2Pix?</h3>
+          <div class="trust-indicators">
+            <div class="trust-badge">
+              <div class="trust-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2" fill="currentColor"/>
+                </svg>
+              </div>
+              <div class="trust-content">
+                <h4 class="trust-name">Compra Segura</h4>
+                <p class="trust-description">Transações protegidas com smart contracts</p>
+              </div>
+            </div>
+
+            <div class="trust-badge">
+              <div class="trust-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </div>
+              <div class="trust-content">
+                <h4 class="trust-name">Pagamento PIX</h4>
+                <p class="trust-description">Transferências instantâneas e automáticas</p>
+              </div>
+            </div>
+
+            <div class="trust-badge">
+              <div class="trust-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                  <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </div>
+              <div class="trust-content">
+                <h4 class="trust-name">Sem Custódia</h4>
+                <p class="trust-description">Você mantém controle total dos seus Bitcoins</p>
+              </div>
+            </div>
+
+            <div class="trust-badge">
+              <div class="trust-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="trust-content">
+                <h4 class="trust-name">Automático</h4>
+                <p class="trust-description">Processo automatizado do início ao fim</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Background Elements -->
       <div class="bg-elements">
         <div class="bg-circle bg-circle-1"></div>
@@ -134,10 +193,79 @@ import { InvitesService } from '../../shared/api/invites.service';
     </div>
   `,
   styles: [`
+    /* Global text selection fix */
+    .landing-page ::selection {
+      background: #3B82F6;
+      color: #FFFFFF;
+    }
+
+    .landing-page ::-moz-selection {
+      background: #3B82F6;
+      color: #FFFFFF;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    /* Common Button Styles */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: #1E40AF;
+      color: white;
+      border-color: #1E40AF;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #1D4ED8;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px 0 rgb(30 64 175 / 0.4);
+    }
+
+    .btn-secondary {
+      background: #6B7280;
+      color: white;
+      border-color: #6B7280;
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: #4B5563;
+      transform: translateY(-1px);
+    }
+
+    .btn-large {
+      padding: 16px 32px;
+      font-size: 16px;
+      min-width: 200px;
+    }
+
     .landing-page {
       min-height: 100vh;
       position: relative;
       overflow: hidden;
+      background: linear-gradient(135deg, #F8FAFC 0%, #EFF6FF 100%);
     }
 
     .hero-section {
@@ -152,20 +280,20 @@ import { InvitesService } from '../../shared/api/invites.service';
       text-align: center;
       max-width: 800px;
       margin: 0 auto;
-      padding: var(--spacing-2xl) 0;
+      padding: 48px 0;
     }
 
     /* Logo Section */
     .logo-section {
-      margin-bottom: var(--spacing-2xl);
+      margin-bottom: 48px;
     }
 
     .logo {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: var(--spacing-md);
-      margin-bottom: var(--spacing-md);
+      gap: 16px;
+      margin-bottom: 16px;
     }
 
     .logo-icon {
@@ -175,35 +303,42 @@ import { InvitesService } from '../../shared/api/invites.service';
     }
 
     .logo-text {
-      font-size: var(--font-size-4xl);
+      font-size: 36px;
       font-weight: 700;
-      color: var(--text-primary);
+      color: #1F2937;
       margin: 0;
     }
 
     .logo-subtitle {
-      font-size: var(--font-size-lg);
-      color: var(--text-secondary);
+      font-size: 18px;
+      color: #6B7280;
       font-weight: 400;
       margin: 0;
     }
 
+    .text-gradient {
+      background: linear-gradient(135deg, #F59E0B 0%, #F97316 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
     /* Hero Text */
     .hero-text {
-      margin-bottom: var(--spacing-2xl);
+      margin-bottom: 48px;
     }
 
     .hero-title {
-      font-size: var(--font-size-4xl);
+      font-size: 36px;
       font-weight: 700;
-      color: var(--text-primary);
-      margin-bottom: var(--spacing-lg);
+      color: #1F2937;
+      margin-bottom: 24px;
       line-height: 1.2;
     }
 
     .hero-description {
-      font-size: var(--font-size-lg);
-      color: var(--text-secondary);
+      font-size: 18px;
+      color: #6B7280;
       line-height: 1.6;
       max-width: 600px;
       margin: 0 auto;
@@ -213,25 +348,33 @@ import { InvitesService } from '../../shared/api/invites.service';
     .features {
       display: flex;
       justify-content: center;
-      gap: var(--spacing-xl);
-      margin-bottom: var(--spacing-2xl);
+      gap: 32px;
+      margin-bottom: 48px;
       flex-wrap: wrap;
     }
 
     .feature {
       display: flex;
       align-items: center;
-      gap: var(--spacing-sm);
-      padding: var(--spacing-md) var(--spacing-lg);
-      background: var(--background-card);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius-lg);
-      color: var(--text-secondary);
+      gap: 12px;
+      padding: 16px 24px;
+      background: #FFFFFF;
+      border: 1px solid #E5E7EB;
+      border-radius: 12px;
+      color: #6B7280;
       font-weight: 500;
+      box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+      transition: all 0.2s ease;
+    }
+
+    .feature:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px 0 rgb(0 0 0 / 0.15);
+      border-color: #3B82F6;
     }
 
     .feature-icon {
-      color: var(--primary-orange);
+      color: #F59E0B;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -239,51 +382,128 @@ import { InvitesService } from '../../shared/api/invites.service';
 
     /* CTA Section */
     .cta-section {
-      margin-bottom: var(--spacing-2xl);
-    }
-
-    .btn-large {
-      padding: var(--spacing-lg) var(--spacing-2xl);
-      font-size: var(--font-size-lg);
-      font-weight: 600;
-      min-width: 200px;
+      margin-bottom: 48px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
     }
 
     .cta-note {
-      margin-top: var(--spacing-md);
-      color: var(--text-muted);
-      font-size: var(--font-size-sm);
+      margin-top: 16px;
+      color: #9CA3AF;
+      font-size: 14px;
     }
 
     /* Stats Section */
     .stats-section {
-      padding: var(--spacing-2xl) 0;
-      background: var(--background-card);
-      border-top: 1px solid var(--border-color);
+      padding: 48px 0;
+      background: #FFFFFF;
+      border-top: 1px solid #E5E7EB;
     }
 
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: var(--spacing-lg);
+      gap: 24px;
     }
 
     .stat-card {
       text-align: center;
-      padding: var(--spacing-lg);
+      padding: 24px;
+      transition: transform 0.2s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
     }
 
     .stat-number {
-      font-size: var(--font-size-3xl);
+      font-size: 30px;
       font-weight: 700;
-      color: var(--primary-orange);
-      margin-bottom: var(--spacing-sm);
+      color: #F59E0B;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #F59E0B 0%, #F97316 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .stat-label {
-      font-size: var(--font-size-md);
-      color: var(--text-secondary);
+      font-size: 16px;
+      color: #6B7280;
       font-weight: 500;
+    }
+
+    /* Trust Section */
+    .trust-section {
+      padding: 48px 0;
+      background: #FFFFFF;
+      border-top: 1px solid #E5E7EB;
+    }
+
+    .trust-title {
+      text-align: center;
+      font-size: 24px;
+      font-weight: 700;
+      color: #1F2937;
+      margin: 0 0 48px 0;
+    }
+
+    .trust-indicators {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .trust-badge {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 24px;
+      background: #FFFFFF;
+      border: 1px solid #E5E7EB;
+      border-radius: 12px;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+    }
+
+    .trust-badge:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      border-color: #3B82F6;
+    }
+
+    .trust-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      background: #ECFDF5;
+      color: #059669;
+      border-radius: 16px;
+      flex-shrink: 0;
+    }
+
+    .trust-content {
+      flex: 1;
+    }
+
+    .trust-name {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1F2937;
+      margin: 0 0 6px 0;
+    }
+
+    .trust-description {
+      font-size: 14px;
+      color: #6B7280;
+      margin: 0;
+      line-height: 1.6;
     }
 
     /* Background Elements */
@@ -300,7 +520,7 @@ import { InvitesService } from '../../shared/api/invites.service';
     .bg-circle {
       position: absolute;
       border-radius: 50%;
-      background: var(--gradient-orange);
+      background: linear-gradient(135deg, #F59E0B 0%, #F97316 100%);
       opacity: 0.1;
       filter: blur(40px);
     }
@@ -318,7 +538,7 @@ import { InvitesService } from '../../shared/api/invites.service';
       height: 200px;
       top: 60%;
       right: 15%;
-      background: var(--gradient-blue);
+      background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
       animation: float 8s ease-in-out infinite reverse;
     }
 
@@ -327,7 +547,7 @@ import { InvitesService } from '../../shared/api/invites.service';
       height: 150px;
       bottom: 20%;
       left: 20%;
-      background: var(--gradient-orange);
+      background: linear-gradient(135deg, #F59E0B 0%, #F97316 100%);
       animation: float 7s ease-in-out infinite;
     }
 
@@ -340,28 +560,32 @@ import { InvitesService } from '../../shared/api/invites.service';
       }
     }
 
-    /* Responsividade */
+    /* Responsive Design */
     @media (max-width: 768px) {
+      .container {
+        padding: 0 12px;
+      }
+
       .hero-content {
-        padding: var(--spacing-xl) 0;
+        padding: 32px 0;
       }
 
       .logo-text {
-        font-size: var(--font-size-3xl);
+        font-size: 30px;
       }
 
       .hero-title {
-        font-size: var(--font-size-3xl);
+        font-size: 30px;
       }
 
       .hero-description {
-        font-size: var(--font-size-md);
+        font-size: 16px;
       }
 
       .features {
         flex-direction: column;
         align-items: center;
-        gap: var(--spacing-md);
+        gap: 16px;
       }
 
       .feature {
@@ -372,15 +596,29 @@ import { InvitesService } from '../../shared/api/invites.service';
 
       .stats-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: var(--spacing-md);
+        gap: 16px;
+      }
+
+      .trust-indicators {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+
+      .trust-badge {
+        padding: 16px;
+      }
+
+      .trust-icon {
+        width: 40px;
+        height: 40px;
       }
 
       .stat-card {
-        padding: var(--spacing-md);
+        padding: 16px;
       }
 
       .stat-number {
-        font-size: var(--font-size-2xl);
+        font-size: 24px;
       }
 
       .bg-circle-1 {
@@ -404,14 +642,33 @@ import { InvitesService } from '../../shared/api/invites.service';
         grid-template-columns: 1fr;
       }
 
+      .trust-section {
+        padding: 32px 0;
+      }
+
+      .trust-title {
+        font-size: 20px;
+        margin-bottom: 32px;
+      }
+
+      .trust-indicators {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
       .logo {
         flex-direction: column;
-        gap: var(--spacing-sm);
+        gap: 12px;
       }
 
       .btn-large {
         width: 100%;
         max-width: 300px;
+      }
+
+      .cta-section {
+        flex-direction: column;
+        gap: 12px;
       }
     }
   `]

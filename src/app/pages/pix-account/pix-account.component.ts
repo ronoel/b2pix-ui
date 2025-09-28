@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -10,6 +10,7 @@ import { BankSetupComponent } from '../../components/bank-setup/bank-setup.compo
   selector: 'app-pix-account',
   standalone: true,
   imports: [CommonModule, FormsModule, BankSetupComponent],
+  encapsulation: ViewEncapsulation.None,
   template: `
     <div class="pix-page">
       <div class="container">
@@ -114,6 +115,12 @@ import { BankSetupComponent } from '../../components/bank-setup/bank-setup.compo
                     value="Banco EFI"
                     readonly
                     class="form-input readonly">
+                  <div class="security-badge">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                      <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Banco verificado
+                  </div>
                 </div>
 
                 <div class="form-group">
@@ -127,17 +134,26 @@ import { BankSetupComponent } from '../../components/bank-setup/bank-setup.compo
                     </svg>
                     Número da Conta
                   </label>
-                  <input
-                    id="accountNumber"
-                    type="text"
-                    [(ngModel)]="accountData.accountNumber"
-                    name="accountNumber"
-                    required
-                    placeholder="Ex: 12345-6"
-                    class="form-input"
-                    #accountNumber="ngModel">
+                  <div class="sensitive-input">
+                    <input
+                      id="accountNumber"
+                      type="text"
+                      [(ngModel)]="accountData.accountNumber"
+                      name="accountNumber"
+                      required
+                      placeholder="Ex: 12345-6"
+                      class="form-input"
+                      #accountNumber="ngModel">
+                  </div>
                   @if (accountNumber.invalid && accountNumber.touched) {
-                    <div class="error-message">Número da conta é obrigatório</div>
+                    <div class="error-message">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                        <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2"/>
+                        <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2"/>
+                      </svg>
+                      Número da conta é obrigatório
+                    </div>
                   }
                 </div>
 
@@ -169,26 +185,58 @@ import { BankSetupComponent } from '../../components/bank-setup/bank-setup.compo
                     </svg>
                     Chave PIX
                   </label>
-                  <input
-                    id="pixKey"
-                    type="text"
-                    [(ngModel)]="accountData.pixKey"
-                    name="pixKey"
-                    required
-                    [placeholder]="getPixKeyPlaceholder()"
-                    class="form-input"
-                    #pixKey="ngModel">
+                  <div class="sensitive-input">
+                    <input
+                      id="pixKey"
+                      type="text"
+                      [(ngModel)]="accountData.pixKey"
+                      name="pixKey"
+                      required
+                      [placeholder]="getPixKeyPlaceholder()"
+                      class="form-input"
+                      #pixKey="ngModel">
+                  </div>
                   @if (pixKey.invalid && pixKey.touched) {
-                    <div class="error-message">Chave PIX é obrigatória</div>
+                    <div class="error-message">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                        <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2"/>
+                        <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2"/>
+                      </svg>
+                      Chave PIX é obrigatória
+                    </div>
                   }
+                </div>
+
+                <div class="trust-indicators">
+                  <div class="trust-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                      <path d="M12 22S8 18 8 14V7L12 5L16 7V14C16 18 12 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Dados protegidos
+                  </div>
+                  <div class="trust-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+                      <circle cx="12" cy="16" r="1" stroke="currentColor" stroke-width="2"/>
+                      <path d="M7 11V7C7 5.67392 7.52678 4.40215 8.46447 3.46447C9.40215 2.52678 10.6739 2 12 2C13.3261 2 14.5979 2.52678 15.5355 3.46447C16.4732 4.40215 17 5.67392 17 7V11" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    Criptografia 256-bit
+                  </div>
+                  <div class="trust-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                      <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Verificação automática
+                  </div>
                 </div>
 
                 <div class="form-actions">
                   <button type="button" class="btn btn-outline" (click)="goBack()">
                     Cancelar
                   </button>
-                  <button 
-                    type="submit" 
+                  <button
+                    type="submit"
                     class="btn btn-primary"
                     [disabled]="form.invalid || loadingService.getIsLoading()()">
                     @if (loadingService.getIsLoading()()) {
@@ -366,22 +414,63 @@ import { BankSetupComponent } from '../../components/bank-setup/bank-setup.compo
     </div>
   `,
   styles: [`
-    .pix-page {
-      min-height: 100vh;
-      background: var(--background-dark);
-      padding: var(--spacing-xl) 0;
+    /* Text Selection */
+    .pix-account ::selection {
+      background: #3B82F6;
+      color: #FFFFFF;
     }
 
+    .pix-account ::-moz-selection {
+      background: #3B82F6;
+      color: #FFFFFF;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    .pix-page {
+      min-height: 100vh;
+      background: #F8FAFC;
+      padding: 32px 0;
+    }
+
+    /* Header */
     .page-header {
       display: flex;
       align-items: flex-start;
-      gap: var(--spacing-lg);
-      margin-bottom: var(--spacing-2xl);
+      gap: 24px;
+      margin-bottom: 48px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid #E5E7EB;
     }
 
     .back-btn {
-      padding: var(--spacing-sm) var(--spacing-md);
-      font-size: var(--font-size-sm);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background: #FFFFFF;
+      border: 1px solid #E5E7EB;
+      border-radius: 8px;
+      color: #6B7280;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+    }
+
+    .back-btn:hover {
+      background: #F9FAFB;
+      border-color: #F59E0B;
+      color: #F59E0B;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
     }
 
     .header-content {
@@ -389,18 +478,19 @@ import { BankSetupComponent } from '../../components/bank-setup/bank-setup.compo
     }
 
     .page-title {
-      font-size: var(--font-size-3xl);
+      font-size: 36px;
       font-weight: 700;
-      color: var(--text-primary);
-      margin: 0 0 var(--spacing-xs) 0;
+      color: #1F2937;
+      margin: 0 0 8px 0;
     }
 
     .page-subtitle {
-      font-size: var(--font-size-md);
-      color: var(--text-secondary);
+      font-size: 16px;
+      color: #6B7280;
       margin: 0;
     }
 
+    /* Section Layout */
     .setup-section,
     .result-section,
     .existing-section {
@@ -408,16 +498,19 @@ import { BankSetupComponent } from '../../components/bank-setup/bank-setup.compo
       justify-content: center;
     }
 
+    /* Card Styles */
     .instructions-card,
     .success-card,
     .error-card,
     .existing-card {
       max-width: 600px;
-      padding: var(--spacing-2xl);
-      background: var(--background-card);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius-lg);
+      padding: 48px;
+      background: #FFFFFF;
+      border: 1px solid #E5E7EB;
+      border-radius: 16px;
       text-align: center;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06);
+      transition: all 0.2s ease;
     }
 
     .instructions-card {
@@ -425,91 +518,101 @@ import { BankSetupComponent } from '../../components/bank-setup/bank-setup.compo
     }
 
     .success-card {
-      border-left: 4px solid var(--success-green);
+      border-left: 4px solid #16A34A;
     }
 
     .error-card {
-      border-left: 4px solid var(--error-red);
+      border-left: 4px solid #DC2626;
     }
 
     .existing-card {
-      border-left: 4px solid var(--success-green);
+      border-left: 4px solid #16A34A;
     }
 
+    /* Icon Styles */
     .instructions-icon,
     .success-icon,
     .error-icon,
     .existing-icon {
-      margin-bottom: var(--spacing-lg);
+      margin-bottom: 24px;
     }
 
     .instructions-icon {
-      color: var(--primary-blue);
+      color: #3B82F6;
     }
 
     .success-icon,
     .existing-icon {
-      color: var(--success-green);
+      color: #16A34A;
     }
 
     .error-icon {
-      color: var(--error-red);
+      color: #DC2626;
     }
 
+    /* Text Styles */
     .instructions-content h2,
     .success-content h3,
     .error-content h3,
     .existing-content h3 {
       font-weight: 600;
-      color: var(--text-primary);
-      margin: 0 0 var(--spacing-sm) 0;
+      color: #1F2937;
+      margin: 0 0 16px 0;
     }
 
     .instructions-content h2 {
-      font-size: var(--font-size-2xl);
-      margin-bottom: var(--spacing-md);
+      font-size: 24px;
+      margin-bottom: 16px;
     }
 
     .success-content h3,
     .error-content h3,
     .existing-content h3 {
-      font-size: var(--font-size-xl);
+      font-size: 20px;
     }
 
     .instructions-content > p,
     .success-content p,
     .error-content p,
     .existing-content > p {
-      color: var(--text-secondary);
-      margin: 0 0 var(--spacing-lg) 0;
+      color: #6B7280;
+      margin: 0 0 24px 0;
+      line-height: 1.6;
     }
 
     .instructions-content > p {
-      font-size: var(--font-size-lg);
-      margin-bottom: var(--spacing-2xl);
+      font-size: 16px;
+      margin-bottom: 48px;
     }
 
+    /* Steps Grid */
     .steps-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: var(--spacing-lg);
-      margin-bottom: var(--spacing-2xl);
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 48px;
     }
 
     .step-card {
       display: flex;
       flex-direction: column;
-      padding: var(--spacing-lg);
-      background: var(--background-elevated);
-      border-radius: var(--border-radius-md);
+      padding: 24px;
+      background: #F9FAFB;
+      border-radius: 12px;
       text-align: left;
-      gap: var(--spacing-md);
+      gap: 16px;
+      transition: all 0.2s ease;
+    }
+
+    .step-card:hover {
+      background: #F3F4F6;
+      transform: translateY(-2px);
     }
 
     .step-header {
       display: flex;
       align-items: flex-start;
-      gap: var(--spacing-md);
+      gap: 16px;
       flex: 1;
     }
 
@@ -519,169 +622,187 @@ import { BankSetupComponent } from '../../components/bank-setup/bank-setup.compo
       justify-content: center;
       width: 32px;
       height: 32px;
-      background: var(--primary-orange);
+      background: #F59E0B;
       color: white;
       border-radius: 50%;
       font-weight: 700;
       flex-shrink: 0;
+      font-size: 14px;
     }
 
     .step-content h3 {
-      font-size: var(--font-size-lg);
+      font-size: 16px;
       font-weight: 600;
-      color: var(--text-primary);
-      margin: 0 0 var(--spacing-xs) 0;
+      color: #1F2937;
+      margin: 0 0 8px 0;
     }
 
     .step-content p {
-      color: var(--text-secondary);
+      color: #6B7280;
       margin: 0;
-      font-size: var(--font-size-sm);
+      font-size: 14px;
       line-height: 1.5;
     }
 
     .step-btn {
       align-self: flex-start;
-      padding: var(--spacing-sm) var(--spacing-md);
-      font-size: var(--font-size-sm);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background: #F59E0B;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
     }
 
+    .step-btn:hover {
+      background: #D97706;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    }
+
+    /* Form Section */
     .form-section {
       max-width: 600px;
       margin: 0 auto;
     }
 
     .form-card {
-      padding: var(--spacing-2xl);
-      background: var(--background-card);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius-lg);
+      padding: 48px;
+      background: #FFFFFF;
+      border: 1px solid #E5E7EB;
+      border-radius: 16px;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06);
     }
 
     .form-header {
       text-align: center;
-      margin-bottom: var(--spacing-2xl);
+      margin-bottom: 48px;
     }
 
+    .form-header h2 {
+      font-size: 24px;
+      font-weight: 600;
+      color: #1F2937;
+      margin: 0 0 8px 0;
+    }
+
+    .form-header p {
+      color: #6B7280;
+      margin: 0;
+      font-size: 14px;
+    }
+
+    /* Form Elements */
     .form-group {
-      margin-bottom: var(--spacing-lg);
+      margin-bottom: 24px;
     }
 
     .form-group label {
       display: flex;
       align-items: center;
-      gap: var(--spacing-xs);
-      font-size: var(--font-size-sm);
+      gap: 8px;
+      font-size: 14px;
       font-weight: 500;
-      color: var(--text-primary);
-      margin-bottom: var(--spacing-xs);
+      color: #374151;
+      margin-bottom: 8px;
     }
 
     .form-input {
       width: 100%;
-      padding: var(--spacing-md);
-      background: var(--background-elevated);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius-md);
-      color: var(--text-primary);
-      font-size: var(--font-size-md);
-      transition: border-color var(--transition-normal);
+      padding: 12px 16px;
+      background: #FFFFFF;
+      border: 1px solid #D1D5DB;
+      border-radius: 8px;
+      color: #1F2937;
+      font-size: 16px;
+      transition: all 0.2s ease;
+      box-sizing: border-box;
     }
 
     .form-input:focus {
-      border-color: var(--primary-orange);
+      border-color: #F59E0B;
       outline: none;
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
     }
 
     .form-input.readonly {
-      background: var(--background-card);
-      color: var(--text-muted);
+      background: #F9FAFB;
+      color: #6B7280;
       cursor: not-allowed;
     }
 
+    .form-input:hover:not(.readonly) {
+      border-color: #9CA3AF;
+    }
+
+    /* Error States */
     .error-message {
-      color: var(--error-red);
-      font-size: var(--font-size-xs);
-      margin-top: var(--spacing-xs);
-    }
-
-    .upload-section {
-      padding: var(--spacing-lg);
-      background: var(--background-elevated);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius-md);
-      margin-bottom: var(--spacing-lg);
-    }
-
-    .upload-header {
+      color: #DC2626;
+      font-size: 12px;
+      margin-top: 8px;
       display: flex;
-      flex-direction: column;
       align-items: center;
-      gap: var(--spacing-sm);
-      margin-bottom: var(--spacing-lg);
-      text-align: center;
+      gap: 4px;
     }
 
-    .upload-icon {
-      color: var(--primary-blue);
+    .form-input:invalid:not(:focus) {
+      border-color: #DC2626;
     }
 
-    .upload-header h3,
-    .form-header h2 {
-      font-weight: 600;
-      color: var(--text-primary);
-      margin: 0;
-    }
-
-    .form-header h2 {
-      font-size: var(--font-size-2xl);
-      margin-bottom: var(--spacing-sm);
-    }
-
-    .upload-header h3 {
-      font-size: var(--font-size-lg);
-    }
-
-    .upload-header p,
-    .form-header p {
-      color: var(--text-secondary);
-      margin: 0;
-      font-size: var(--font-size-sm);
-    }
-
-    .file-upload {
-      text-align: center;
-    }
-
-    .upload-button {
+    /* Button Styles */
+    .btn {
       display: inline-flex;
       align-items: center;
-      gap: var(--spacing-xs);
-      padding: var(--spacing-md) var(--spacing-lg);
-      background: var(--primary-orange);
-      color: white;
-      border: none;
-      border-radius: var(--border-radius-md);
-      cursor: pointer;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
       font-weight: 500;
-      transition: background var(--transition-normal);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+      text-decoration: none;
+      box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
     }
 
-    .upload-button:hover {
-      background: var(--primary-orange-dark);
+    .btn-primary {
+      background: #F59E0B;
+      color: white;
     }
 
-    .form-actions,
-    .action-buttons {
-      display: flex;
-      gap: var(--spacing-md);
-      justify-content: flex-end;
+    .btn-primary:hover:not(:disabled) {
+      background: #D97706;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
     }
 
-    .action-buttons {
-      justify-content: center;
+    .btn-outline {
+      background: #FFFFFF;
+      color: #6B7280;
+      border-color: #D1D5DB;
     }
 
+    .btn-outline:hover:not(:disabled) {
+      background: #F9FAFB;
+      color: #374151;
+      border-color: #9CA3AF;
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1) !important;
+    }
+
+    /* Loading Animation */
     .btn-loading {
       width: 16px;
       height: 16px;
@@ -696,25 +817,38 @@ import { BankSetupComponent } from '../../components/bank-setup/bank-setup.compo
       100% { transform: rotate(360deg); }
     }
 
+    /* Form Actions */
+    .form-actions,
+    .action-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: flex-end;
+    }
+
+    .action-buttons {
+      justify-content: center;
+    }
+
+    /* Account Details */
     .account-summary,
     .account-details {
-      padding: var(--spacing-lg);
-      background: var(--background-elevated);
-      border-radius: var(--border-radius-md);
-      margin-bottom: var(--spacing-lg);
+      padding: 24px;
+      background: #F9FAFB;
+      border-radius: 12px;
+      margin-bottom: 24px;
       text-align: left;
     }
 
     .account-summary h4 {
-      font-size: var(--font-size-md);
+      font-size: 16px;
       font-weight: 600;
-      color: var(--text-primary);
-      margin: 0 0 var(--spacing-md) 0;
+      color: #1F2937;
+      margin: 0 0 16px 0;
     }
 
     .summary-grid {
       display: grid;
-      gap: var(--spacing-sm);
+      gap: 12px;
     }
 
     .summary-item,
@@ -722,11 +856,11 @@ import { BankSetupComponent } from '../../components/bank-setup/bank-setup.compo
       display: flex;
       justify-content: space-between;
       align-items: center;
+      padding: 12px 0;
     }
 
     .detail-item {
-      padding: var(--spacing-sm) 0;
-      border-bottom: 1px solid var(--border-color);
+      border-bottom: 1px solid #E5E7EB;
     }
 
     .detail-item:last-child {
@@ -735,73 +869,117 @@ import { BankSetupComponent } from '../../components/bank-setup/bank-setup.compo
 
     .summary-label,
     .detail-label {
-      color: var(--text-secondary);
-      font-size: var(--font-size-sm);
+      color: #6B7280;
+      font-size: 14px;
+      font-weight: 500;
     }
 
     .detail-label {
       display: flex;
       align-items: center;
-      gap: var(--spacing-xs);
+      gap: 8px;
     }
 
     .summary-value,
     .detail-value {
-      color: var(--text-primary);
-      font-weight: 500;
+      color: #1F2937;
+      font-weight: 600;
+      font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
     }
 
     .detail-value.verified {
-      color: var(--success-green);
+      color: #16A34A;
       font-weight: 600;
     }
 
+    /* Error Details */
     .error-details {
-      padding: var(--spacing-lg);
-      background: var(--background-elevated);
-      border-radius: var(--border-radius-md);
-      margin-bottom: var(--spacing-lg);
+      padding: 24px;
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      border-radius: 12px;
+      margin-bottom: 24px;
       text-align: left;
     }
 
     .error-details h4 {
-      color: var(--text-primary);
-      margin: 0 0 var(--spacing-sm) 0;
+      color: #991B1B;
+      margin: 0 0 12px 0;
+      font-size: 16px;
+      font-weight: 600;
     }
 
     .error-details ul {
-      color: var(--text-secondary);
+      color: #7F1D1D;
       margin: 0;
-      padding-left: var(--spacing-lg);
+      padding-left: 20px;
     }
 
-    .step-card .btn:disabled {
+    .error-details li {
+      margin-bottom: 4px;
+    }
+
+    /* Security Indicators */
+    .security-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: #DCFCE7;
+      color: #166534;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      margin-top: 8px;
+    }
+
+    /* Financial Form Enhancements */
+    .sensitive-input {
+      position: relative;
+    }
+
+    .sensitive-input::after {
+      content: '🔒';
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
       opacity: 0.5;
-      cursor: not-allowed;
+      pointer-events: none;
     }
 
-    .step-card .btn:disabled:hover {
-      background: var(--background-elevated);
-      color: var(--text-muted);
+    /* Trust Elements */
+    .trust-indicators {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid #E5E7EB;
     }
 
-    .step-card .btn.btn-primary:disabled {
-      background: var(--border-color);
-      color: var(--text-muted);
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #6B7280;
+      font-size: 12px;
     }
 
-    .step-card .btn.btn-primary:disabled:hover {
-      background: var(--border-color);
-    }
-
+    /* Responsive Design */
     @media (max-width: 768px) {
       .pix-page {
-        padding: var(--spacing-lg) 0;
+        padding: 24px 0;
       }
 
       .page-header {
         flex-direction: column;
-        gap: var(--spacing-md);
+        gap: 16px;
+        margin-bottom: 32px;
+      }
+
+      .page-title {
+        font-size: 28px;
       }
 
       .steps-grid {
@@ -812,22 +990,43 @@ import { BankSetupComponent } from '../../components/bank-setup/bank-setup.compo
       .action-buttons {
         flex-direction: column;
       }
-    }
 
-    @media (max-width: 480px) {
       .instructions-card,
       .form-card,
       .success-card,
       .error-card,
       .existing-card {
-        padding: var(--spacing-lg);
+        padding: 32px 24px;
+      }
+
+      .trust-indicators {
+        flex-direction: column;
+        gap: 12px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 0 12px;
+      }
+
+      .instructions-card,
+      .form-card,
+      .success-card,
+      .error-card,
+      .existing-card {
+        padding: 24px 16px;
       }
 
       .summary-item,
       .detail-item {
         flex-direction: column;
         align-items: flex-start;
-        gap: var(--spacing-xs);
+        gap: 8px;
+      }
+
+      .form-input {
+        font-size: 16px; /* Prevents zoom on iOS */
       }
     }
   `]
