@@ -14,46 +14,36 @@ import { environment } from '../../../environments/environment';
   imports: [CommonModule],
   encapsulation: ViewEncapsulation.None,
   template: `
-    <div class="ad-details">
+    <div class="ad-details-modern">
       <div class="container">
-        <!-- Header -->
         <div class="page-header">
-          <div class="header-left">
-            <button class="back-button" (click)="goBack()">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M19 12H5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
-            <div class="header-content">
-              <h1 class="page-title">Detalhes do Anúncio</h1>
-              <p class="page-subtitle">Visualize as informações do anúncio e suas vendas</p>
-            </div>
-          </div>
-          <div class="header-right">
-            <button class="refresh-button" (click)="refreshData()" [disabled]="isLoading()" title="Atualizar">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" [class.spinning]="isLoading()">
-                <path d="M23 4V10H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M20.49 15C19.9828 16.8412 18.8943 18.4814 17.4001 19.6586C15.9059 20.8357 14.0932 21.4836 12.2188 21.4954C10.3445 21.5072 8.52416 20.8823 7.01362 19.7264C5.50309 18.5705 4.39074 16.9453 3.85848 15.1127C3.32621 13.2801 3.40362 11.3236 4.07803 9.54493C4.75244 7.76625 6.00477 6.2602 7.64736 5.26274C9.28995 4.26528 11.2197 3.83311 13.1294 4.03988C15.0392 4.24665 16.8295 5.08062 18.21 6.39L23 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        <!-- Loading State -->
-        <div class="loading-state" *ngIf="isLoading()">
-          <div class="loading-spinner">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-dasharray="31.416" stroke-dashoffset="31.416">
-                <animate attributeName="stroke-dasharray" dur="2s" values="0 31.416;15.708 15.708;0 31.416" repeatCount="indefinite"/>
-                <animate attributeName="stroke-dashoffset" dur="2s" values="0;-15.708;-31.416" repeatCount="indefinite"/>
-              </circle>
+          <button class="btn btn-ghost" (click)="goBack()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M19 12H5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
+            Voltar
+          </button>
+          <div class="header-content">
+            <h1 class="page-title">Detalhes do Anúncio</h1>
+            <p class="page-subtitle">Visualize as informações do anúncio e suas vendas</p>
           </div>
-          <p class="loading-text">Carregando dados...</p>
+          <button class="btn btn-outline btn-sm" (click)="refreshData()" [disabled]="isLoading()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M3 12C3 7.02944 7.02944 3 12 3C14.5755 3 16.9 4.15205 18.5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M21 12C21 16.9706 16.9706 21 12 21C9.42446 21 7.09995 19.848 5.5 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M13 2L18 6L14 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M11 22L6 18L10 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Atualizar
+          </button>
         </div>
 
-        <!-- Error State -->
+        <div class="loading-state" *ngIf="isLoading()">
+          <div class="loading-spinner"></div>
+          <p>Carregando dados do anúncio...</p>
+        </div>
+
         <div class="error-state" *ngIf="error() && !isLoading()">
           <div class="error-icon">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
@@ -62,14 +52,11 @@ import { environment } from '../../../environments/environment';
               <path d="M9 9L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <h3 class="error-title">Erro ao carregar dados</h3>
-          <p class="error-description">{{ error() }}</p>
-          <button class="retry-button" (click)="retryLoadData()">
-            Tentar Novamente
-          </button>
+          <h3>Erro ao carregar dados</h3>
+          <p>{{ error() }}</p>
+          <button class="btn btn-primary" (click)="retryLoadData()">Tentar Novamente</button>
         </div>
 
-        <!-- Advertisement Details -->
         <div class="ad-section" *ngIf="!isLoading() && !error() && advertisement()">
           <div class="ad-card">
             <div class="ad-header">
@@ -77,27 +64,16 @@ import { environment } from '../../../environments/environment';
                 {{ getStatusLabel(advertisement()!.status) }}
               </div>
               <div class="ad-actions" *ngIf="canFinishAdvertisement()">
-                <button 
-                  class="finish-ad-button" 
-                  (click)="finishAdvertisement()" 
-                  [disabled]="isFinishing()"
-                  title="Finalizar anúncio"
-                >
+                <button class="btn btn-danger btn-sm" (click)="finishAdvertisement()" [disabled]="isFinishing()">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" *ngIf="!isFinishing()">
                     <path d="M9 11L12 14L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M21 12V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V5C3 3.89543 3.89543 3 5 3H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" *ngIf="isFinishing()" class="spinning">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-dasharray="31.416" stroke-dashoffset="31.416">
-                      <animate attributeName="stroke-dasharray" dur="2s" values="0 31.416;15.708 15.708;0 31.416" repeatCount="indefinite"/>
-                      <animate attributeName="stroke-dashoffset" dur="2s" values="0;-15.708;-31.416" repeatCount="indefinite"/>
-                    </circle>
-                  </svg>
+                  <span *ngIf="isFinishing()" class="loading-spinner-sm"></span>
                   {{ isFinishing() ? 'Finalizando...' : 'Finalizar Anúncio' }}
                 </button>
               </div>
             </div>
-
             <div class="ad-content">
               <div class="ad-main-info">
                 <div class="ad-price">
@@ -109,8 +85,7 @@ import { environment } from '../../../environments/environment';
                   <span class="amount-value">{{ formatBTC(advertisement()!.total_amount) }} BTC</span>
                 </div>
               </div>
-
-              <div class="ad-details">
+              <div class="ad-details-grid">
                 <div class="detail-item">
                   <span class="detail-label">Restante:</span>
                   <span class="detail-value">{{ formatBTC(advertisement()!.available_amount) }} BTC</span>
@@ -130,12 +105,7 @@ import { environment } from '../../../environments/environment';
                 <div class="detail-item">
                   <span class="detail-label">Blockchain:</span>
                   <span class="detail-value">
-                    <button 
-                      *ngIf="advertisement()!.transaction_id"
-                      class="blockchain-link" 
-                      (click)="openBlockchainExplorer(advertisement()!.transaction_id!)"
-                      title="Ver transação na blockchain"
-                    >
+                    <button *ngIf="advertisement()!.transaction_id" class="blockchain-link" (click)="openBlockchainExplorer(advertisement()!.transaction_id!)">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                         <path d="M18 13V19C18 20.1046 17.1046 21 16 21H5C3.89543 21 3 20.1046 3 19V8C3 6.89543 3.89543 6 5 6H11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         <path d="M15 3H21V9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -143,46 +113,31 @@ import { environment } from '../../../environments/environment';
                       </svg>
                       Ver na Blockchain
                     </button>
-                    <span *ngIf="!advertisement()!.transaction_id" class="no-transaction">
-                      Aguardando transação
-                    </span>
+                    <span *ngIf="!advertisement()!.transaction_id" class="no-transaction">Aguardando transação</span>
                   </span>
                 </div>
               </div>
-
               <div class="ad-progress" *ngIf="advertisement()!.status === 'ready'">
                 <div class="progress-bar">
                   <div class="progress-fill" [style.width.%]="getProgressPercentage(advertisement()!)"></div>
                 </div>
-                <div class="progress-text">
-                  {{ getProgressPercentage(advertisement()!) }}% vendido
-                </div>
+                <div class="progress-text">{{ getProgressPercentage(advertisement()!) }}% vendido</div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Buys Section -->
         <div class="buys-section" *ngIf="!isLoading() && !error() && advertisement()">
           <div class="section-header">
             <h2 class="section-title">Vendas Realizadas</h2>
-            <div class="buys-count">
-              {{ buys().length }} vendas
-            </div>
+            <div class="buys-count">{{ buys().length }} vendas</div>
           </div>
-
-          <!-- Buys List -->
           <div class="buys-list" *ngIf="buys().length > 0">
             <div class="buy-card" *ngFor="let buy of buys()">
               <div class="buy-header">
-                <div class="buy-id">
-                  ID: {{ buy.id.substring(0, 8) }}...
-                </div>
-                <div class="buy-status-badge" [ngClass]="getBuyStatusClass(buy.status)">
-                  {{ getBuyStatusLabel(buy.status) }}
-                </div>
+                <div class="buy-id">ID: {{ buy.id.substring(0, 8) }}...</div>
+                <div class="buy-status-badge" [ngClass]="getBuyStatusClass(buy.status)">{{ getBuyStatusLabel(buy.status) }}</div>
               </div>
-
               <div class="buy-content">
                 <div class="buy-amounts">
                   <div class="amount-item">
@@ -194,8 +149,7 @@ import { environment } from '../../../environments/environment';
                     <span class="amount-value">{{ formatCentsToReais(buy.pay_value) }}</span>
                   </div>
                 </div>
-
-                <div class="buy-details">
+                <div class="buy-details-grid">
                   <div class="detail-item">
                     <span class="detail-label">Preço:</span>
                     <span class="detail-value">{{ formatCentsToReais(buy.price) }}/BTC</span>
@@ -220,9 +174,7 @@ import { environment } from '../../../environments/environment';
               </div>
             </div>
           </div>
-
-          <!-- Empty Buys State -->
-          <div class="empty-buys-state" *ngIf="buys().length === 0">
+          <div class="empty-state" *ngIf="buys().length === 0">
             <div class="empty-icon">
               <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
                 <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
@@ -231,548 +183,443 @@ import { environment } from '../../../environments/environment';
                 <path d="M15 9H15.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
-            <h3 class="empty-title">Nenhuma venda realizada</h3>
-            <p class="empty-description">
-              Este anúncio ainda não possui vendas realizadas.
-            </p>
+            <h3>Nenhuma venda realizada</h3>
+            <p>Este anúncio ainda não possui vendas realizadas.</p>
           </div>
         </div>
       </div>
     </div>
   `,
   styles: [`
-    .ad-details {
+    .ad-details-modern {
       min-height: 100vh;
-      background: var(--background-primary);
-      padding: var(--spacing-8) 0;
+      background: #F8FAFC;
+      padding: 0;
       font-family: var(--font-family-primary);
     }
-
-    .ad-details .container {
-      max-width: var(--container-max-width);
+    .container {
+      max-width: 1200px;
       margin: 0 auto;
-      padding: 0 var(--spacing-6);
+      padding: 0 16px;
     }
-
-    /* Header */
-    .ad-details .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: var(--spacing-12);
-      padding: var(--spacing-6);
-      background: var(--background-card);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius-lg);
-      backdrop-filter: blur(10px);
-    }
-
-    .ad-details .header-left {
+    .page-header {
       display: flex;
       align-items: center;
-      gap: var(--spacing-6);
+      gap: 16px;
+      padding: 24px 0;
+      margin-bottom: 32px;
     }
-
-    .ad-details .back-button {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 48px;
-      height: 48px;
-      background: var(--background-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius-md);
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: var(--transition-all);
-      box-shadow: var(--shadow-sm);
+    .header-content {
+      flex: 1;
     }
-
-    .ad-details .back-button:hover {
-      background: var(--gradient-primary);
-      border-color: var(--color-primary);
-      color: var(--color-white);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-primary);
+    .page-title {
+      font-size: 30px;
+      font-weight: 700;
+      color: #1F2937;
+      margin: 0 0 8px 0;
     }
-
-    .ad-details .page-title {
-      font-size: var(--font-size-2xl);
-      font-weight: var(--font-weight-bold);
-      color: var(--text-primary);
-      margin: 0 0 var(--spacing-2) 0;
-      background: var(--gradient-primary);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .ad-details .page-subtitle {
-      color: var(--text-muted);
+    .page-subtitle {
+      font-size: 16px;
+      color: #6B7280;
       margin: 0;
-      font-size: var(--font-size-base);
-      font-weight: var(--font-weight-normal);
     }
-
-    .ad-details .header-right {
-      display: flex;
-      gap: var(--spacing-4);
-      align-items: center;
-    }
-
-    .ad-details .refresh-button {
-      display: flex;
+    .btn {
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 48px;
-      height: 48px;
-      background: var(--background-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius-md);
-      color: var(--text-muted);
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
       cursor: pointer;
-      transition: var(--transition-all);
-      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
     }
-
-    .ad-details .refresh-button:hover:not(:disabled) {
-      background: var(--gradient-primary);
-      border-color: var(--color-primary);
-      color: var(--color-white);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-primary);
-    }
-
-    .ad-details .refresh-button:disabled {
+    .btn:disabled {
       opacity: 0.5;
       cursor: not-allowed;
     }
-
-    .ad-details .spinning {
-      animation: spin 1s linear infinite;
+    .btn-primary {
+      background: #1E40AF;
+      color: white;
+      border-color: #1E40AF;
     }
-
-    @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
+    .btn-primary:hover:not(:disabled) {
+      background: #1D4ED8;
     }
-
-    /* Loading State */
-    .ad-details .loading-state {
-      text-align: center;
-      padding: var(--spacing-16) var(--spacing-6);
+    .btn-danger {
+      background: #ef4444;
+      color: white;
+      border-color: #ef4444;
     }
-
-    .ad-details .loading-spinner {
-      margin: 0 auto var(--spacing-6);
-      color: var(--color-primary);
+    .btn-danger:hover:not(:disabled) {
+      background: #dc2626;
     }
-
-    .ad-details .loading-text {
-      color: var(--text-muted);
-      margin: 0;
-      font-size: var(--font-size-base);
+    .btn-outline {
+      background: transparent;
+      color: #374151;
+      border-color: #D1D5DB;
     }
-
-    /* Error State */
-    .ad-details .error-state {
-      text-align: center;
-      padding: var(--spacing-16) var(--spacing-6);
+    .btn-outline:hover:not(:disabled) {
+      background: #F9FAFB;
     }
-
-    .ad-details .error-icon {
-      margin: 0 auto var(--spacing-6);
-      color: var(--color-danger);
-    }
-
-    .ad-details .error-title {
-      font-size: var(--font-size-xl);
-      font-weight: var(--font-weight-semibold);
-      color: var(--text-primary);
-      margin: 0 0 var(--spacing-3) 0;
-    }
-
-    .ad-details .error-description {
-      color: var(--text-muted);
-      margin: 0 0 var(--spacing-6) 0;
-      font-size: var(--font-size-base);
-    }
-
-    .ad-details .retry-button {
-      padding: var(--spacing-3) var(--spacing-7);
-      background: var(--gradient-primary);
-      color: var(--color-white);
+    .btn-ghost {
+      background: transparent;
+      color: #6B7280;
       border: none;
-      border-radius: var(--border-radius-md);
-      font-weight: var(--font-weight-semibold);
-      cursor: pointer;
-      transition: var(--transition-all);
-      box-shadow: var(--shadow-primary);
     }
-
-    .ad-details .retry-button:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-primary-lg);
+    .btn-ghost:hover:not(:disabled) {
+      background: #F3F4F6;
+      color: #374151;
     }
-
-    /* Advertisement Section */
+    .btn-sm {
+      padding: 8px 16px;
+      font-size: 12px;
+    }
     .ad-section {
-      margin-bottom: var(--spacing-2xl);
+      margin-bottom: 32px;
     }
-
     .ad-card {
-      background: var(--surface-color);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius-lg);
-      overflow: hidden;
+      background: #FFFFFF;
+      border: 2px solid #E5E7EB;
+      border-radius: 16px;
+      padding: 24px;
       transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
     }
-
+    .ad-card:hover {
+      border-color: #1E40AF;
+      box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1);
+      transform: translateY(-2px);
+    }
     .ad-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: var(--spacing-lg);
-      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 24px;
+      position: relative;
     }
-
     .ad-status-badge {
-      padding: var(--spacing-xs) var(--spacing-sm);
-      border-radius: var(--border-radius);
-      font-size: var(--font-size-sm);
-      font-weight: 500;
+      padding: 6px 16px;
+      border-radius: 9999px;
+      font-size: 14px;
+      font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      background: #F9FAFB;
+      color: #059669;
+      border: 1px solid #A7F3D0;
     }
-
-    .ad-actions {
-      display: flex;
-      gap: var(--spacing-sm);
-    }
-
-    .finish-ad-button {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-sm);
-      padding: var(--spacing-sm) var(--spacing-lg);
-      background: #ef4444;
-      color: white;
-      border: none;
-      border-radius: var(--border-radius);
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      font-size: var(--font-size-sm);
-    }
-
-    .finish-ad-button:hover:not(:disabled) {
-      background: #dc2626;
-      transform: translateY(-2px);
-    }
-
-    .finish-ad-button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-    }
-
     .ad-status-badge.ready {
       background: #22c55e20;
       color: #22c55e;
     }
-
     .ad-status-badge.pending {
       background: #f59e0b20;
       color: #f59e0b;
     }
-
     .ad-status-badge.disabled {
       background: #64748b20;
       color: #64748b;
     }
-
     .ad-status-badge.closed {
       background: #ef444420;
       color: #ef4444;
     }
-
-    .ad-content {
-      padding: var(--spacing-lg);
+    .ad-actions {
+      display: flex;
+      gap: 8px;
     }
-
+    .ad-content {
+      padding: 0 0 16px 0;
+    }
     .ad-main-info {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: var(--spacing-lg);
-      margin-bottom: var(--spacing-lg);
-      padding-bottom: var(--spacing-lg);
-      border-bottom: 1px solid var(--border-color);
+      gap: 24px;
+      margin-bottom: 24px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid #E5E7EB;
     }
-
     .ad-price, .ad-amount {
       display: flex;
       flex-direction: column;
-      gap: var(--spacing-xs);
+      gap: 6px;
     }
-
     .price-label, .amount-label {
-      color: var(--text-secondary);
-      font-size: var(--font-size-sm);
+      color: #6B7280;
+      font-size: 14px;
     }
-
     .price-value {
-      font-size: var(--font-size-xl);
+      font-size: 22px;
       font-weight: 700;
-      color: var(--success-color);
+      color: #F59E0B;
     }
-
     .amount-value {
-      font-size: var(--font-size-xl);
+      font-size: 22px;
       font-weight: 700;
-      color: var(--primary-color);
+      color: #1E40AF;
     }
-
-    .ad-details {
+    .ad-details-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: var(--spacing-md);
-      margin-bottom: var(--spacing-lg);
+      gap: 16px;
+      margin-bottom: 24px;
     }
-
     .detail-item {
       display: flex;
       flex-direction: column;
-      gap: var(--spacing-xs);
+      gap: 4px;
     }
-
     .detail-label {
-      color: var(--text-secondary);
-      font-size: var(--font-size-sm);
+      color: #6B7280;
+      font-size: 13px;
     }
-
     .detail-value {
-      color: var(--text-primary);
+      color: #1F2937;
       font-weight: 500;
     }
-
     .blockchain-link {
       display: inline-flex;
       align-items: center;
-      gap: var(--spacing-xs);
-      background: var(--primary-color);
+      gap: 4px;
+      background: #1E40AF;
       color: white;
       border: none;
-      border-radius: var(--border-radius);
-      padding: var(--spacing-xs) var(--spacing-sm);
-      font-size: var(--font-size-sm);
+      border-radius: 8px;
+      padding: 4px 12px;
+      font-size: 13px;
       cursor: pointer;
       transition: all 0.2s ease;
     }
-
     .blockchain-link:hover {
-      background: var(--primary-hover);
+      background: #1D4ED8;
     }
-
     .no-transaction {
-      color: var(--text-muted);
+      color: #9CA3AF;
       font-style: italic;
     }
-
     .ad-progress {
-      margin-top: var(--spacing-lg);
+      margin-top: 16px;
     }
-
     .progress-bar {
       width: 100%;
       height: 8px;
-      background: var(--border-color);
+      background: #E5E7EB;
       border-radius: 4px;
       overflow: hidden;
-      margin-bottom: var(--spacing-xs);
+      margin-bottom: 6px;
     }
-
     .progress-fill {
       height: 100%;
-      background: var(--primary-color);
+      background: #1E40AF;
       transition: width 0.3s ease;
     }
-
     .progress-text {
       text-align: center;
-      color: var(--text-secondary);
-      font-size: var(--font-size-sm);
+      color: #6B7280;
+      font-size: 13px;
     }
-
-    /* Buys Section */
     .buys-section {
-      margin-bottom: var(--spacing-2xl);
+      margin-bottom: 32px;
     }
-
     .section-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: var(--spacing-lg);
+      margin-bottom: 24px;
     }
-
     .section-title {
-      font-size: var(--font-size-2xl);
+      font-size: 20px;
       font-weight: 600;
-      color: var(--text-primary);
+      color: #1F2937;
       margin: 0;
     }
-
     .buys-count {
-      color: var(--text-secondary);
-      font-size: var(--font-size-sm);
-      padding: var(--spacing-xs) var(--spacing-sm);
-      background: var(--border-color);
-      border-radius: var(--border-radius);
+      color: #6B7280;
+      font-size: 14px;
+      padding: 6px 16px;
+      background: #F9FAFB;
+      border-radius: 9999px;
     }
-
     .buys-list {
       display: flex;
       flex-direction: column;
-      gap: var(--spacing-md);
+      gap: 16px;
     }
-
     .buy-card {
-      background: var(--surface-color);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius-lg);
+      background: #FFFFFF;
+      border: 2px solid #E5E7EB;
+      border-radius: 16px;
       overflow: hidden;
       transition: all 0.2s ease;
+      position: relative;
+      padding: 16px;
     }
-
     .buy-card:hover {
-      border-color: var(--primary-color);
+      border-color: #1E40AF;
+      box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1);
+      transform: translateY(-2px);
     }
-
     .buy-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: var(--spacing-md) var(--spacing-lg);
-      background: var(--background-color);
-      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 12px;
+      position: relative;
     }
-
     .buy-id {
       font-family: monospace;
-      color: var(--text-secondary);
-      font-size: var(--font-size-sm);
+      color: #6B7280;
+      font-size: 13px;
     }
-
     .buy-status-badge {
-      padding: var(--spacing-xs) var(--spacing-sm);
-      border-radius: var(--border-radius);
-      font-size: var(--font-size-xs);
-      font-weight: 500;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      background: #F9FAFB;
+      color: #059669;
+      border: 1px solid #A7F3D0;
     }
-
     .buy-status-badge.pending {
       background: #f59e0b20;
       color: #f59e0b;
     }
-
     .buy-status-badge.paid {
       background: #3b82f620;
       color: #3b82f6;
     }
-
     .buy-status-badge.completed {
       background: #22c55e20;
       color: #22c55e;
     }
-
     .buy-status-badge.cancelled,
     .buy-status-badge.expired {
       background: #ef444420;
       color: #ef4444;
     }
-
     .buy-content {
-      padding: var(--spacing-lg);
+      padding: 0 0 8px 0;
     }
-
     .buy-amounts {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: var(--spacing-lg);
-      margin-bottom: var(--spacing-lg);
-      padding-bottom: var(--spacing-lg);
-      border-bottom: 1px solid var(--border-color);
+      gap: 16px;
+      margin-bottom: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #E5E7EB;
     }
-
     .amount-item {
       display: flex;
       flex-direction: column;
-      gap: var(--spacing-xs);
+      gap: 4px;
     }
-
-    .buy-details {
+    .buy-details-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: var(--spacing-md);
+      gap: 12px;
     }
-
-    /* Empty States */
-    .empty-buys-state {
+    .empty-state {
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: var(--spacing-4xl) var(--spacing-xl);
+      gap: 16px;
+      padding: 48px;
       text-align: center;
-      background: var(--surface-color);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius-lg);
+      background: #FFFFFF;
+      border-radius: 16px;
+      border: 2px dashed #E5E7EB;
     }
-
     .empty-icon {
-      margin-bottom: var(--spacing-lg);
-      color: var(--text-muted);
+      color: #9CA3AF;
+      margin-bottom: 16px;
     }
-
-    .empty-title {
-      font-size: var(--font-size-xl);
-      font-weight: 600;
-      color: var(--text-primary);
-      margin: 0 0 var(--spacing-md) 0;
-    }
-
-    .empty-description {
-      color: var(--text-secondary);
+    .empty-state h3 {
+      font-size: 18px;
+      color: #1F2937;
       margin: 0;
     }
-
-    /* Responsive */
+    .empty-state p {
+      color: #6B7280;
+      margin: 0;
+    }
+    .loading-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      padding: 48px;
+      text-align: center;
+    }
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #E5E7EB;
+      border-top: 3px solid #1E40AF;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    .loading-spinner-sm {
+      width: 16px;
+      height: 16px;
+      border: 2px solid transparent;
+      border-top: 2px solid currentColor;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
     @media (max-width: 768px) {
-      .ad-main-info,
-      .buy-amounts {
-        grid-template-columns: 1fr;
+      .container {
+        padding: 0 12px;
       }
-
-      .ad-details,
-      .buy-details {
-        grid-template-columns: 1fr;
-      }
-
       .page-header {
         flex-direction: column;
         align-items: flex-start;
-        gap: var(--spacing-md);
+        gap: 16px;
       }
-
-      .header-left {
-        width: 100%;
+      .ad-main-info, .buy-amounts {
+        grid-template-columns: 1fr;
       }
-
-      .header-right {
-        width: 100%;
-        justify-content: flex-end;
+      .ad-details-grid, .buy-details-grid {
+        grid-template-columns: 1fr;
+      }
+      .ad-card, .buy-card {
+        padding: 16px;
+      }
+      .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .modal-actions {
+        flex-direction: column;
+      }
+    }
+    @media (max-width: 480px) {
+      .ad-main-info, .buy-amounts {
+        grid-template-columns: 1fr;
+      }
+      .ad-details-grid, .buy-details-grid {
+        grid-template-columns: 1fr;
+      }
+      .buys-list {
+        gap: 8px;
+      }
+      .ad-card, .buy-card {
+        padding: 8px;
+      }
+      .empty-state {
+        padding: 24px;
       }
     }
   `]
