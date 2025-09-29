@@ -132,15 +132,16 @@ import { environment } from '../../../environments/environment';
         <div class="ads-list-section">
           <h2 class="section-title">Meus Anúncios</h2>
           <div class="ads-grid">
-            <div class="ad-card" *ngFor="let ad of filteredAds(); trackBy: trackByAdId">
+            <div class="ad-card" *ngFor="let ad of filteredAds(); trackBy: trackByAdId" (click)="viewAdDetails(ad)">
               <div class="ad-header">
-                <div class="ad-type" [ngClass]="ad.is_active ? 'active' : 'inactive'">
+                <div class="ad-date">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2"/>
+                    <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2"/>
+                    <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/>
                   </svg>
-                  Venda
+                  {{ formatDate(ad.created_at) }}
                 </div>
                 <div class="ad-status" [ngClass]="getStatusClass(ad.status)">
                   <span class="status-dot"></span>
@@ -160,15 +161,6 @@ import { environment } from '../../../environments/environment';
                   <span class="limits-label">Limites:</span>
                   <span class="limits-value">{{ formatCentsToReais(ad.min_amount) }} - {{ formatCentsToReais(ad.max_amount) }}</span>
                 </div>
-              </div>
-              <div class="ad-actions">
-                <button class="btn btn-outline btn-sm" (click)="viewAdDetails(ad)">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                    <path d="M1 12S5 4 12 4S23 12 23 12S19 20 12 20S1 12 1 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
-                  </svg>
-                  Ver
-                </button>
               </div>
             </div>
           </div>
@@ -456,11 +448,13 @@ import { environment } from '../../../environments/environment';
       padding: 24px;
       transition: all 0.2s ease;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
     }
 
     .my-ads-page .ad-card:hover {
       border-color: #3B82F6;
       box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+      background-color: #F8FAFC;
     }
 
     .my-ads-page .ad-header {
@@ -470,25 +464,13 @@ import { environment } from '../../../environments/environment';
       margin-bottom: 16px;
     }
 
-    .my-ads-page .ad-type {
+    .my-ads-page .ad-date {
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-    }
-
-    .my-ads-page .ad-type.active {
-      background: #DCFCE7;
-      color: #166534;
-    }
-
-    .my-ads-page .ad-type.inactive {
-      background: #FEE2E2;
-      color: #991B1B;
+      font-size: 14px;
+      color: #6B7280;
+      font-weight: 500;
     }
 
     .my-ads-page .ad-status {
