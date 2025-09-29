@@ -19,19 +19,28 @@ import { environment } from '../../../environments/environment';
       <div class="container">
         <!-- Page Header -->
         <div class="page-header">
+          <button class="btn btn-ghost" (click)="goBack()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M19 12H5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Voltar
+          </button>
           <div class="header-content">
             <h1 class="page-title">Meus Anúncios</h1>
             <p class="page-subtitle">Gerencie todos os seus anúncios de Bitcoin</p>
           </div>
           <div class="header-actions">
-            <button class="refresh-button" (click)="loadUserAds()" [disabled]="isLoading()">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" [class.spinning]="isLoading()">
-                <path d="M1 4V10H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M23 20V14H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10M23 14L18.36 18.36A9 9 0 0 1 3.51 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <button class="btn btn-outline btn-sm" (click)="loadUserAds()" [disabled]="isLoading()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M3 12C3 7.02944 7.02944 3 12 3C14.5755 3 16.9 4.15205 18.5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M21 12C21 16.9706 16.9706 21 12 21C9.42446 21 7.09995 19.848 5.5 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M13 2L18 6L14 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M11 22L6 18L10 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
+              Atualizar
             </button>
-            <button class="create-ad-button" (click)="createNewAd()">
+            <button class="btn btn-success" (click)="createNewAd()">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                 <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
                 <path d="M12 8V16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -46,7 +55,7 @@ import { environment } from '../../../environments/environment';
         <div class="stats-section">
           <div class="stats-grid">
             <div class="stat-card">
-              <div class="stat-icon active">
+              <div class="stat-icon">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                   <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
                   <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -59,7 +68,7 @@ import { environment } from '../../../environments/environment';
             </div>
 
             <div class="stat-card">
-              <div class="stat-icon total">
+              <div class="stat-icon">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                   <path d="M9 11H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   <path d="M9 15H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -74,7 +83,7 @@ import { environment } from '../../../environments/environment';
             </div>
 
             <div class="stat-card">
-              <div class="stat-icon earnings">
+              <div class="stat-icon">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                   <path d="M12 2V22" stroke="currentColor" stroke-width="2"/>
                   <path d="M17 5H9.5C8.11929 5 7 6.11929 7 7.5V7.5C7 8.88071 8.11929 10 9.5 10H14.5C15.8807 10 17 11.1193 17 12.5V12.5C17 13.8807 15.8807 15 14.5 15H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -94,32 +103,20 @@ import { environment } from '../../../environments/environment';
           <div class="pix-account-card">
             <div class="pix-account-content">
               <div class="pix-account-info">
-                <div class="pix-account-badge" [ngClass]="{ 
-                  'active': bankStatus() === 'success', 
-                  'processing': bankStatus() === 'processing',
-                  'failed': bankStatus() === 'failed',
-                  'inactive': bankStatus() === 'pending' 
-                }">
-                  <div class="pix-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                      <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
-                      <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                  </div>
-                  <div class="pix-info">
-                    <div class="pix-title">Status da Conta PIX</div>
-                    <div class="pix-status">{{ getPixStatusMessage() }}</div>
-                    <div class="pix-description">
-                      {{ getPixDescriptionMessage() }}
-                    </div>
-                  </div>
+                <div class="pix-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
+                    <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div class="pix-info">
+                  <div class="pix-title">Status da Conta PIX</div>
+                  <div class="pix-status">{{ getPixStatusMessage() }}</div>
+                  <div class="pix-description">{{ getPixDescriptionMessage() }}</div>
                 </div>
               </div>
               <div class="pix-account-actions">
-                <button class="pix-action-button" (click)="goToPixAccount()" [ngClass]="{ 
-                  'primary': bankStatus() === 'pending' || bankStatus() === 'failed', 
-                  'secondary': bankStatus() === 'success' || bankStatus() === 'processing' 
-                }">
+                <button class="btn btn-primary" (click)="goToPixAccount()">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                     <path d="M11 4H4C2.89543 4 2 4.89543 2 6V18C2 19.1046 2.89543 20 4 20H16C17.1046 20 18 19.1046 18 18V11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M18.5 2.5C19.3284 1.67157 20.6716 1.67157 21.5 2.5C22.3284 3.32843 22.3284 4.67157 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -131,165 +128,69 @@ import { environment } from '../../../environments/environment';
           </div>
         </div>
 
-        <!-- Ads List -->
-        <div class="ads-section">
-          <div class="section-header">
-            <h2 class="section-title">Seus Anúncios</h2>
-            <div class="filter-buttons">
-              <button 
-                class="filter-button" 
-                [class.active]="selectedFilter() === 'all'"
-                (click)="setFilter('all')"
-              >
-                Todos
-              </button>
-              <button 
-                class="filter-button" 
-                [class.active]="selectedFilter() === 'active'"
-                (click)="setFilter('active')"
-              >
-                Ativos
-              </button>
-              <button 
-                class="filter-button" 
-                [class.active]="selectedFilter() === 'inactive'"
-                (click)="setFilter('inactive')"
-              >
-                Inativos
-              </button>
-            </div>
-          </div>
-
-          <!-- Loading State -->
-          <div class="loading-state" *ngIf="isLoading()">
-            <div class="loading-spinner">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-dasharray="31.416" stroke-dashoffset="31.416">
-                  <animate attributeName="stroke-dasharray" dur="2s" values="0 31.416;15.708 15.708;0 31.416" repeatCount="indefinite"/>
-                  <animate attributeName="stroke-dashoffset" dur="2s" values="0;-15.708;-31.416" repeatCount="indefinite"/>
-                </circle>
-              </svg>
-            </div>
-            <p class="loading-text">Carregando anúncios...</p>
-          </div>
-
-          <!-- Error State -->
-          <div class="error-state" *ngIf="error() && !isLoading()">
-            <div class="error-icon">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-                <path d="M15 9L9 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M9 9L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-            <h3 class="error-title">Erro ao carregar anúncios</h3>
-            <p class="error-description">{{ error() }}</p>
-            <button class="retry-button" (click)="loadUserAds()">
-              Tentar Novamente
-            </button>
-          </div>
-
-          <!-- Ads List -->
-          <div class="ads-list" *ngIf="!isLoading() && !error() && filteredAds().length > 0">
-            <div class="ad-card" *ngFor="let ad of filteredAds()">>
+        <!-- Ads List Section -->
+        <div class="ads-list-section">
+          <h2 class="section-title">Meus Anúncios</h2>
+          <div class="ads-grid">
+            <div class="ad-card" *ngFor="let ad of filteredAds(); trackBy: trackByAdId">
               <div class="ad-header">
-                <div class="ad-status-badge" [ngClass]="getStatusClass(ad.status)">
+                <div class="ad-type" [ngClass]="ad.is_active ? 'active' : 'inactive'">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Venda
+                </div>
+                <div class="ad-status" [ngClass]="getStatusClass(ad.status)">
+                  <span class="status-dot"></span>
                   {{ getStatusLabel(ad.status) }}
                 </div>
-                <div class="ad-actions">
-                  <button class="action-button" (click)="viewAdDetails(ad)" title="Ver detalhes">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                      <path d="M1 12S5 4 12 4S23 12 23 12S19 20 12 20S1 12 1 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
-                    </svg>
-                  </button>
+              </div>
+              <div class="ad-content">
+                <div class="ad-amount">
+                  <span class="amount-label">Quantidade:</span>
+                  <span class="amount-value">{{ formatBTC(ad.total_amount) }} BTC</span>
+                </div>
+                <div class="ad-price">
+                  <span class="price-label">Preço:</span>
+                  <span class="price-value">{{ formatPriceCurrency(ad.price) }}</span>
+                </div>
+                <div class="ad-limits">
+                  <span class="limits-label">Limites:</span>
+                  <span class="limits-value">{{ formatCentsToReais(ad.min_amount) }} - {{ formatCentsToReais(ad.max_amount) }}</span>
                 </div>
               </div>
-
-              <div class="ad-content">
-                <div class="ad-main-info">
-                  <div class="ad-price">
-                    <span class="price-label">Preço por Bitcoin:</span>
-                    <span class="price-value">{{ formatPriceCurrency(ad.price) }}</span>
-                  </div>
-                  <div class="ad-amount">
-                    <span class="amount-label">Quantidade:</span>
-                    <span class="amount-value">{{ formatBTC(ad.total_amount) }} BTC</span>
-                  </div>
-                </div>
-
-                <div class="ad-details">
-                  <div class="detail-item">
-                    <span class="detail-label">Restante:</span>
-                    <span class="detail-value">{{ formatBTC(ad.available_amount) }} BTC</span>
-                  </div>
-                  <div class="detail-item">
-                    <span class="detail-label">Valor Mínimo:</span>
-                    <span class="detail-value">{{ formatCentsToReais(ad.min_amount) }}</span>
-                  </div>
-                  <div class="detail-item">
-                    <span class="detail-label">Valor Máximo:</span>
-                    <span class="detail-value">{{ formatCentsToReais(ad.max_amount) }}</span>
-                  </div>
-                  <div class="detail-item">
-                    <span class="detail-label">Criado:</span>
-                    <span class="detail-value">{{ formatDate(ad.created_at) }}</span>
-                  </div>
-                  <div class="detail-item">
-                    <span class="detail-label">Blockchain:</span>
-                    <span class="detail-value">
-                      <button 
-                        *ngIf="ad.transaction_id"
-                        class="blockchain-link" 
-                        (click)="openBlockchainExplorer(ad.transaction_id)"
-                        title="Ver transação na blockchain"
-                      >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                          <path d="M18 13V19C18 20.1046 17.1046 21 16 21H5C3.89543 21 3 20.1046 3 19V8C3 6.89543 3.89543 6 5 6H11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                          <path d="M15 3H21V9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                          <path d="M10 14L21 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        Ver na Blockchain
-                      </button>
-                      <span *ngIf="!ad.transaction_id" class="no-transaction">
-                        Aguardando transação
-                      </span>
-                    </span>
-                  </div>
-                </div>
-
-                <div class="ad-progress" *ngIf="ad.status === 'ready'">
-                  <div class="progress-bar">
-                    <div class="progress-fill" [style.width.%]="getProgressPercentage(ad)"></div>
-                  </div>
-                  <div class="progress-text">
-                    {{ getProgressPercentage(ad) }}% vendido
-                  </div>
-                </div>
+              <div class="ad-actions">
+                <button class="btn btn-outline btn-sm" (click)="viewAdDetails(ad)">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M1 12S5 4 12 4S23 12 23 12S19 20 12 20S1 12 1 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                  Ver
+                </button>
               </div>
             </div>
           </div>
-
-          <!-- Empty State -->
-          <div class="empty-state" *ngIf="!isLoading() && !error() && filteredAds().length === 0">
-            <div class="empty-icon">
-              <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
-                <path d="M9 11H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M9 15H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M17 3V5H7V3" stroke="currentColor" stroke-width="2"/>
-                <path d="M19 5V19C19 20.1046 18.1046 21 17 21H7C5.89543 21 5 20.1046 5 19V5H19Z" stroke="currentColor" stroke-width="2"/>
+          <div class="no-ads" *ngIf="filteredAds().length === 0">
+            <div class="no-ads-content">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+                <path d="M14 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M16 13H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M16 17H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M10 9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
+              <h3>Você ainda não tem anúncios</h3>
+              <p>Crie seu primeiro anúncio para começar a vender criptomoedas.</p>
+              <button class="btn btn-primary" (click)="createNewAd()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 5V19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Criar Anúncio
+              </button>
             </div>
-            <h3 class="empty-title">Nenhum anúncio encontrado</h3>
-            <p class="empty-description">
-              {{ selectedFilter() === 'all' 
-                ? 'Você ainda não criou nenhum anúncio. Comece criando seu primeiro anúncio de venda!' 
-                : 'Não há anúncios nesta categoria.' 
-              }}
-            </p>
-            <button class="empty-action-button" (click)="createNewAd()" *ngIf="selectedFilter() === 'all'">
-              Criar Primeiro Anúncio
-            </button>
           </div>
         </div>
       </div>
@@ -323,28 +224,9 @@ import { environment } from '../../../environments/environment';
     .my-ads-page .page-header {
       display: flex;
       align-items: center;
-      gap: 24px;
-      padding: 32px 0;
-      margin-bottom: 40px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-radius: 24px;
-      margin: 0 -16px 40px -16px;
-      padding: 32px 32px;
-      color: white;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .my-ads-page .page-header::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%);
-      backdrop-filter: blur(20px);
-      z-index: -1;
+      gap: 16px;
+      padding: 24px 0;
+      margin-bottom: 32px;
     }
 
     .my-ads-page .header-content {
@@ -352,82 +234,39 @@ import { environment } from '../../../environments/environment';
     }
 
     .my-ads-page .page-title {
-      font-size: 32px;
-      font-weight: 800;
-      color: #FFFFFF;
+      font-size: 30px;
+      font-weight: 700;
+      color: #1F2937;
       margin: 0 0 8px 0;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .my-ads-page .page-subtitle {
       font-size: 16px;
-      color: rgba(255, 255, 255, 0.9);
+      color: #6B7280;
       margin: 0;
-      font-weight: 400;
+    }
+
+    .my-ads-page .header-content {
+      flex: 1;
+    }
+
+    .my-ads-page .page-title {
+      font-size: 30px;
+      font-weight: 700;
+      color: #1F2937;
+      margin: 0 0 8px 0;
+    }
+
+    .my-ads-page .page-subtitle {
+      font-size: 16px;
+      color: #6B7280;
+      margin: 0;
     }
 
     .my-ads-page .header-actions {
       display: flex;
       gap: 16px;
       align-items: center;
-    }
-
-    .my-ads-page .refresh-button {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 48px;
-      height: 48px;
-      background: rgba(255, 255, 255, 0.2);
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      border-radius: 16px;
-      color: #FFFFFF;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      backdrop-filter: blur(20px);
-    }
-
-    .my-ads-page .refresh-button:hover:not(:disabled) {
-      background: rgba(255, 255, 255, 0.3);
-      border-color: rgba(255, 255, 255, 0.5);
-      transform: translateY(-2px) scale(1.05);
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    }
-
-    .my-ads-page .refresh-button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .my-ads-page .refresh-button svg {
-      transition: transform 0.3s ease;
-    }
-
-    .my-ads-page .refresh-button:hover:not(:disabled) svg {
-      transform: rotate(180deg);
-    }
-
-    .my-ads-page .create-ad-button {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 24px;
-      background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-      color: #FFFFFF;
-      border: none;
-      border-radius: 16px;
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
-    }
-
-    .my-ads-page .create-ad-button:hover {
-      transform: translateY(-2px) scale(1.05);
-      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.6);
-      background: linear-gradient(135deg, #059669 0%, #047857 100%);
     }
 
     /* Stats Section */
@@ -538,34 +377,16 @@ import { environment } from '../../../environments/environment';
 
     .my-ads-page .pix-account-card {
       background: #FFFFFF;
-      border-radius: 20px;
+      border-radius: 12px;
       border: 1px solid #E5E7EB;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-      overflow: hidden;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-    }
-
-    .my-ads-page .pix-account-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, #F59E0B, #EF4444, #EC4899);
-    }
-
-    .my-ads-page .pix-account-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      padding: 24px;
     }
 
     .my-ads-page .pix-account-content {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 28px;
       gap: 24px;
     }
 
@@ -573,323 +394,208 @@ import { environment } from '../../../environments/environment';
       flex: 1;
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 16px;
     }
 
     .my-ads-page .pix-icon {
-      width: 56px;
-      height: 56px;
-      border-radius: 18px;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
+      background: #F3F4F6;
+      color: #6B7280;
       flex-shrink: 0;
-      position: relative;
-    }
-
-    .my-ads-page .pix-icon::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: 18px;
-      padding: 2px;
-      background: linear-gradient(135deg, currentColor, transparent);
-      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-      mask-composite: exclude;
-    }
-
-    .my-ads-page .pix-icon.success {
-      background: linear-gradient(135deg, #DCFCE7, #A7F3D0);
-      color: #059669;
-    }
-
-    .my-ads-page .pix-icon.processing {
-      background: linear-gradient(135deg, #DBEAFE, #93C5FD);
-      color: #2563EB;
-    }
-
-    .my-ads-page .pix-icon.error {
-      background: linear-gradient(135deg, #FEE2E2, #FECACA);
-      color: #DC2626;
-    }
-
-    .my-ads-page .pix-icon.warning {
-      background: linear-gradient(135deg, #FEF3C7, #FDE68A);
-      color: #D97706;
     }
 
     .my-ads-page .pix-info {
-      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
 
     .my-ads-page .pix-title {
-      font-size: 18px;
-      font-weight: 700;
+      font-size: 16px;
+      font-weight: 600;
       color: #1F2937;
-      margin-bottom: 6px;
+      margin: 0;
     }
 
     .my-ads-page .pix-status {
       font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 4px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .my-ads-page .pix-account-badge.success .pix-status {
-      color: #059669;
-    }
-
-    .my-ads-page .pix-account-badge.processing .pix-status {
-      color: #2563EB;
-    }
-
-    .my-ads-page .pix-account-badge.failed .pix-status {
-      color: #DC2626;
-    }
-
-    .my-ads-page .pix-account-badge.inactive .pix-status {
-      color: #D97706;
+      color: #374151;
+      margin: 0;
+      font-weight: 500;
     }
 
     .my-ads-page .pix-description {
-      font-size: 14px;
+      font-size: 13px;
       color: #6B7280;
       margin: 0;
-      line-height: 1.5;
     }
 
-    .my-ads-page .pix-action-button {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 20px;
-      border: none;
-      border-radius: 14px;
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      white-space: nowrap;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+    .my-ads-page .pix-account-actions {
+      flex-shrink: 0;
     }
 
-    .my-ads-page .pix-action-button.primary {
-      background: linear-gradient(135deg, #3B82F6, #1D4ED8);
-      color: #FFFFFF;
-      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+    /* Ads List Section */
+    .my-ads-page .ads-list-section {
+      margin-top: 32px;
     }
 
-    .my-ads-page .pix-action-button.primary:hover {
-      transform: translateY(-2px) scale(1.02);
-      box-shadow: 0 8px 25px rgba(59, 130, 246, 0.6);
-      background: linear-gradient(135deg, #1D4ED8, #1E40AF);
-    }
-
-    .my-ads-page .pix-action-button.secondary {
-      background: rgba(107, 114, 128, 0.1);
-      color: #374151;
-      border: 2px solid #E5E7EB;
-    }
-
-    .my-ads-page .pix-action-button.secondary:hover {
-      background: rgba(107, 114, 128, 0.2);
-      border-color: #3B82F6;
-      transform: translateY(-2px) scale(1.02);
-    }
-
-    /* Ads Section */
-    .my-ads-page .ads-section {
-      background: #FFFFFF;
-      border-radius: 20px;
-      padding: 32px;
-      border: 1px solid #E5E7EB;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .my-ads-page .ads-section::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, #8B5CF6, #3B82F6, #10B981);
-    }
-
-    .my-ads-page .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 32px;
-    }
-
-    .my-ads-page .section-title {
-      font-size: 24px;
-      font-weight: 800;
-      color: #1F2937;
-      margin: 0;
-      background: linear-gradient(135deg, #1F2937, #4B5563);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .my-ads-page .filter-buttons {
-      display: flex;
-      gap: 4px;
-      background: #F8FAFC;
-      padding: 6px;
-      border-radius: 16px;
-      border: 1px solid #E2E8F0;
-    }
-
-    .my-ads-page .filter-button {
-      padding: 10px 16px;
-      background: transparent;
-      color: #64748B;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      font-size: 14px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .my-ads-page .filter-button.active {
-      background: linear-gradient(135deg, #3B82F6, #1D4ED8);
-      color: #FFFFFF;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-    }
-
-    .my-ads-page .filter-button:hover:not(.active) {
-      background: rgba(59, 130, 246, 0.1);
-      color: #3B82F6;
-      transform: translateY(-1px);
-    }
-
-    /* Ad Cards */
-    .my-ads-page .ads-list {
+    .my-ads-page .ads-grid {
       display: grid;
       gap: 20px;
     }
 
     .my-ads-page .ad-card {
       background: #FFFFFF;
-      border: 2px solid #E5E7EB;
-      border-radius: 20px;
-      overflow: hidden;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-    }
-
-    .my-ads-page .ad-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, #10B981, #059669, #047857);
-      opacity: 0;
-      transition: opacity 0.3s ease;
+      border: 1px solid #E5E7EB;
+      border-radius: 12px;
+      padding: 24px;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
 
     .my-ads-page .ad-card:hover {
       border-color: #3B82F6;
-      transform: translateY(-4px);
-      box-shadow: 0 12px 40px rgba(59, 130, 246, 0.2);
-    }
-
-    .my-ads-page .ad-card:hover::before {
-      opacity: 1;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
     }
 
     .my-ads-page .ad-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 20px 24px;
-      background: linear-gradient(135deg, #F8FAFC, #F1F5F9);
-      border-bottom: 1px solid #E5E7EB;
+      margin-bottom: 16px;
     }
 
-    .my-ads-page .ad-status-badge {
-      padding: 6px 16px;
-      border-radius: 12px;
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .my-ads-page .ad-status-badge::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-      transition: left 0.5s;
-    }
-
-    .my-ads-page .ad-status-badge:hover::before {
-      left: 100%;
-    }
-
-    .my-ads-page .ad-status-badge.ready {
-      background: linear-gradient(135deg, #DCFCE7, #BBF7D0);
-      color: #047857;
-      border: 2px solid #A7F3D0;
-    }
-
-    .my-ads-page .ad-status-badge.pending {
-      background: linear-gradient(135deg, #FEF3C7, #FDE68A);
-      color: #92400E;
-      border: 2px solid #F59E0B;
-    }
-
-    .my-ads-page .ad-status-badge.draft {
-      background: linear-gradient(135deg, #F3F4F6, #E5E7EB);
-      color: #374151;
-      border: 2px solid #9CA3AF;
-    }
-
-    .my-ads-page .ad-status-badge.disabled {
-      background: linear-gradient(135deg, #FEE2E2, #FECACA);
-      color: #991B1B;
-      border: 2px solid #F87171;
-    }
-
-    .my-ads-page .action-button {
-      width: 40px;
-      height: 40px;
+    .my-ads-page .ad-type {
       display: flex;
       align-items: center;
-      justify-content: center;
-      background: rgba(59, 130, 246, 0.1);
-      border: 2px solid #3B82F6;
-      border-radius: 12px;
-      color: #3B82F6;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
     }
 
-    .my-ads-page .action-button:hover {
-      background: #3B82F6;
-      color: #FFFFFF;
-      transform: translateY(-2px) scale(1.1);
-      box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+    .my-ads-page .ad-type.active {
+      background: #DCFCE7;
+      color: #166534;
+    }
+
+    .my-ads-page .ad-type.inactive {
+      background: #FEE2E2;
+      color: #991B1B;
+    }
+
+    .my-ads-page .ad-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .my-ads-page .ad-status.ready {
+      background: #DCFCE7;
+      color: #166534;
+    }
+
+    .my-ads-page .ad-status.pending {
+      background: #FEF3C7;
+      color: #92400E;
+    }
+
+    .my-ads-page .ad-status.draft {
+      background: #F3F4F6;
+      color: #374151;
+    }
+
+    .my-ads-page .ad-status.disabled {
+      background: #FEE2E2;
+      color: #991B1B;
+    }
+
+    .my-ads-page .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .my-ads-page .ad-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .my-ads-page .ad-amount,
+    .my-ads-page .ad-price,
+    .my-ads-page .ad-limits {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .my-ads-page .amount-label,
+    .my-ads-page .price-label,
+    .my-ads-page .limits-label {
+      font-size: 12px;
+      color: #6B7280;
+      font-weight: 500;
+    }
+
+    .my-ads-page .amount-value,
+    .my-ads-page .price-value,
+    .my-ads-page .limits-value {
+      font-size: 14px;
+      color: #1F2937;
+      font-weight: 600;
+    }
+
+    .my-ads-page .ad-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .my-ads-page .no-ads {
+      text-align: center;
+      padding: 48px 24px;
+      background: #FFFFFF;
+      border: 1px solid #E5E7EB;
+      border-radius: 12px;
+    }
+
+    .my-ads-page .no-ads-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .my-ads-page .no-ads svg {
+      color: #9CA3AF;
+    }
+
+    .my-ads-page .no-ads h3 {
+      font-size: 18px;
+      color: #1F2937;
+      margin: 0;
+      font-weight: 600;
+    }
+
+    .my-ads-page .no-ads p {
+      color: #6B7280;
+      margin: 0;
+      font-size: 14px;
     }
 
     .my-ads-page .ad-content {
@@ -1642,5 +1348,9 @@ export class MyAdsComponent implements OnInit, OnDestroy {
   openBlockchainExplorer(transactionId: string): void {
     const url = this.getBlockchainExplorerLink(transactionId);
     window.open(url, '_blank');
+  }
+
+  trackByAdId(index: number, ad: Advertisement): string {
+    return ad.id;
   }
 }
